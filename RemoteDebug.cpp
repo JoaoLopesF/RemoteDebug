@@ -3,10 +3,10 @@
 //
 // Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU)
 // Author: Joao Lopes
-// Tanks: TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
+// Tanks: Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
 //
 // Versions:
-//    - 0.1.0 Beta 1 - August 2016
+//    - 0.9.0 Beta 1 - August 2016
 //
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
@@ -17,11 +17,6 @@
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 
 #include "RemoteDebug.h"
-
-// Depuracao rapida
-
-#define D(x) Serial.print("*Debug: "); Serial.println(x);
-#define DV(x, y) Serial.print("*Debug: "); Serial.print(x); Serial.println(y);
 
 // Telnet server
 

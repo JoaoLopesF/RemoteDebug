@@ -10,7 +10,7 @@
 //
 // Example of use:
 //
-//        if (Debug.ative(Debug.<leve>)) { // <--- This is very important to reduce overheads and work of debug levels
+//        if (Debug.ative(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
 //            Debug.printf("bla bla bla: %d %s\n", number, str);
 //            Debug.println("bla bla bla");
 //        }
@@ -235,7 +235,7 @@ void loop()
 
 #ifndef PRODUCTION // Not in PRODUCTION
 
-    // Debug over telnet
+    // Remote debug over telnet
 
     Debug.handle();
 

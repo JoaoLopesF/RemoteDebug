@@ -42,11 +42,11 @@ Use Print commands like Serial.print over WiFi with any telnet client.
 With debug levels to filter incoming messages
 
 Debug levels:
-    - Verbose
-    - Debug
-    - info
-    - Warnings
-    - Errors
+ - Verbose
+ - Debug
+ - Info
+ - Warnings
+ - Errors
 
   These levels is is in order of priority (minor-> verbose / major-> errors)
 
@@ -59,6 +59,8 @@ Optimized to reduce overheads, including telnet buffer
 ## Wishlist
 - Http page to begin/stop the telnet server
 - Authentications
+
+## Using
 
 - Include in your sketch
   - Required
@@ -93,12 +95,12 @@ Debug.handle();
 ```
 - In any place of you code:
 ```cpp
-if (Debug.ative(Debug.<leve>)) {
+if (Debug.ative(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s\n", number, str); // OR
     Debug.println("bla bla bla");
 }
 ```
-Please not forget to use if Debug.Ative ---> This is very important to reduce overheads and work of debug levels
+Please not forget to use if clause with Debug.Ative ---> This is very important to reduce overheads and work of debug levels
 Please see the samples, basic or advanced, to learn how to use  
 
 ## Thanks
