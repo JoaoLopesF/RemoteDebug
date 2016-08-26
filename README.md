@@ -1,10 +1,6 @@
 #RemoteDebug Library
 
-Author: Joao Lopes
-Versions:
-0.9.0 - Beta 1: First public beta - 08/24/16
-
-## The remote debug solution for ESP8266!
+## The remote debug solution for ESP8266 over telnet connection!
 
 #### This works with the ESP8266 Arduino platform with a recent stable release(2.0.0 or newer) https://github.com/esp8266/Arduino
 
@@ -12,6 +8,7 @@ Versions:
  - [About](#about)
  - [Wishlist](#wishlist)
  - [Using](#using)
+ - [Releases](#releases)
  - [Thanks](#thanks)
 
 ## About
@@ -102,6 +99,10 @@ if (Debug.ative(Debug.<level>)) {
 ```
 Please not forget to use if clause with Debug.Ative ---> This is very important to reduce overheads and work of debug levels
 Please see the samples, basic or advanced, to learn how to use  
+
+## Releases
+#### 0.9
+- First Beta
 
 ## Thanks
 
