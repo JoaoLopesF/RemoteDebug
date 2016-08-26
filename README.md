@@ -98,6 +98,7 @@ if (Debug.ative(Debug.<level>)) {
 }
 ```
 Please not forget to use if clause with Debug.Ative ---> This is very important to reduce overheads and work of debug levels
+
 Please see the samples, basic or advanced, to learn how to use  
 
 ## Releases
