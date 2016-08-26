@@ -97,9 +97,10 @@ if (Debug.ative(Debug.<level>)) {
     Debug.println("bla bla bla");
 }
 ```
-Please not forget to use if clause with Debug.Ative ---> This is very important to reduce overheads and work of debug levels
+ - Please not forget to use if clause with Debug.Ative
+   ---> This is very important to reduce overheads and work of debug levels
 
-Please see the samples, basic or advanced, to learn how to use  
+ - Please see the samples, basic or advanced, to learn how to use  
 
 ## Releases
 #### 0.9
