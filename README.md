@@ -58,7 +58,7 @@ Optimized to reduce overheads, including telnet buffer
 - Authentications
 
 ## How It Looks
-![View of ESP8266 RemoteDebug](http://imgur.com/y75Ip3R)
+![View of ESP8266 RemoteDebug](http://imgur.com/a/td2ZZ)
 
 ## Using
 
