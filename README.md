@@ -57,6 +57,9 @@ Optimized to reduce overheads, including telnet buffer
 - Http page to begin/stop the telnet server
 - Authentications
 
+## How It Looks
+![View of ESP8266 RemoteDebug](http://imgur.com/y75Ip3R)
+
 ## Using
 
 - Include in your sketch
