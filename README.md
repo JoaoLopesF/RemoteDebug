@@ -61,9 +61,10 @@ This Library is NOT have yet authentications, and is ONLY for development NOT to
 - Http page to begin/stop the telnet server
 - Authentications
 
-## How It Looks
+## How it looks
 
-![Imgur](http://i.imgur.com/QiccbmK.png)
+![Imgur]
+(http://i.imgur.com/QiccbmK.png)
 
 ## Using
 
