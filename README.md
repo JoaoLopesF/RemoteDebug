@@ -8,6 +8,7 @@
  - [About](#about)
  - [Wishlist](#wishlist)
  - [Using](#using)
+ - [Know issues](#knowissues)
  - [Releases](#releases)
  - [Thanks](#thanks)
 
@@ -106,14 +107,24 @@ if (Debug.ative(Debug.<level>)) {
     Debug.println("bla bla bla");
 }
 ```
+
+ - You can use mDNS to register each node with different name, it helps to connect without know the IP.
+
  - Please not forget to use if clause with Debug.Ative
    ---> This is very important to reduce overheads and work of debug levels
 
  - Please see the samples, basic or advanced, to learn how to use  
 
+ - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
+
 ## Releases
 #### 0.9
 - First Beta
+
+# Know issues
+
+Sometimes the connection over telnet is slow, turn off/on can be resolve it.
+But I need find why it occurs
 
 ## Thanks
 
