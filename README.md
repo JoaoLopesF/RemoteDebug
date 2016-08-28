@@ -53,12 +53,16 @@ It also allows to run predefined commands in your code, for example, to send sta
 
 Optimized to reduce overheads, including telnet buffer
 
+DISCLAIMER:
+
+This Library is NOT have yet authentications, and is ONLY for development NOT to production!
+
 ## Wishlist
 - Http page to begin/stop the telnet server
 - Authentications
 
 ## How It Looks
-![View of ESP8266 RemoteDebug](http://imgur.com/a/td2ZZ)
+![View of ESP8266 RemoteDebug](http://imgur.com/QiccbmK) 
 
 ## Using
 
