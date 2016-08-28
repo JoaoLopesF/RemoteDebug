@@ -48,6 +48,11 @@ Debug levels:
 
   These levels is is in order of priority (minor-> verbose / major-> errors)
 
+Also have a profiler, that can be turn on in telnet connection or inthe code.
+This show the time between 2 calls of debug.
+Example: One debug message before call of any funcion, and another after
+The time showed in last message, is the time that a function spends to run.
+
 overhead mininum if not client telnet connected.
 
 It also allows to run predefined commands in your code, for example, to send status or perform some routine. All this remotely controlled via telnet.
@@ -108,6 +113,9 @@ if (Debug.ative(Debug.<level>)) {
 }
 ```
 
+ - For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
+ - Please pless enter or any key if you need keep the connection
+ - The default is 5 minutes (You can change it in RemoteDebug.h)  
  - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
  - Please not forget to use if clause with Debug.Ative
