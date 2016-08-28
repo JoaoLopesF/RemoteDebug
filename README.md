@@ -61,6 +61,8 @@ It also allows to run predefined commands in your code, for example, to send sta
 
 Optimized to reduce overheads, including telnet buffer
 
+Also please see my another library: https://github.com/JoaoLopesF/ArduinoUtil
+
 DISCLAIMER:
 
 This Library is NOT have yet authentications, and is **ONLY for development** NOT to production!
