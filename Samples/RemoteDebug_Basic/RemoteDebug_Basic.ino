@@ -31,10 +31,8 @@ RemoteDebug Debug;
 
 // SSID and password
 
-// const char* ssid = "........";
-// const char* password = "........";
-const char* ssid = "KATIAFLORESTA";
-const char* password = "42533097";
+const char* ssid = "........";
+const char* password = "........";
 
 // Host mDNS
 
