@@ -22,13 +22,11 @@ Debug only with Serial not good enough and we usually have several nodes to mana
 and debug the communication between them.
 And the nodes may be in another location.
 
-With this library, you can debug remotely ESP8266 with a client telnet.
+With this library, you can **debug remotely** ESP8266 with a client **telnet**.
 
 Telnet clients:
-      - Telnet: for MacOS and Linux
+      - telnet: native for MacOS and Linux
       - Putty or another: for MS Windows
-
-Debug your devices over a telnet connection!
 
 Very simple and powerful tool for development
 
@@ -39,7 +37,7 @@ Use Print commands like Serial.print over WiFi with any telnet client.
 
 With debug levels to filter incoming messages
 
-Debug levels:
+**Debug levels**:
  - Verbose
  - Debug
  - Info
@@ -48,7 +46,11 @@ Debug levels:
 
   These levels is is in order of priority (minor-> verbose / major-> errors)
 
-Also have a profiler, that can be turn on in telnet connection or inthe code.
+And by the telnet can be setted the debug level,
+after this only messages of this level or greater is showed.
+It is useful to filter important messages.
+
+Also have a **Profiler**, that can be turn on in telnet connection or in the code.
 This show the time between 2 calls of debug.
 Example: One debug message before call of any funcion, and another after
 The time showed in last message, is the time that a function spends to run.
@@ -61,7 +63,8 @@ Optimized to reduce overheads, including telnet buffer
 
 DISCLAIMER:
 
-This Library is NOT have yet authentications, and is ONLY for development NOT to production!
+This Library is NOT have yet authentications, and is **ONLY for development** NOT to production!
+In the future peraps this will supported prodution.
 
 ## Wishlist
 - Http page to begin/stop the telnet server
@@ -131,8 +134,9 @@ if (Debug.ative(Debug.<level>)) {
 
 # Know issues
 
-Sometimes the connection over telnet is slow, turn off/on can be resolve it.
-But I need find why it occurs
+- Sometimes the connection over telnet is slow,
+  reset command in telnet connection or turn off/on can be resolve it.
+  But I need find why it occurs
 
 ## Thanks
 
