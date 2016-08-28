@@ -62,7 +62,8 @@ This Library is NOT have yet authentications, and is ONLY for development NOT to
 - Authentications
 
 ## How It Looks
-![View of ESP8266 RemoteDebug](http://imgur.com/QiccbmK) 
+![View of ESP8266 RemoteDebug]
+(http://imgur.com/QiccbmK) 
 
 ## Using
 
