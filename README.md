@@ -1,6 +1,6 @@
-#RemoteDebug Library
+#RemoteDebug Library for ESP8266
 
-## The remote debug solution over telnet connection for ESP8266!
+## A library to remote debug over telnet connection!
 
 #### This works with the ESP8266 Arduino platform with a recent stable release(2.0.0 or newer) https://github.com/esp8266/Arduino
 
