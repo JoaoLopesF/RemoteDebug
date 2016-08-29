@@ -15,10 +15,10 @@
 #define TELNET_PORT 23
 
 // Maximun time for inactivity (em miliseconds)
-// Default: 5 minutes
+// Default: 10 minutes
 // Comment it if you not want this
 
-#define MAX_TIME_INACTIVE 300000
+#define MAX_TIME_INACTIVE 600000
 
 // Buffered print write to telnet ? (comment if you not wants this)
 

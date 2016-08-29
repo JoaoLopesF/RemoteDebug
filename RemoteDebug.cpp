@@ -374,6 +374,7 @@ void RemoteDebug::showHelp() {
     telnetClient.println("******************************************************");
     telnetClient.println("* Commands:");
     telnetClient.println("    ? or help -> display these help of commands");
+    telnetClient.println("    q -> quit (close this connection)");
     telnetClient.println("    m -> display memory available");
     telnetClient.println("    v -> set debug level to verbose");
     telnetClient.println("    d -> set debug level to debug");
@@ -426,6 +427,14 @@ void RemoteDebug::processCommand() {
         // Show help
 
         showHelp();
+
+    } else if (_command == "q") {
+
+        // Quit
+
+        telnetClient.println("* Closing telnet connection ...");
+
+        telnetClient.stop();
 
     } else if (_command == "m") {
 
@@ -498,7 +507,18 @@ void RemoteDebug::processCommand() {
 
     } else if (_command == "reset" && _resetCommandEnabled) {
 
+        telnetClient.println("* Reset ...");
+
+        telnetClient.println("* Closing telnet connection ...");
+
         telnetClient.println("* Resetting the ESP8266 ...");
+
+        telnetClient.stop();
+        telnetServer.stop();
+
+        delay (500);
+
+        // Reset
 
         ESP.reset();
 
