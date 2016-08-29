@@ -129,7 +129,7 @@ if (Debug.ative(Debug.<level>)) {
 if (Debug.ative(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s\n", data.c_str()); // Note: if type is String need c_str()
 } else if (Debug.ative(Debug.DEBUG)) { // Debug message short
-    Debug.printf("routine: data received: %.20s ...\n", data.c_str());
+    Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str());
 }
 ```
 
