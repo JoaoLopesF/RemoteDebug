@@ -132,6 +132,15 @@ if (Debug.ative(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
 ```
+- An example of use debug with serial enabled
+  Useful to see messages if setup or
+  in cause the ESP8266 is rebooting (telnet connection stop before received all messages)
+  Only for this purposes I suggest it
+```
+// Setup after Debug.begin
+Debug.setSerialEnabled(true);
+// All messages too send to serial too, and can be see in serial monitor
+```
 
  - For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
  - Please pless enter or any key if you need keep the connection
