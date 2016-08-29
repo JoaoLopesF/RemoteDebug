@@ -116,17 +116,19 @@ Debug.handle();
 ```cpp
 if (Debug.ative(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s\n", number, str); // OR
-    Debug.println("bla bla bla");
+    Debug.printf("bla bla bla: %d %s\n", number, str.c_str()); // Note: if type is String need c_str() // OR
+    Debug.println("bla bla bla 2 ln");
+    // Note: too show floats with printf, You can use my ArduinoUtil library
+    Debug.printf("float: %f\n", value); // Not works !
+    Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
 ```
 - An example of use debug levels: (supposing the data is a lot of characteres)
 ```cpp
 if (Debug.ative(Debug.VERBOSE)) { // Debug message long
-    Debug.printf("routine: data received: %s\n", data.c_str());
+    Debug.printf("routine: data received: %s\n", data.c_str()); // Note: if type is String need c_str()
 } else if (Debug.ative(Debug.DEBUG)) { // Debug message short
-    String debug = data.substring(0, 20);
-    debug.concat(" ...");
-    Debug.printf("routine: data received: %s\n", debug.c_str());
+    Debug.printf("routine: data received: %.20s ...\n", data.c_str());
 }
 ```
 
