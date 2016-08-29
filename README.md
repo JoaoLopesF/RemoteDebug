@@ -119,6 +119,16 @@ if (Debug.ative(Debug.<level>)) {
     Debug.println("bla bla bla");
 }
 ```
+- An example of use debug levels: (supposing the data is a lot of characteres)
+```cpp
+if (Debug.ative(Debug.VERBOSE)) { // Debug message long
+    Debug.printf("routine: data received: %s\n", data.c_str());
+} else if (Debug.ative(Debug.DEBUG)) { // Debug message short
+    String debug = data.substring(0, 20);
+    debug.concat(" ...");
+    Debug.printf("routine: data received: %s\n", debug.c_str());
+}
+```
 
  - For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
  - Please pless enter or any key if you need keep the connection
