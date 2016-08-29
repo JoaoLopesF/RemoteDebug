@@ -97,6 +97,8 @@ RemoteDebug Debug;
 // Initialize the telnet server of RemoteDebug
 
 Debug.begin("Telnet_HostName"); // Initiaze the telnet server
+// OR
+Debug.begin(HOST_NAME); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
 
 Debug.setResetCmdEnabled(true); // Enable the reset command
 //Debug.showTime(true); // To show time
