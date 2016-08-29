@@ -118,7 +118,7 @@ if (Debug.ative(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s\n", number, str); // OR
     Debug.printf("bla bla bla: %d %s\n", number, str.c_str()); // Note: if type is String need c_str() // OR
     Debug.println("bla bla bla 2 ln");
-    // Note: too show floats with printf, You can use my ArduinoUtil library
+    // Note: to show floats with printf, You can use my ArduinoUtil library
     Debug.printf("float: %f\n", value); // Not works !
     Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
