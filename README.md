@@ -142,4 +142,8 @@ if (Debug.ative(Debug.<level>)) {
 
 ## Thanks
 
-Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
+First thanks a lot for Igrr for bring to us the Arduino ESP8266.
+
+Resources:
+
+- Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
