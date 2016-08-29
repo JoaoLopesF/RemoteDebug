@@ -96,7 +96,7 @@ RemoteDebug Debug;
 ```cpp
 // Initialize the telnet server of RemoteDebug
 
-Debug.begin(); // Initiaze the telnet server
+Debug.begin("Telnet_HostName"); // Initiaze the telnet server
 
 Debug.setResetCmdEnabled(true); // Enable the reset command
 //Debug.showTime(true); // To show time
