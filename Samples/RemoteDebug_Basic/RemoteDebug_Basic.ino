@@ -93,7 +93,7 @@ void setup() {
 
     // Initialize the telnet server of RemoteDebug
 
-    Debug.begin(); // Initiaze the telnet server
+    Debug.begin(HOST_NAME); // Initiaze the telnet server
 
     Debug.setResetCmdEnabled(true); // Enable the reset command
 
