@@ -120,7 +120,7 @@ if (Debug.ative(Debug.<level>)) {
     Debug.println("bla bla bla 2 ln");
     // Note: to show floats with printf,
     // you can use my ArduinoUtil library -> https://github.com/JoaoLopesF/ArduinoUtil
-    Debug.printf("float: %f\n", value); // Not works !
+    Debug.printf("float: %f\n", value); // Not works :-(
     Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
 ```
@@ -129,7 +129,7 @@ if (Debug.ative(Debug.<level>)) {
 if (Debug.ative(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s\n", data.c_str()); // Note: if type is String need c_str()
 } else if (Debug.ative(Debug.DEBUG)) { // Debug message short
-    Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str());
+    Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
 ```
 
