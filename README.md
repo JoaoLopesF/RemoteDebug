@@ -2,6 +2,8 @@
 
 ## A library to remote debug over telnet connection!
 
+## Telnet Server for alternative of Serial Monitor
+
 #### This works with the ESP8266 Arduino platform with a recent stable release(2.0.0 or newer) https://github.com/esp8266/Arduino
 
 ## Contents
@@ -26,7 +28,7 @@ With this library, you can **debug remotely** ESP8266 with a client **telnet**.
 
 Telnet clients:
       - telnet: native for MacOS and Linux
-      - Putty or another: for MS Windows
+      - telnet or Putty or another: for MS Windows
 
 Very simple and powerful tool for development
 
