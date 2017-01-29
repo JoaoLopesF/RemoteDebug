@@ -184,7 +184,7 @@ void RemoteDebug::showProfiler(boolean show, uint32_t minTime) {
 // Show debug level
 
 void RemoteDebug::showDebugLevel(boolean show) {
-    _showProfiler = show;
+    _showDebugLevel = show;
 }
 
 // Show colors
