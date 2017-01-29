@@ -290,7 +290,7 @@ void processCmdRemoteDebug() {
         return;
     }
 
-    if (Debug.getLastCommand() = "bench1") {
+    if (Debug.getLastCommand() == "bench1") {
 
         // Benchmark 1 - Printf
 
