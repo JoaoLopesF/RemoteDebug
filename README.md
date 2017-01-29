@@ -51,7 +51,8 @@ after this only messages of this level or greater is showed.
 It is useful to filter important messages.
 
 Also have a **Profiler**, that can be turn on in telnet connection or in the code.
-This show the time between 2 calls of debug.
+This show the time between 2 calls of debug. And show the time in diferent colors,
+according to the elapsed time
 Example: One debug message before call of any funcion, and another after
 The time showed in last message, is the time that a function spends to run.
 
@@ -62,6 +63,23 @@ It also allows to run predefined commands in your code, for example, to send sta
 Optimized to reduce overheads, including telnet buffer
 
 Also please see my another library: https://github.com/JoaoLopesF/ArduinoUtil
+
+ATTENTION:
+
+Attention! In beta versions, the isActive method was misspelled,
+Please when upgrading from a beta to the current one, please review your code.
+
+From:
+
+```cpp
+if (Debug.ative(Debug.<level>)) ....
+```
+
+To:
+
+```cpp
+if (Debug.isActive(Debug.<level>)) ....
+```
 
 DISCLAIMER:
 
@@ -76,6 +94,9 @@ In the future peraps this will supported prodution.
 
 ![Imgur]
 (http://i.imgur.com/QiccbmK.png)
+
+Youtube:
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
 ## Using
 
@@ -114,7 +135,7 @@ Debug.handle();
 ```
 - In any place of you code:
 ```cpp
-if (Debug.ative(Debug.<level>)) {
+if (Debug.isActive(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s\n", number, str); // OR
     Debug.printf("bla bla bla: %d %s\n", number, str.c_str()); // Note: if type is String need c_str() // OR
     Debug.println("bla bla bla 2 ln");
@@ -126,9 +147,9 @@ if (Debug.ative(Debug.<level>)) {
 ```
 - An example of use debug levels: (supposing the data is a lot of characteres)
 ```cpp
-if (Debug.ative(Debug.VERBOSE)) { // Debug message long
+if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s\n", data.c_str()); // Note: if type is String need c_str()
-} else if (Debug.ative(Debug.DEBUG)) { // Debug message short
+} else if (Debug.isActive(Debug.DEBUG)) { // Debug message short
     Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
 ```
@@ -147,7 +168,7 @@ Debug.setSerialEnabled(true);
  - The default is 5 minutes (You can change it in RemoteDebug.h)  
  - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
- - Please not forget to use if clause with Debug.Ative
+ - Please not forget to use if clause with Debug.isActive
    ---> This is very important to reduce overheads and work of debug levels
 
  - Please see the samples, basic or advanced, to learn how to use  

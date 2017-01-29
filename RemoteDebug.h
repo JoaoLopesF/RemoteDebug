@@ -83,7 +83,7 @@ class RemoteDebug: public Print
 	void setFilter(String filter);
 	void setNoFilter();
 
-	boolean active(uint8_t debugLevel = DEBUG);
+	boolean isActive(uint8_t debugLevel = DEBUG);
 
 	// Print
 

@@ -10,7 +10,7 @@
 //
 // Example of use:
 //
-//        if (Debug.active(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
+//        if (Debug.isActive(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
 //            Debug.printf("bla bla bla: %d %s\n", number, str);
 //            Debug.println("bla bla bla");
 //        }
@@ -21,9 +21,10 @@
 // Libraries
 
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
-#include <ESP8266WebServer.h>
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
+
+//#include <ESP8266WebServer.h> // Discomment if you need web server`
 
 // These libraries is a suggestion to ESP8266.
 // WiFiManager is excellent for mine
@@ -42,9 +43,8 @@
 
 //#define PRODUCTION true
 
-// HTTP Web server
-
-ESP8266WebServer HTTPServer(80);
+// HTTP Web server - if you need this
+// ESP8266WebServer HTTPServer(80);
 
 // Remote debug over telnet - not recommended for production, only for development
 // I put it to show how to do code clean to development and production
@@ -59,7 +59,7 @@ RemoteDebug Debug;
 
 // Host name
 
-#define HOST_NAME "rem-debug"
+#define HOST_NAME "rem-debug" // PLEASE CHANGE IT
 
 // Time
 
@@ -108,12 +108,13 @@ void setup() {
     MDNS.addService("telnet", "tcp", 23); // Telnet server RemoteDebug
 
     // HTTP web server
-
-    HTTPServer.on("/", handleRoot);
-
-    HTTPServer.onNotFound(handleNotFound);
-
-    HTTPServer.begin();
+    // Discomment if you need this
+    //
+    // HTTPServer.on("/", handleRoot);
+    //
+    // HTTPServer.onNotFound(handleNotFound);
+    //
+    // HTTPServer.begin();
 
 #ifndef PRODUCTION // Not in PRODUCTION
     Serial.println("* HTTP server started");
@@ -128,8 +129,11 @@ void setup() {
 
     //Debug.showDebugLevel(false); // To not show debug levels
     //Debug.showTime(true); // To show time
-    // Debug.showProfiler(true); // To show profiler - time between messages of Debug
-                                 // Good to "begin ...." and "end ...." messages
+    //Debug.showProfiler(true); // To show profiler - time between messages of Debug
+                                // Good to "begin ...." and "end ...." messages
+
+    Debug.showProfiler(true); // Profiler
+    Debug.showColors(true); // Colors
 
     // Debug.setSerialEnabled(true); // if you wants serial echo - only recommended if ESP8266 is plugged in USB
 
@@ -183,7 +187,7 @@ void loop()
 
         // Debug the time (verbose level)
 
-        if (Debug.active(Debug.VERBOSE)) {
+        if (Debug.isActive(Debug.VERBOSE)) {
             Debug.printf("* Time: %u seconds (VERBOSE)\n",mTimeSeconds);
         }
 
@@ -191,19 +195,19 @@ void loop()
 
             // Debug levels
 
-            if (Debug.active(Debug.VERBOSE)) {
+            if (Debug.isActive(Debug.VERBOSE)) {
                 Debug.println("* This is a message of debug level VERBOSE");
             }
-            if (Debug.active(Debug.DEBUG)) {
+            if (Debug.isActive(Debug.DEBUG)) {
                 Debug.println("* This is a message of debug level DEBUG");
             }
-            if (Debug.active(Debug.INFO)) {
+            if (Debug.isActive(Debug.INFO)) {
                 Debug.println("* This is a message of debug level INFO");
             }
-            if (Debug.active(Debug.WARNING)) {
+            if (Debug.isActive(Debug.WARNING)) {
                 Debug.println("* This is a message of debug level WARNING");
             }
-            if (Debug.active(Debug.ERROR)) {
+            if (Debug.isActive(Debug.ERROR)) {
                 Debug.println("* This is a message of debug level ERROR");
             }
         }
@@ -213,7 +217,7 @@ void loop()
     ////// Services on Wifi
 
 // #ifndef PRODUCTION // Not in PRODUCTION
-//     if (Debug.active(Debug.DEBUG) && mTimesProfServices > 0) {
+//     if (Debug.isActive(Debug.DEBUG) && mTimesProfServices > 0) {
 //         mTimesProfServices--;
 //         Debug.println("* Begin services");
 //     }
@@ -224,14 +228,15 @@ void loop()
     ArduinoOTA.handle();
 
 // #ifndef PRODUCTION // Not in PRODUCTION
-//     if (Debug.active(Debug.DEBUG) && mTimesProfServices > 0) {
+//     if (Debug.isActive(Debug.DEBUG) && mTimesProfServices > 0) {
 //         Debug.println("* After OTA");
 //     }
 // #endif
 
     //// Web server
-
-    HTTPServer.handleClient();
+    // Discomment if you need this
+    //
+    // HTTPServer.handleClient();
 
 #ifndef PRODUCTION // Not in PRODUCTION
 
@@ -239,7 +244,7 @@ void loop()
 
     Debug.handle();
 
-    // if (Debug.active(Debug.DEBUG) && mTimesProfServices > 0) {
+    // if (Debug.isActive(Debug.DEBUG) && mTimesProfServices > 0) {
     //     Debug.println("* After Debug - finished services");
     // }
 
@@ -255,13 +260,13 @@ void loop()
 
     uint32_t time = (millis() - timeBeginLoop);
 
-    if (time > 50) {
-        if (Debug.active(Debug.INFO)) {
+    if (time > 100) {
+        if (Debug.isActive(Debug.INFO)) {
             Debug.printf("* Time elapsed for the loop: %u ms.\n", time);
         }
         Serial.printf("* Time elapsed for the loop: %u ms.\n", time);
-    } else if (time > 100) {
-        if (Debug.active(Debug.WARNING)) {
+    } else if (time > 200) {
+        if (Debug.isActive(Debug.WARNING)) {
             Debug.printf("* Time elapsed for the loop: %u ms.\n", time);
         }
         Serial.printf("* Time elapsed for the loop: %u ms.\n", time);
@@ -278,8 +283,8 @@ void processCmdRemoteDebug() {
     Serial.print("command -> ");
     Serial.println(Debug.getLastCommand());
 
-    if (!Debug.active(Debug.DEBUG)) { // Only for debug level
-        if (!Debug.active(Debug.ERROR)) {
+    if (!Debug.isActive(Debug.DEBUG)) { // Only for debug level
+        if (!Debug.isActive(Debug.ERROR)) {
             Debug.println("* Please set debug level to debug before (command d)");
         }
         return;
@@ -289,7 +294,7 @@ void processCmdRemoteDebug() {
 
         // Benchmark 1 - Printf
 
-        if (Debug.active(Debug.DEBUG)) {
+        if (Debug.isActive(Debug.DEBUG)) {
             Debug.println("* Benchmark 1 - Printf");
         }
 
@@ -297,12 +302,12 @@ void processCmdRemoteDebug() {
         uint8_t times = 50;
 
         for (uint8_t i=1;i<=times;i++) {
-            if (Debug.active(Debug.DEBUG)) {
+            if (Debug.isActive(Debug.DEBUG)) {
                 Debug.printf("%u - 1234567890\n", i);
             }
         }
 
-        if (Debug.active(Debug.DEBUG)) {
+        if (Debug.isActive(Debug.DEBUG)) {
             Debug.printf("* Time elapsed for %u printf: %u ms.\n", times, (millis() - timeBegin));
         }
 
@@ -310,7 +315,7 @@ void processCmdRemoteDebug() {
 
             // Benchmark 2 - Print/println
 
-            if (Debug.active(Debug.DEBUG)) {
+            if (Debug.isActive(Debug.DEBUG)) {
                 Debug.println("* Benchmark 2 - Print/Println");
             }
 
@@ -318,13 +323,13 @@ void processCmdRemoteDebug() {
             uint8_t times = 50;
 
             for (uint8_t i=1;i<=times;i++) {
-                if (Debug.active(Debug.DEBUG)) {
+                if (Debug.isActive(Debug.DEBUG)) {
                     Debug.print(i);
                     Debug.println(" - 1234567890");
                 }
             }
 
-            if (Debug.active(Debug.DEBUG)) {
+            if (Debug.isActive(Debug.DEBUG)) {
                 Debug.printf("* Time elapsed for %u printf: %u ms.\n", times, (millis() - timeBegin));
             }
 
@@ -390,31 +395,34 @@ void initializeOTA() {
     ArduinoOTA.begin();
 
 }
+
+
 /////////// Handles
-
-void handleRoot() {
-
-    // Root web page
-
-    HTTPServer.send(200, "text/plain", "hello from esp8266 - RemoteDebug Sample!");
-}
-
-void handleNotFound(){
-
-    // Page not Found
-
-    String message = "File Not Found\n\n";
-    message.concat("URI: ");
-    message.concat(HTTPServer.uri());
-    message.concat("\nMethod: ");
-    message.concat((HTTPServer.method() == HTTP_GET)?"GET":"POST");
-    message.concat("\nArguments: ");
-    message.concat(HTTPServer.args());
-    message.concat("\n");
-    for (uint8_t i=0; i<HTTPServer.args(); i++){
-        message.concat(" " + HTTPServer.argName(i) + ": " + HTTPServer.arg(i) + "\n");
-    }
-    HTTPServer.send(404, "text/plain", message);
-}
+// Discomment if you need this
+//
+// void handleRoot() {
+//
+//     // Root web page
+//
+//     HTTPServer.send(200, "text/plain", "hello from esp8266 - RemoteDebug Sample!");
+// }
+//
+// void handleNotFound(){
+//
+//     // Page not Found
+//
+//     String message = "File Not Found\n\n";
+//     message.concat("URI: ");
+//     message.concat(HTTPServer.uri());
+//     message.concat("\nMethod: ");
+//     message.concat((HTTPServer.method() == HTTP_GET)?"GET":"POST");
+//     message.concat("\nArguments: ");
+//     message.concat(HTTPServer.args());
+//     message.concat("\n");
+//     for (uint8_t i=0; i<HTTPServer.args(); i++){
+//         message.concat(" " + HTTPServer.argName(i) + ": " + HTTPServer.arg(i) + "\n");
+//     }
+//     HTTPServer.send(404, "text/plain", message);
+// }
 
 /////////// End

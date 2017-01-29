@@ -10,7 +10,7 @@
 //
 // Example of use:
 //
-//        if (Debug.active(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
+//        if (Debug.isActive(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
 //            Debug.printf("bla bla bla: %d %s\n", number, str);
 //            Debug.println("bla bla bla");
 //        }
@@ -137,7 +137,7 @@ void loop()
 
         // Debug the time (verbose level)
 
-        if (Debug.active(Debug.VERBOSE)) {
+        if (Debug.isActive(Debug.VERBOSE)) {
             Debug.printf("* Time: %u seconds (VERBOSE)\n", mTimeSeconds);
         }
 
@@ -145,19 +145,19 @@ void loop()
 
             // Debug levels
 
-            if (Debug.active(Debug.VERBOSE)) {
+            if (Debug.isActive(Debug.VERBOSE)) {
                 Debug.println("* This is a message of debug level VERBOSE");
             }
-            if (Debug.active(Debug.DEBUG)) {
+            if (Debug.isActive(Debug.DEBUG)) {
                 Debug.println("* This is a message of debug level DEBUG");
             }
-            if (Debug.active(Debug.INFO)) {
+            if (Debug.isActive(Debug.INFO)) {
                 Debug.println("* This is a message of debug level INFO");
             }
-            if (Debug.active(Debug.WARNING)) {
+            if (Debug.isActive(Debug.WARNING)) {
                 Debug.println("* This is a message of debug level WARNING");
             }
-            if (Debug.active(Debug.ERROR)) {
+            if (Debug.isActive(Debug.ERROR)) {
                 Debug.println("* This is a message of debug level ERROR");
             }
         }

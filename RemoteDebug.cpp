@@ -8,12 +8,13 @@
 // Versions:
 //    - 0.9.0 Beta 1 - August 2016
 //    - 0.9.1 Beta 2 - Octuber 2016
+//    - 1.0.0 RC - January 2017
 //
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
 ///////
 
-#define VERSION "0.9.1"
+#define VERSION "1.0.0"
 
 #include <Arduino.h>
 
@@ -194,7 +195,7 @@ void RemoteDebug::showColors(boolean show) {
 
 // Is active ? client telnet connected and level of debug equal or greater then setted by user in telnet
 
-boolean RemoteDebug::active(uint8_t debugLevel) {
+boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
     // Active -> Debug level ok and
     //           Telnet connected or
@@ -331,7 +332,7 @@ size_t RemoteDebug::write(uint8_t character) {
 
     if (character == '\n') {
 
-        bufferPrint.concat('\r'); // Para clientes windows - 29/01/17
+        bufferPrint.concat("\r"); // Para clientes windows - 29/01/17
 
         _newLine = true;
         doPrint = true;
@@ -341,7 +342,7 @@ size_t RemoteDebug::write(uint8_t character) {
         doPrint = true;
 
     }
-a
+
     // Write to telnet Buffered
 
     bufferPrint.concat((char)character);
@@ -396,52 +397,52 @@ void RemoteDebug::showHelp() {
 
     help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
     help.concat(VERSION);
-    help.concat("\n");
+    help.concat("\r\n");
     help.concat("* Host name: ");
     help.concat(_hostName);
     help.concat(" IP:");
     help.concat(WiFi.localIP().toString());
     help.concat(" Mac address:");
     help.concat(WiFi.macAddress());
-    help.concat("\n");
+    help.concat("\r\n");
     help.concat("* Free Heap RAM: ");
     help.concat(ESP.getFreeHeap());
-    help.concat("\n");
-    help.concat("******************************************************\n");
-    help.concat("* Commands:\n");
-    help.concat("    ? or help -> display these help of commands\n");
-    help.concat("    q -> quit (close this connection)\n");
-    help.concat("    m -> display memory available\n");
-    help.concat("    v -> set debug level to verbose\n");
-    help.concat("    d -> set debug level to debug\n");
-    help.concat("    i -> set debug level to info\n");
-    help.concat("    w -> set debug level to warning\n");
-    help.concat("    e -> set debug level to errors\n");
-    help.concat("    l -> show debug level\n");
-    help.concat("    t -> show time (millis)\n");
-    help.concat("    profiler:\n");
-    help.concat("      p       -> show time between actual and last message (in millis)\n");
-    help.concat("      p min   -> show only if time is this minimal\n");
-    help.concat("    c -> show colors\n");
-    help.concat("    filter:\n");
-    help.concat("          filter <string> -> show only debugs with this\n");
-    help.concat("          nofilter        -> disable the filter\n");
+    help.concat("\r\n");
+    help.concat("******************************************************\r\n");
+    help.concat("* Commands:\r\n");
+    help.concat("    ? or help -> display these help of commands\r\n");
+    help.concat("    q -> quit (close this connection)\r\n");
+    help.concat("    m -> display memory available\r\n");
+    help.concat("    v -> set debug level to verbose\r\n");
+    help.concat("    d -> set debug level to debug\r\n");
+    help.concat("    i -> set debug level to info\r\n");
+    help.concat("    w -> set debug level to warning\r\n");
+    help.concat("    e -> set debug level to errors\r\n");
+    help.concat("    l -> show debug level\r\n");
+    help.concat("    t -> show time (millis)\r\n");
+    help.concat("    profiler:\r\n");
+    help.concat("      p       -> show time between actual and last message (in millis)\r\n");
+    help.concat("      p min   -> show only if time is this minimal\r\n");
+    help.concat("    c -> show colors\r\n");
+    help.concat("    filter:\r\n");
+    help.concat("          filter <string> -> show only debugs with this\r\n");
+    help.concat("          nofilter        -> disable the filter\r\n");
     if (_resetCommandEnabled) {
-        help.concat("    reset -> reset the ESP8266\n");
+        help.concat("    reset -> reset the ESP8266\r\n");
     }
 
     if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
-        help.concat("\n");
-        help.concat("    * Project commands:\n");
-        String show = "\n";
+        help.concat("\r\n");
+        help.concat("    * Project commands:\r\n");
+        String show = "\r\n";
         show.concat(_helpProjectCmds);
         show.replace("\n", "\n    "); // ident this
         help.concat(show);
     }
 
-    help.concat("\n");
-    help.concat("* Please type the command and press enter to execute.(? or h for this help)\n");
-    help.concat("***\n");
+    help.concat("\r\n");
+    help.concat("* Please type the command and press enter to execute.(? or h for this help)\r\n");
+    help.concat("***\r\n");
 
     telnetClient.print(help);
 }
@@ -538,7 +539,7 @@ void RemoteDebug::processCommand() {
 
         _showDebugLevel = !_showDebugLevel;
 
-        telnetClient.printf("* Show debug level: %s\n", (_showDebugLevel)?"On":"Off");
+        telnetClient.printf("* Show debug level: %s\r\n", (_showDebugLevel)?"On":"Off");
 
     } else if (_command == "t") {
 
@@ -546,7 +547,7 @@ void RemoteDebug::processCommand() {
 
         _showTime = !_showTime;
 
-        telnetClient.printf("* Show time: %s\n", (_showTime)?"On":"Off");
+        telnetClient.printf("* Show time: %s\r\n", (_showTime)?"On":"Off");
 
     } else if (_command == "p") {
 
@@ -555,7 +556,7 @@ void RemoteDebug::processCommand() {
         _showProfiler = !_showProfiler;
         _minTimeShowProfiler = 0;
 
-        telnetClient.printf("* Show profiler: %s\n", (_showProfiler)?"On":"Off");
+        telnetClient.printf("* Show profiler: %s\r\n", (_showProfiler)?"On":"Off");
 
     } else if (_command.startsWith("p ")) {
 
@@ -566,7 +567,7 @@ void RemoteDebug::processCommand() {
             if (aux > 0) { // Valid number
                 _showProfiler = true;
                 _minTimeShowProfiler = aux;
-                telnetClient.printf("* Show profiler: On (with minimal time: %u)\n", _minTimeShowProfiler);
+                telnetClient.printf("* Show profiler: On (with minimal time: %u)\r\n", _minTimeShowProfiler);
             }
         }
 
@@ -576,7 +577,7 @@ void RemoteDebug::processCommand() {
 
         _showColors = !_showColors;
 
-        telnetClient.printf("* Show colors: %s\n", (_showColors)?"On":"Off");
+        telnetClient.printf("* Show colors: %s\r\n", (_showColors)?"On":"Off");
 
     } else if (_command.startsWith("filter ") && options.length() > 0) {
 
