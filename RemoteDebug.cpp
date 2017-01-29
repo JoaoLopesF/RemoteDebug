@@ -7,10 +7,13 @@
 //
 // Versions:
 //    - 0.9.0 Beta 1 - August 2016
+//    - 0.9.1 Beta 2 - Octuber 2016
 //
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
 ///////
+
+#define VERSION "0.9.1"
 
 #include <Arduino.h>
 
@@ -23,13 +26,10 @@
 WiFiServer telnetServer(TELNET_PORT);
 WiFiClient telnetClient;
 
-#ifdef BUFFER_PRINT
-
 // Buffer of print write to telnet
 
 String bufferPrint = "";
 
-#endif
 // Initialize the telnet server
 
 void RemoteDebug::begin (String hostName) {
@@ -39,10 +39,9 @@ void RemoteDebug::begin (String hostName) {
     telnetServer.begin();
     telnetServer.setNoDelay(true);
 
-#ifdef BUFFER_PRINT
-    // Reserv space to buffer of print writes
+    // Reserve space to buffer of print writes
+
     bufferPrint.reserve(BUFFER_PRINT);
-#endif
 
     // Host name of this device
 
@@ -103,7 +102,7 @@ void RemoteDebug::handle() {
       }
     }
 
-    // Is client connected ? (to reduce overhead in isAtive)
+    // Is client connected ? (to reduce overhead in active)
 
     _connected = (telnetClient && telnetClient.connected());
 
@@ -176,8 +175,9 @@ void RemoteDebug::showTime(boolean show) {
 
 // Show profiler - time in millis between messages of debug
 
-void RemoteDebug::showProfiler(boolean show) {
+void RemoteDebug::showProfiler(boolean show, uint32_t minTime) {
     _showProfiler = show;
+    _minTimeShowProfiler = minTime;
 }
 
 // Show debug level
@@ -186,13 +186,19 @@ void RemoteDebug::showDebugLevel(boolean show) {
     _showProfiler = show;
 }
 
-// Is ative ? client telnet connected and level of debug equal or greater then setted by user in telnet
+// Show colors
 
-boolean RemoteDebug::ative(uint8_t debugLevel) {
+void RemoteDebug::showColors(boolean show) {
+    _showColors = show;
+}
 
-    // Ative -> Debug level ok and
-    //          Telnet connected or
-    //          Serial enabled (not recommended)
+// Is active ? client telnet connected and level of debug equal or greater then setted by user in telnet
+
+boolean RemoteDebug::active(uint8_t debugLevel) {
+
+    // Active -> Debug level ok and
+    //           Telnet connected or
+    //           Serial enabled (not recommended)
 
     boolean ret = (debugLevel >= _clientDebugLevel &&
                     (_connected || _serialEnabled));
@@ -224,6 +230,7 @@ void RemoteDebug::setCallBackProjectCmds(void (*callback)()) {
 size_t RemoteDebug::write(uint8_t character) {
 
     static uint32_t lastTime = millis();
+    static uint32_t elapsed = 0;
 
     // New line writted before ?
 
@@ -234,12 +241,25 @@ size_t RemoteDebug::write(uint8_t character) {
         // Show debug level
 
         if (_showDebugLevel) {
-            switch (_lastDebugLevel) {
-                case VERBOSE:   show = "v"; break;
-                case DEBUG:     show = "d"; break;
-                case INFO:      show = "i"; break;
-                case WARNING:   show = "w"; break;
-                case ERROR:     show = "e"; break;
+            if (_showColors == false) {
+                switch (_lastDebugLevel) {
+                    case VERBOSE:   show = "v"; break;
+                    case DEBUG:     show = "d"; break;
+                    case INFO:      show = "i"; break;
+                    case WARNING:   show = "w"; break;
+                    case ERROR:     show = "e"; break;
+                }
+            } else {
+                switch (_lastDebugLevel) {
+                    case VERBOSE:   show = "v"; break;
+                    case DEBUG:     show = COLOR_BACKGROUND_GREEN; show.concat("d"); break;
+                    case INFO:      show = COLOR_BACKGROUND_WHITE; show.concat("i"); break;
+                    case WARNING:   show = COLOR_BACKGROUND_YELLOW; show.concat("w"); break;
+                    case ERROR:     show = COLOR_BACKGROUND_RED; show.concat("e"); break;
+                }
+                if (show.length() > 1) {
+                    show.concat(COLOR_RESET);
+                }
             }
         }
 
@@ -256,11 +276,33 @@ size_t RemoteDebug::write(uint8_t character) {
         // Show profiler (time between messages)
 
         if (_showProfiler) {
+            elapsed = (millis() - lastTime);
+            boolean resetColors = false;
             if (show != "")
                 show.concat (" ");
+            if (_showColors) {
+                if (elapsed < 250) {
+                    ; // not color this
+                } else if (elapsed < 1000) {
+                    show.concat(COLOR_BACKGROUND_CYAN);
+                    resetColors = true;
+                } else if (elapsed < 3000) {
+                    show.concat (COLOR_BACKGROUND_YELLOW);
+                    resetColors = true;
+                } else if (elapsed < 3000) {
+                    show.concat (COLOR_BACKGROUND_MAGENTA);
+                    resetColors = true;
+                } else {
+                    show.concat (COLOR_BACKGROUND_RED);
+                    resetColors = true;
+                }
+            }
             show.concat("p:^");
-            show.concat (formatNumber((millis() - lastTime), 4));
+            show.concat (formatNumber(elapsed, 4));
             show.concat ("ms");
+            if (resetColors) {
+                show.concat(COLOR_RESET);
+            }
             lastTime = millis();
         }
 
@@ -270,87 +312,74 @@ size_t RemoteDebug::write(uint8_t character) {
             send.concat(show);
             send.concat(") ");
 
-#ifndef BUFFER_PRINT
-
-            // Write not Buffered
-
-            if (_connected) {  // send data to Client
-                telnetClient.print(send);
-            }
-
-            if (_serialEnabled) { // Echo to serial
-                Serial.print(send);
-            }
-
-#else
             // Write to telnet buffered
 
             if (_connected || _serialEnabled) {  // send data to Client
                 bufferPrint = send;
             }
-#endif
         }
 
         _newLine = false;
 
     }
 
-    // Send the character by print.h
+    // Print ?
 
-#ifndef BUFFER_PRINT
-
-    // Write not Buffered
-
-    if (_connected) {  // send data to Client
-        telnetClient.write(character);
-    }
-
-    if (_serialEnabled) { // Echo to serial
-        Serial.write(character);
-    }
-
-#else
-
-    // Write to telnet Buffered
-
-    bufferPrint.concat((char)character);
-
-    if (character != '\n' &&
-        bufferPrint.length() == BUFFER_PRINT) { // Limit of buffer
-
-        if (_connected) {  // send data to Client
-            telnetClient.print(bufferPrint);
-        }
-
-        if (_serialEnabled) { // Echo to serial
-            Serial.print(bufferPrint);
-        }
-
-        bufferPrint = "";
-    }
-#endif
+    boolean doPrint = false;
 
     // New line ?
 
     if (character == '\n') {
 
+        bufferPrint.concat('\r'); // Para clientes windows - 29/01/17
+
         _newLine = true;
+        doPrint = true;
 
-#ifdef BUFFER_PRINT
+    } else if (bufferPrint.length() == BUFFER_PRINT) { // Limit of buffer
 
-        // Write to telnet Buffered
+        doPrint = true;
 
-        if (_connected) {  // send data to Client
-            telnetClient.print(bufferPrint);
+    }
+a
+    // Write to telnet Buffered
+
+    bufferPrint.concat((char)character);
+
+    // Send the characters buffered by print.h
+
+    if (doPrint) { // Print the buffer
+
+        boolean noPrint = false;
+
+        if (_showProfiler && elapsed < _minTimeShowProfiler) { // Profiler time Minimal
+            noPrint = true;
+        } else if (_filterActive) { // Check filter before print
+
+            String aux = bufferPrint;
+            aux.toLowerCase();
+
+            if (aux.indexOf(_filter) == -1) { // not find -> no print
+                noPrint = true;
+            }
         }
 
-        if (_serialEnabled) { // Echo to serial
-            Serial.print(bufferPrint);
+        if (noPrint == false) {
+
+            // Write to telnet Buffered
+
+            if (_connected) {  // send data to Client
+                telnetClient.print(bufferPrint);
+            }
+
+            if (_serialEnabled) { // Echo to serial
+                Serial.print(bufferPrint);
+            }
         }
+
+        // Empty the buffer
 
         bufferPrint = "";
-#endif
-
     }
 
 }
@@ -363,45 +392,58 @@ void RemoteDebug::showHelp() {
 
     // Show the initial message
 
-    telnetClient.println("*** Remote debug - over telnet - for ESP8266 (NodeMCU)");
-    telnetClient.print("* Host name: ");
-    telnetClient.print(_hostName);
-    telnetClient.print(" (");
-    telnetClient.print(WiFi.localIP());
-    telnetClient.println(")");
-    telnetClient.print("* Free Heap RAM: ");
-    telnetClient.println(ESP.getFreeHeap());
-    telnetClient.println("******************************************************");
-    telnetClient.println("* Commands:");
-    telnetClient.println("    ? or help -> display these help of commands");
-    telnetClient.println("    q -> quit (close this connection)");
-    telnetClient.println("    m -> display memory available");
-    telnetClient.println("    v -> set debug level to verbose");
-    telnetClient.println("    d -> set debug level to debug");
-    telnetClient.println("    i -> set debug level to info");
-    telnetClient.println("    w -> set debug level to warning");
-    telnetClient.println("    e -> set debug level to errors");
-    telnetClient.println("    l -> show debug level");
-    telnetClient.println("    t -> show time (millis)");
-    telnetClient.println("    p -> profiler - show time between actual and last message (in millis)");
+    String help = "";
 
+    help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
+    help.concat(VERSION);
+    help.concat("\n");
+    help.concat("* Host name: ");
+    help.concat(_hostName);
+    help.concat(" IP:");
+    help.concat(WiFi.localIP().toString());
+    help.concat(" Mac address:");
+    help.concat(WiFi.macAddress());
+    help.concat("\n");
+    help.concat("* Free Heap RAM: ");
+    help.concat(ESP.getFreeHeap());
+    help.concat("\n");
+    help.concat("******************************************************\n");
+    help.concat("* Commands:\n");
+    help.concat("    ? or help -> display these help of commands\n");
+    help.concat("    q -> quit (close this connection)\n");
+    help.concat("    m -> display memory available\n");
+    help.concat("    v -> set debug level to verbose\n");
+    help.concat("    d -> set debug level to debug\n");
+    help.concat("    i -> set debug level to info\n");
+    help.concat("    w -> set debug level to warning\n");
+    help.concat("    e -> set debug level to errors\n");
+    help.concat("    l -> show debug level\n");
+    help.concat("    t -> show time (millis)\n");
+    help.concat("    profiler:\n");
+    help.concat("      p       -> show time between actual and last message (in millis)\n");
+    help.concat("      p min   -> show only if time is this minimal\n");
+    help.concat("    c -> show colors\n");
+    help.concat("    filter:\n");
+    help.concat("          filter <string> -> show only debugs with this\n");
+    help.concat("          nofilter        -> disable the filter\n");
     if (_resetCommandEnabled) {
-        telnetClient.println("    reset -> reset the ESP8266");
+        help.concat("    reset -> reset the ESP8266\n");
     }
 
     if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
-        telnetClient.println("");
-        telnetClient.println("    * Project commands:");
+        help.concat("\n");
+        help.concat("    * Project commands:\n");
         String show = "\n";
         show.concat(_helpProjectCmds);
         show.replace("\n", "\n    "); // ident this
-        telnetClient.println(show);
+        help.concat(show);
     }
 
-    telnetClient.println();
-    telnetClient.println("* Please type the command and press enter to execute.(? or h for this help)");
-    telnetClient.println("***");
+    help.concat("\n");
+    help.concat("* Please type the command and press enter to execute.(? or h for this help)\n");
+    help.concat("***\n");
 
+    telnetClient.print(help);
 }
 
 // Get last command received
@@ -415,6 +457,15 @@ String RemoteDebug::getLastCommand() {
 // Process user command over telnet
 
 void RemoteDebug::processCommand() {
+
+    telnetClient.print("* Debug: Command recevied: ");
+    telnetClient.println(_command);
+
+    String options = "";
+    uint8_t pos = _command.indexOf(" ");
+    if (pos > 0) {
+        options = _command.substring (pos+1);
+    }
 
     // Set time of last command received
 
@@ -502,9 +553,38 @@ void RemoteDebug::processCommand() {
         // Show profiler
 
         _showProfiler = !_showProfiler;
+        _minTimeShowProfiler = 0;
 
         telnetClient.printf("* Show profiler: %s\n", (_showProfiler)?"On":"Off");
 
+    } else if (_command.startsWith("p ")) {
+
+        // Show profiler with minimal time
+
+        if (options.length() > 0) { // With minimal time
+            int32_t aux = options.toInt();
+            if (aux > 0) { // Valid number
+                _showProfiler = true;
+                _minTimeShowProfiler = aux;
+                telnetClient.printf("* Show profiler: On (with minimal time: %u)\n", _minTimeShowProfiler);
+            }
+        }
+
+    } else if (_command == "c") {
+
+        // Show colors
+
+        _showColors = !_showColors;
+
+        telnetClient.printf("* Show colors: %s\n", (_showColors)?"On":"Off");
+
+    } else if (_command.startsWith("filter ") && options.length() > 0) {
+
+        setFilter(options);
+
+    } else if (_command == "nofilter") {
+
+        setNoFilter();
     } else if (_command == "reset" && _resetCommandEnabled) {
 
         telnetClient.println("* Reset ...");
@@ -532,6 +612,28 @@ void RemoteDebug::processCommand() {
 
         }
     }
+}
+
+// Filter
+
+void RemoteDebug::setFilter(String filter) {
+
+    _filter = filter;
+    _filter.toLowerCase(); // TODO: option to case insensitive ?
+    _filterActive = true;
+
+    telnetClient.print("* Debug: Filter active: ");
+    telnetClient.println(_filter);
+
+}
+
+void RemoteDebug::setNoFilter() {
+
+    _filter = "";
+    _filterActive = false;
+
+    telnetClient.println("* Debug: Filter disabled");
+
 }
 
 // Format numbers
