@@ -191,8 +191,9 @@ News features:
 
 # Know issues
 
-- Sometimes the connection over telnet is slow,
-  reset command in telnet connection or turn off/on can be resolve it.
+- Sometimes (rarely) the connection over telnet becomes very slow.
+  Especially right after uploading firmware.
+  Reset command in telnet connection or turn off/on can be resolve it.
   But I need find why it occurs
 
 ## Thanks
