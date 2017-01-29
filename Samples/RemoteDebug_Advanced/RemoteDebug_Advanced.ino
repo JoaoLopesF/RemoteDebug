@@ -311,7 +311,7 @@ void processCmdRemoteDebug() {
             Debug.printf("* Time elapsed for %u printf: %u ms.\n", times, (millis() - timeBegin));
         }
 
-    } else if (Debug.getLastCommand() = "bench2") {
+    } else if (Debug.getLastCommand() == "bench2") {
 
             // Benchmark 2 - Print/println
 
