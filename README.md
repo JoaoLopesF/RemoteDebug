@@ -178,12 +178,14 @@ Debug.setSerialEnabled(true);
  - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
 #### 1.0.0
 Adjustments and improvements from Beta versions.
 News features:
 - Filter
 - Colors
 - Support to Windows telnet client
+
 #### 0.9
 - First Beta
 
