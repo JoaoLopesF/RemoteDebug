@@ -87,7 +87,7 @@ void setup() {
 
     WiFi.hostname(HOST_NAME);
 
-    // Exec WifiManager
+    // Execute WifiManager
 
     execWifiManager();
 
@@ -97,16 +97,17 @@ void setup() {
 
     // Register host name in mDNS
 
+#ifdef HOSTNAME
     if (MDNS.begin(HOST_NAME)) {
         Serial.print("* MDNS responder started. Hostname -> ");
         Serial.println(HOST_NAME);
     }
-
     // Register the services
 
     // MDNS.addService("http", "tcp", 80);   // Web server - discomment if you need this
 
     MDNS.addService("telnet", "tcp", 23); // Telnet server RemoteDebug
+#endif
 
     // HTTP web server
     // Discomment if you need this
@@ -218,22 +219,9 @@ void loop()
 
     ////// Services on Wifi
 
-// #ifndef PRODUCTION // Not in PRODUCTION
-//     if (Debug.isActive(Debug.DEBUG) && mTimesProfServices > 0) {
-//         mTimesProfServices--;
-//         Debug.println("* Begin services");
-//     }
-// #endif
-//
     // Update over air (OTA)
 
     ArduinoOTA.handle();
-
-// #ifndef PRODUCTION // Not in PRODUCTION
-//     if (Debug.isActive(Debug.DEBUG) && mTimesProfServices > 0) {
-//         Debug.println("* After OTA");
-//     }
-// #endif
 
     //// Web server
     // Discomment if you need this
@@ -245,10 +233,6 @@ void loop()
     // Remote debug over telnet
 
     Debug.handle();
-
-    // if (Debug.isActive(Debug.DEBUG) && mTimesProfServices > 0) {
-    //     Debug.println("* After Debug - finished services");
-    // }
 
 #endif
 
@@ -266,75 +250,66 @@ void loop()
         if (Debug.isActive(Debug.INFO)) {
             Debug.printf("* Time elapsed for the loop: %u ms.\n", time);
         }
-        Serial.printf("* Time elapsed for the loop: %u ms.\n", time);
     } else if (time > 200) {
         if (Debug.isActive(Debug.WARNING)) {
             Debug.printf("* Time elapsed for the loop: %u ms.\n", time);
         }
-        Serial.printf("* Time elapsed for the loop: %u ms.\n", time);
     }
 #endif
 
 }
 
 #ifndef PRODUCTION // Not in PRODUCTION
-// Process project command of RemoteDebug
+
+// Process project's commands of RemoteDebug
 
 void processCmdRemoteDebug() {
 
-    Serial.print("command -> ");
-    Serial.println(Debug.getLastCommand());
+    String lastCmd = Debug.getLastCommand();
 
-    if (!Debug.isActive(Debug.DEBUG)) { // Only for debug level
-        if (!Debug.isActive(Debug.ERROR)) {
-            Debug.println("* Please set debug level to debug before (command d)");
-        }
-        return;
-    }
-
-    if (Debug.getLastCommand() == "bench1") {
+    if (lastCmd == "bench1") {
 
         // Benchmark 1 - Printf
 
-        if (Debug.isActive(Debug.DEBUG)) {
-            Debug.println("* Benchmark 1 - Printf");
+        if (Debug.isActive(Debug.ANY)) {
+            Debug.println("* Benchmark 1 - one Printf");
         }
 
         uint32_t timeBegin = millis();
         uint8_t times = 50;
 
         for (uint8_t i=1;i<=times;i++) {
-            if (Debug.isActive(Debug.DEBUG)) {
-                Debug.printf("%u - 1234567890\n", i);
+            if (Debug.isActive(Debug.ANY)) {
+                Debug.printf("%u - 1234567890 - AAAA\n", i);
             }
         }
 
-        if (Debug.isActive(Debug.DEBUG)) {
+        if (Debug.isActive(Debug.ANY)) {
             Debug.printf("* Time elapsed for %u printf: %u ms.\n", times, (millis() - timeBegin));
         }
 
-    } else if (Debug.getLastCommand() == "bench2") {
+    } else if (lastCmd == "bench2") {
 
-            // Benchmark 2 - Print/println
+        // Benchmark 2 - Print/println
 
-            if (Debug.isActive(Debug.DEBUG)) {
-                Debug.println("* Benchmark 2 - Print/Println");
+        if (Debug.isActive(Debug.ANY)) {
+            Debug.println("* Benchmark 2 - Print/Println");
+        }
+
+        uint32_t timeBegin = millis();
+        uint8_t times = 50;
+
+        for (uint8_t i=1;i<=times;i++) {
+            if (Debug.isActive(Debug.ANY)) {
+                Debug.print(i);
+                Debug.print(" - 1234567890");
+                Debug.println(" - AAAA");
             }
+        }
 
-            uint32_t timeBegin = millis();
-            uint8_t times = 50;
-
-            for (uint8_t i=1;i<=times;i++) {
-                if (Debug.isActive(Debug.DEBUG)) {
-                    Debug.print(i);
-                    Debug.println(" - 1234567890");
-                }
-            }
-
-            if (Debug.isActive(Debug.DEBUG)) {
-                Debug.printf("* Time elapsed for %u printf: %u ms.\n", times, (millis() - timeBegin));
-            }
-
+        if (Debug.isActive(Debug.ANY)) {
+            Debug.printf("* Time elapsed for %u printf: %u ms.\n", times, (millis() - timeBegin));
+        }
     }
 }
 #endif
