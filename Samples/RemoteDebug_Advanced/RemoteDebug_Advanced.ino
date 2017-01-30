@@ -43,7 +43,7 @@
 
 //#define PRODUCTION true
 
-// HTTP Web server - if you need this
+// HTTP Web server - discomment if you need this
 // ESP8266WebServer HTTPServer(80);
 
 // Remote debug over telnet - not recommended for production, only for development
@@ -104,7 +104,8 @@ void setup() {
 
     // Register the services
 
-    MDNS.addService("http", "tcp", 80);   // Web server
+    // MDNS.addService("http", "tcp", 80);   // Web server - discomment if you need this
+
     MDNS.addService("telnet", "tcp", 23); // Telnet server RemoteDebug
 
     // HTTP web server
@@ -119,6 +120,7 @@ void setup() {
 // #ifndef PRODUCTION // Not in PRODUCTION
 //     Serial.println("* HTTP server started");
 // #endif
+
     // Initialize the telnet server of RemoteDebug
 
 #ifndef PRODUCTION // Not in PRODUCTION
