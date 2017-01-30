@@ -115,10 +115,10 @@ void setup() {
     // HTTPServer.onNotFound(handleNotFound);
     //
     // HTTPServer.begin();
-
-#ifndef PRODUCTION // Not in PRODUCTION
-    Serial.println("* HTTP server started");
-#endif
+//
+// #ifndef PRODUCTION // Not in PRODUCTION
+//     Serial.println("* HTTP server started");
+// #endif
     // Initialize the telnet server of RemoteDebug
 
 #ifndef PRODUCTION // Not in PRODUCTION
