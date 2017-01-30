@@ -86,7 +86,7 @@ if (Debug.isActive(Debug.<level>)) ....
 DISCLAIMER:
 
 This Library is NOT have yet authentications, and is **ONLY for development** NOT to production!
-In the future peraps this will supported prodution.
+In the future peraps this will supported production.
 
 ## Wishlist
 - Http page to begin/stop the telnet server

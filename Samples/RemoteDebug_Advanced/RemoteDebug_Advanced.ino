@@ -261,7 +261,7 @@ void loop()
 
 #ifndef PRODUCTION // Not in PRODUCTION
 
-// Process project's commands of RemoteDebug
+// Process commands from RemoteDebug
 
 void processCmdRemoteDebug() {
 
