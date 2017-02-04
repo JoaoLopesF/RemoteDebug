@@ -1,96 +1,100 @@
 #RemoteDebug Library for ESP8266
 
-## A library to remote debug over telnet connection!
+### A library to remotely debug over a telnet connection
 
-## Telnet Server for alternative of Serial Monitor
+### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
 
-#### This works with the ESP8266 Arduino platform with a recent stable release(2.0.0 or newer) https://github.com/esp8266/Arduino
+#### Works with the ESP8266 Arduino platform v2.0.0 or higher. Refer to https://github.com/esp8266/Arduino
 
 ## Contents
  - [About](#about)
+ - [Standard telnet](#telnet)
  - [Wishlist](#wishlist)
- - [Using](#using)
+ - [Using](#usage)
  - [Know issues](#knowissues)
  - [Releases](#releases)
  - [Thanks](#thanks)
 
 ## About
 
-Arduino unfortunately only have as debug tool of the type Serial.print commands
+By default the Arduino only has as debug possibility via the Serial port.
+This has a few disadvantages:
 
-With ESP8266 (NodeMCU) have now interconnected devices on the WiFi network.
+- requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
+- debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
 
-Debug only with Serial not good enough and we usually have several nodes to manage,
-and debug the communication between them.
-And the nodes may be in another location.
+With the ESP8266 (NodeMCU) we now have network connectivity which can be used for streaming debugging information in real-time.
 
-With this library, you can **debug remotely** ESP8266 with a client **telnet**.
+## Telnet
 
-Telnet clients:
-      - telnet: native for MacOS and Linux
-      - telnet or Putty or another: for MS Windows
+Telnet is a standard way of remotely connecting to a server and is supported on all operating systems (Windows, Mac, Linux...).
+A typical telnet client for Windows is Putty for example.
 
-Very simple and powerful tool for development
+_RemoteDebug_  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
 
-It does all the work, running a telnet server and manage the client.
-(only one client at same time, by avoid overheads).
+_RemoteDebug_ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
 
-Use Print commands like Serial.print over WiFi with any telnet client.
+### debug levels
 
-With debug levels to filter incoming messages
 
-**Debug levels**:
+_RemoteDebug_ supports the filtering of logging based on **debug levels**:
+
  - Verbose
  - Debug
  - Info
  - Warnings
  - Errors
 
-  These levels is is in order of priority (minor-> verbose / major-> errors)
+These levels are in the order of most-logging -> least-logging.
 
-And by the telnet can be setted the debug level,
-after this only messages of this level or greater is showed.
-It is useful to filter important messages.
+The telnet client can set the debug level by typing a few simple commands.
 
-Also have a **Profiler**, that can be turn on in telnet connection or in the code.
-This show the time between 2 calls of debug. And show the time in diferent colors,
-according to the elapsed time
-Example: One debug message before call of any funcion, and another after
-The time showed in last message, is the time that a function spends to run.
+### profiler
 
-overhead mininum if not client telnet connected.
+_RemoteDebug_ includes a simple profiler. It can be enabled by the connected telnet client or the Arduino code itself.
 
-It also allows to run predefined commands in your code, for example, to send status or perform some routine. All this remotely controlled via telnet.
+When enabled, it shows the time between 2 debug statements, using different colors depending on the elapsed time.
 
-Optimized to reduce overheads, including telnet buffer
+A typical example would be to insert logging just before and after a function after which you can see how much the is spend in the function.
+
+### overhead
+
+_RemoteDebug_ is designed to give minimal overhead if there is not telnet client connected.
+
+### custom commands
+
+_RemoteDebug_ supports custom commands that can be entered in the telnet client. These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the telnet client.
+
 
 Also please see my another library: https://github.com/JoaoLopesF/ArduinoUtil
 
-ATTENTION:
+##Warning
 
-Attention! In beta versions, the isActive method was misspelled,
+In beta versions, the **isActive** method was misspelled,
 Please when upgrading from a beta to the current one, please review your code.
 
 From:
 
-```cpp
+```
 if (Debug.ative(Debug.<level>)) ....
 ```
 
 To:
 
-```cpp
+```
 if (Debug.isActive(Debug.<level>)) ....
 ```
 
-DISCLAIMER:
+##DISCLAIMER:
 
-This Library is NOT have yet authentications, and is **ONLY for development** NOT to production!
-In the future peraps this will supported production.
+The current version of _RemoteDebug_ does not yet include any authentication and is intended only for development.
+
+Future extension could include a secure way for authentication and further testing to support production environments.
 
 ## Wishlist
 - Http page to begin/stop the telnet server
-- Authentications
+- Authentication
+- Support for production environment
 
 ## How it looks
 
@@ -100,15 +104,15 @@ In the future peraps this will supported production.
 Youtube:
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
-## Using
+## Usage
 
 - Include in your sketch
   - Required
-```cpp
+```
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
 ```
   - RemoteDebug Library
-```cpp
+```
 // Remote debug over telnet - not recommended for production, only for development
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
