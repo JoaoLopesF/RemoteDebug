@@ -106,19 +106,17 @@ Youtube:
 
 ## Usage
 
-- Include in your sketch
-  - Required
-```
-#include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
-```
-  - RemoteDebug Library
-```
-// Remote debug over telnet - not recommended for production, only for development
+###includes
 
-#include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
-
-RemoteDebug Debug;
+```cpp
+#include <ESP8266WiFi.h> //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
 ```
+```cpp
+#include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
+```
+
+###setup
+
 - In the setup function after WiFi initialization
 ```cpp
 // Initialize the telnet server of RemoteDebug
