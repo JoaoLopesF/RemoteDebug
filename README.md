@@ -55,7 +55,7 @@ _RemoteDebug_ includes a simple profiler. It can be enabled by the connected tel
 
 When enabled, it shows the time between 2 debug statements, using different colors depending on the elapsed time.
 
-A typical example would be to insert logging just before and after a function after which you can see how much the is spend in the function.
+A typical example would be to insert logging just before and after a function after which you can see how much the is spent in the function.
 
 ### overhead
 
