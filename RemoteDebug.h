@@ -96,6 +96,7 @@ class RemoteDebug: public Print
 	static const uint8_t INFO = 2;
 	static const uint8_t WARNING = 3;
 	static const uint8_t ERROR = 4;
+	static const uint8_t ANY = 5;
 
 private:
 
