@@ -1,10 +1,11 @@
-#RemoteDebug Library for ESP8266
+#RemoteDebug Library for ESP8266 or ESP32
 
 ### A library to remotely debug over a telnet connection
 
 ### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
 
-#### Works with the ESP8266 Arduino platform v2.0.0 or higher. Refer to https://github.com/esp8266/Arduino
+#### Works with the ESP8266 Arduino platform v2.0.0 or higher / or ESP32. Refer to https://github.com/esp8266/Arduino
+https://github.com/espressif/arduino-esp32
 
 ## Contents
  - [About](#about)
@@ -23,7 +24,7 @@ This has a few disadvantages:
 - requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
 - debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
 
-With the ESP8266 (NodeMCU) we now have network connectivity which can be used for streaming debugging information in real-time.
+With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity which can be used for streaming debugging information in real-time.
 
 ## Telnet
 
@@ -110,6 +111,9 @@ Youtube:
 
 ```cpp
 #include <ESP8266WiFi.h> //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
+//
+// Please see the samples how do your code to run in ESP32 too
+//
 ```
 ```cpp
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
@@ -180,6 +184,9 @@ Debug.setSerialEnabled(true);
  - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+#### 1.1.0
+Adjustments and now runs in Esp32 too.
 
 #### 1.0.0
 Adjustments and improvements from Beta versions.

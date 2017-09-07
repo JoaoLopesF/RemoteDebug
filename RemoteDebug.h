@@ -5,10 +5,27 @@
 #ifndef RemoteDebug_h
 #define RemoteDebug_h
 
+//#define ALPHA_VERSION true // In development, not yet good
+
+#if defined(ESP8266)
+// ESP8266 SDK
+extern "C" {
+bool system_update_cpu_freq(uint8 freq);
+}
+#endif
+
+// Libraries
+
 #include "Arduino.h"
 #include "Print.h"
 
+#if defined(ESP8266)
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
+#elif defined(ESP32)
+#include <WiFi.h>
+#else
+#error Only for ESP8266 or ESP32
+#endif
 
 // Port for telnet
 
@@ -80,6 +97,10 @@ class RemoteDebug: public Print
 	void showDebugLevel(boolean show);
 	void showColors(boolean show);
 
+#ifdef ALPHA_VERSION // In test, not good yet
+	void autoProfilerLevel(uint32_t millisElapsed);
+#endif
+
 	void setFilter(String filter);
 	void setNoFilter();
 
@@ -91,12 +112,28 @@ class RemoteDebug: public Print
 
     // Debug levels
 
-	static const uint8_t VERBOSE = 0;
-	static const uint8_t DEBUG = 1;
-	static const uint8_t INFO = 2;
-	static const uint8_t WARNING = 3;
-	static const uint8_t ERROR = 4;
-	static const uint8_t ANY = 5;
+	// Old levels
+
+//	static const uint8_t VERBOSE = 0;
+//	static const uint8_t DEBUG = 1;
+//	static const uint8_t INFO = 2;
+//	static const uint8_t WARNING = 3;
+//	static const uint8_t ERROR = 4;
+//	static const uint8_t ANY = 5;
+
+	// New levels
+
+	static const uint8_t PROFILER = 0; 	// Used for show time of execution of pieces of code(profiler)
+	static const uint8_t VERBOSE = 1; 	// Used for show verboses messages
+	static const uint8_t DEBUG = 2;   	// Used for show debug messages
+	static const uint8_t INFO = 3;		// Used for show info messages
+	static const uint8_t WARNING = 4;	// Used for show warning messages
+	static const uint8_t ERROR = 5;		// Used for show error messages
+	static const uint8_t ANY = 6;		// Used for show always messages, for any current debug level
+
+	// Expand characters as CR/LF to \\r, \\n
+
+	String expand(String string);
 
 private:
 
@@ -108,6 +145,10 @@ private:
 
 	uint8_t _clientDebugLevel = DEBUG;		// Level setted by user in telnet
 	uint8_t _lastDebugLevel = DEBUG;		// Last Level setted by active()
+
+	uint8_t _levelBeforeProfiler = DEBUG;   // Last Level before Profiler level
+	uint32_t _levelProfilerDisable = 0;		// time in millis to disable the profiler level
+	uint32_t _autoLevelProfiler = 0;		// Automatic change to profiler level if time between handles is greater than n millis
 
 	boolean _showTime = false;				// Show time in millis
 
@@ -137,6 +178,7 @@ private:
 	void showHelp();
 	void processCommand();
 	String formatNumber(uint32_t value, uint8_t size, char insert='0');
+	boolean isCRLF(char character);
 
 };
 

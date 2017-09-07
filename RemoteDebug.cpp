@@ -1,7 +1,7 @@
 ////////
 // Libraries Arduino
 //
-// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU)
+// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
 // Author: Joao Lopes
 // Tanks: Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
 //
@@ -9,16 +9,18 @@
 //    - 0.9.0 Beta 1 - August 2016
 //    - 0.9.1 Beta 2 - Octuber 2016
 //    - 1.0.0 RC - January 2017
+//	  - 1.0.1 New connection logic - August 2017
+//	  - 	  New level -> profiler and auto-profiler
+//            New commands for CPU frequencies
+//    - 1.1.0 Support to ESP32 - August 2017
 //
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
 ///////
 
-#define VERSION "1.0.0"
+#define VERSION "1.1.0"
 
 #include <Arduino.h>
-
-#include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 
 #include "RemoteDebug.h"
 
@@ -68,31 +70,105 @@ void RemoteDebug::stop () {
 
 void RemoteDebug::handle() {
 
-//uint32_t timeBegin = millis();
+#ifdef ALPHA_VERSION // In test, not good yet
+	static uint32_t lastTime = millis();
+#endif
+
+	// Debug level is profiler -> set the level before
+
+	if (_clientDebugLevel == PROFILER) {
+		if (millis() > _levelProfilerDisable) {
+			 _clientDebugLevel = _levelBeforeProfiler;
+			 if (_connected) {
+				 telnetClient.println("* Debug level profile inactive now");
+			 }
+		}
+	}
+
+#ifdef ALPHA_VERSION // In test, not good yet
+
+	// Automatic change to profiler level if time between handles is greater than n millis
+
+	if (_autoLevelProfiler > 0 && _clientDebugLevel != PROFILER) {
+
+		uint32_t diff = (millis() - lastTime);
+
+		if (diff >= _autoLevelProfiler) {
+			 _levelBeforeProfiler = _clientDebugLevel;
+			 _clientDebugLevel = PROFILER;
+			 _levelProfilerDisable = 1000; // Disable it at 1 sec
+			 if (_connected) {
+				 telnetClient.printf("* Debug level profile active now - time between handels: %u\r\n", diff);
+			 }
+		}
+
+		lastTime = millis();
+	}
+#endif
 
     // look for Client connect trial
 
     if (telnetServer.hasClient()) {
 
-      if (!telnetClient || !telnetClient.connected()) {
+    	// Old connection logic
 
-        if (telnetClient) { // Close the last connect - only one supported
+//      if (!telnetClient || !telnetClient.connected()) {
+//
+//        if (telnetClient) { // Close the last connect - only one supported
+//
+//          telnetClient.stop();
+//
+//        }
 
-          telnetClient.stop();
+    	// New connection logic - 10/08/17
 
-        }
+    	if (telnetClient && telnetClient.connected()) {
 
-        // Get telnet client
+			// Verify if the IP is same than actual conection
 
-        telnetClient = telnetServer.available();
+			WiFiClient newClient;
+			newClient = telnetServer.available();
+			String ip = newClient.remoteIP().toString();
 
-        telnetClient.flush();  // clear input buffer, else you get strange characters
+			if (ip == telnetClient.remoteIP().toString()) {
+
+				// Reconnect
+
+				telnetClient.stop();
+				telnetClient = newClient;
+
+			} else {
+
+				// Desconnect (not allow more than one connection)
+
+				newClient.stop();
+
+				return;
+
+			}
+
+         } else {
+
+        	 // New TCP client
+
+        	 telnetClient = telnetServer.available();
+
+         }
+
+         if (!telnetClient) { // No client yet ???
+           return;
+         }
+
+         // Set client
+
+         telnetClient.setNoDelay(true); // More faster
+         telnetClient.flush();  // clear input buffer, else you get strange characters
 
         _lastTimeCommand = millis(); // To mark time for inactivity
 
         // Show the initial message
 
-        showHelp ();
+		showHelp ();
 
         // Empty buffer in
 
@@ -100,7 +176,6 @@ void RemoteDebug::handle() {
             telnetClient.read();
         }
 
-      }
     }
 
     // Is client connected ? (to reduce overhead in active)
@@ -111,23 +186,28 @@ void RemoteDebug::handle() {
 
     if (_connected) {
 
+    	char last = ' '; // To avoid process two times the "\r\n"
+
         while(telnetClient.available()) {  // get data from Client
 
             // Get character
 
             char character = telnetClient.read();
 
-            // Newline or CR
+            // Newline (CR or LF) - once one time if (\r\n) - 26/07/17
 
-            if (character == '\n' || character == '\r') {
+            if (isCRLF(character) == true) {
 
-                // Process the command
+            	if (isCRLF(last) == false) {
 
-                if (_command.length() > 0) {
+                    // Process the command
 
-                    processCommand();
+            		if (_command.length() > 0) {
 
-                }
+                        processCommand();
+
+                    }
+            	}
 
                 _command = ""; // Init it for next command
 
@@ -138,6 +218,10 @@ void RemoteDebug::handle() {
                 _command.concat(character);
 
             }
+
+            // Last char
+
+            last = character;
         }
 
 #ifdef MAX_TIME_INACTIVE
@@ -160,6 +244,7 @@ void RemoteDebug::handle() {
 
 void RemoteDebug::setSerialEnabled(boolean enable) {
     _serialEnabled = enable;
+    _showColors = false; // Desativa isto para Serial
 }
 
 // Allow ESP reset over telnet client
@@ -181,6 +266,15 @@ void RemoteDebug::showProfiler(boolean show, uint32_t minTime) {
     _minTimeShowProfiler = minTime;
 }
 
+
+#ifdef ALPHA_VERSION // In test, not good yet
+// Automatic change to profiler level if time between handles is greater than n mills (0 - disable)
+
+void RemoteDebug::autoProfilerLevel(uint32_t millisElapsed) {
+	_autoLevelProfiler = millisElapsed;
+}
+#endif
+
 // Show debug level
 
 void RemoteDebug::showDebugLevel(boolean show) {
@@ -190,7 +284,11 @@ void RemoteDebug::showDebugLevel(boolean show) {
 // Show colors
 
 void RemoteDebug::showColors(boolean show) {
-    _showColors = show;
+    if (_serialEnabled == false) {
+        _showColors = show;
+    } else {
+        _showColors = false; // Desativa isto para Serial
+    }
 }
 
 // Is active ? client telnet connected and level of debug equal or greater then setted by user in telnet
@@ -233,6 +331,8 @@ size_t RemoteDebug::write(uint8_t character) {
     static uint32_t lastTime = millis();
     static uint32_t elapsed = 0;
 
+    size_t ret = 0;
+
     // New line writted before ?
 
     if (_newLine) {
@@ -244,6 +344,7 @@ size_t RemoteDebug::write(uint8_t character) {
         if (_showDebugLevel) {
             if (_showColors == false) {
                 switch (_lastDebugLevel) {
+                	case PROFILER:  show = "P"; break;
                     case VERBOSE:   show = "v"; break;
                     case DEBUG:     show = "d"; break;
                     case INFO:      show = "i"; break;
@@ -252,6 +353,7 @@ size_t RemoteDebug::write(uint8_t character) {
                 }
             } else {
                 switch (_lastDebugLevel) {
+                	case PROFILER:  show = "P"; break;
                     case VERBOSE:   show = "v"; break;
                     case DEBUG:     show = COLOR_BACKGROUND_GREEN; show.concat("d"); break;
                     case INFO:      show = COLOR_BACKGROUND_WHITE; show.concat("i"); break;
@@ -380,9 +482,13 @@ size_t RemoteDebug::write(uint8_t character) {
 
         // Empty the buffer
 
+        ret = bufferPrint.length();
         bufferPrint = "";
     }
 
+    // Retorna
+
+    return ret;
 }
 
 ////// Private
@@ -395,7 +501,11 @@ void RemoteDebug::showHelp() {
 
     String help = "";
 
+#if defined(ESP8266)
     help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
+#elif defined(ESP32)
+    help.concat("*** Remote debug - over telnet - for ESP32 - version ");
+#endif
     help.concat(VERSION);
     help.concat("\r\n");
     help.concat("* Host name: ");
@@ -421,12 +531,20 @@ void RemoteDebug::showHelp() {
     help.concat("    l -> show debug level\r\n");
     help.concat("    t -> show time (millis)\r\n");
     help.concat("    profiler:\r\n");
-    help.concat("      p       -> show time between actual and last message (in millis)\r\n");
-    help.concat("      p min   -> show only if time is this minimal\r\n");
+    help.concat("      p      -> show time between actual and last message (in millis)\r\n");
+    help.concat("      p min  -> show only if time is this minimal\r\n");
+    help.concat("      P time -> set debug level to profiler\r\n");
+#ifdef ALPHA_VERSION // In test, not good yet
+    help.concat("      A time -> set auto debug level to profiler\r\n");
+#endif
     help.concat("    c -> show colors\r\n");
     help.concat("    filter:\r\n");
     help.concat("          filter <string> -> show only debugs with this\r\n");
     help.concat("          nofilter        -> disable the filter\r\n");
+#if defined(ESP8266)
+    help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
+    help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
+#endif
     if (_resetCommandEnabled) {
         help.concat("    reset -> reset the ESP8266\r\n");
     }
@@ -492,6 +610,24 @@ void RemoteDebug::processCommand() {
 
         telnetClient.print("* Free Heap RAM: ");
         telnetClient.println(ESP.getFreeHeap());
+
+#if defined(ESP8266)
+
+    } else if (_command == "cpu80") {
+
+        // Change ESP8266 CPU para 80 MHz
+
+        system_update_cpu_freq(80);
+        telnetClient.println("CPU ESP8266 changed to: 80 MHz");
+
+    } else if (_command == "cpu160") {
+
+        // Change ESP8266 CPU para 160 MHz
+
+        system_update_cpu_freq(160);
+        telnetClient.println("CPU ESP8266 changed to: 160 MHz");
+
+#endif
 
     } else if (_command == "v") {
 
@@ -571,6 +707,43 @@ void RemoteDebug::processCommand() {
             }
         }
 
+    } else if (_command == "P") {
+
+        // Debug level profile
+
+    	_levelBeforeProfiler = _clientDebugLevel;
+        _clientDebugLevel = PROFILER;
+
+        if (_showProfiler == false) {
+        	_showProfiler = true;
+        }
+
+        _levelProfilerDisable = 1000; // Default
+
+        if (options.length() > 0) { // With time of disable
+            int32_t aux = options.toInt();
+            if (aux > 0) { // Valid number
+                _levelProfilerDisable = millis() + aux;
+            }
+        }
+
+        telnetClient.printf("* Debug level setted to Profiler (disable in %u millis)\r\n", _levelProfilerDisable);
+
+    } else if (_command == "A") {
+
+        // Auto debug level profile
+
+        _autoLevelProfiler = 1000; // Default
+
+        if (options.length() > 0) { // With time of disable
+            int32_t aux = options.toInt();
+            if (aux > 0) { // Valid number
+            	_autoLevelProfiler = aux;
+            }
+        }
+
+        telnetClient.printf("* Auto profiler debug level active (time >= %u millis)\r\n", _autoLevelProfiler);
+
     } else if (_command == "c") {
 
         // Show colors
@@ -592,7 +765,11 @@ void RemoteDebug::processCommand() {
 
         telnetClient.println("* Closing telnet connection ...");
 
+#if defined(ESP8266)
         telnetClient.println("* Resetting the ESP8266 ...");
+#elif defined(ESP32)
+        telnetClient.println("* Resetting the ESP32 ...");
+#endif
 
         telnetClient.stop();
         telnetServer.stop();
@@ -601,7 +778,7 @@ void RemoteDebug::processCommand() {
 
         // Reset
 
-        ESP.reset();
+        ESP.restart();
 
     } else  {
 
@@ -660,4 +837,22 @@ String RemoteDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
     return ret;
 }
 
+// Is CR or LF ?
+
+boolean RemoteDebug::isCRLF(char character) {
+
+	return (character == '\r' || character == '\n');
+
+}
+
+// Expand characters as CR/LF to \\r, \\n
+// TODO: make this for another chars not printable
+
+String RemoteDebug::expand(String string) {
+
+	string.replace("\r", "\\r");
+	string.replace("\n", "\\n");
+
+	return string;
+}
 /////// End
