@@ -13,7 +13,7 @@
 //	  - 	  New level -> profiler and auto-profiler
 //            New commands for CPU frequencies
 //    - 1.1.0 Support to ESP32 - August 2017
-//    - 1.1.1 Add support for the pass through of commands - 11/24/2017 - B. Harville
+//    - 1.1.1 Added support for the pass through of commands, and default debug levels - 11/24/2017 - B. Harville
 //
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
