@@ -242,7 +242,7 @@ News features:
 
 ## Thanks
 
-First thanks a lot for Igrr for bring to us the Arduino ESP8266.
+First thanks a lot for Igrr for bring to us the Arduino ESP8266 and ESP32 (and others).
 
 Resources:
 
