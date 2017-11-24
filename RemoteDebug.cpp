@@ -13,12 +13,13 @@
 //	  - 	  New level -> profiler and auto-profiler
 //            New commands for CPU frequencies
 //    - 1.1.0 Support to ESP32 - August 2017
+//    - 1.1.1 Add support for the pass through of commands - 11/24/2017 - B. Harville
 //
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
 ///////
 
-#define VERSION "1.1.0"
+#define VERSION "1.1.1"
 
 #include <Arduino.h>
 
@@ -209,7 +210,8 @@ void RemoteDebug::handle() {
                     }
             	}
 
-                _command = ""; // Init it for next command
+                _lastCommand = _command; // Store the last command
+		_command = ""; // Init it for next command
 
             } else if (isPrintable(character)) {
 
@@ -569,9 +571,14 @@ void RemoteDebug::showHelp() {
 
 String RemoteDebug::getLastCommand() {
 
-    return _command;
+    return _lastCommand;
 }
 
+// Clear the last command received
+
+void RemoteDebug::clearLastCommand() {
+    _lastCommand = "";
+}
 
 // Process user command over telnet
 
