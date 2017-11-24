@@ -177,6 +177,8 @@ void RemoteDebug::handle() {
 		_command = "";				// Clear command
 		_lastCommand = "";			// Clear las command
 
+		_lastTimePrint = millis();	// Clear the time
+
 		// Show the initial message
 
 		showHelp();
@@ -359,8 +361,7 @@ void RemoteDebug::setCallBackProjectCmds(void (*callback)()) {
 
 size_t RemoteDebug::write(uint8_t character) {
 
-	static uint32_t lastTime = millis();
-	static uint32_t elapsed = 0;
+    uint32_t elapsed = 0;
 
 	size_t ret = 0;
 
@@ -438,7 +439,7 @@ size_t RemoteDebug::write(uint8_t character) {
 		// Show profiler (time between messages)
 
 		if (_showProfiler) {
-			elapsed = (millis() - lastTime);
+			elapsed = (millis() - _lastTimePrint);
 			boolean resetColors = false;
 			if (show != "")
 				show.concat(" ");
@@ -465,7 +466,7 @@ size_t RemoteDebug::write(uint8_t character) {
 			if (resetColors) {
 				show.concat(COLOR_RESET);
 			}
-			lastTime = millis();
+			_lastTimePrint = millis();
 		}
 
 		if (show != "") {

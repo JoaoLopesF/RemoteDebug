@@ -155,7 +155,9 @@ private:
 	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
 	uint8_t _lastDebugLevel = DEBUG;		// Last Level setted by active()
 
-	uint8_t _levelBeforeProfiler = DEBUG;  // Last Level before Profiler level
+	uint32_t _lastTimePrint = millis();  // Last time print a line
+
+	uint8_t _levelBeforeProfiler = DEBUG;// Last Level before Profiler level
 	uint32_t _levelProfilerDisable = 0;	// time in millis to disable the profiler level
 	uint32_t _autoLevelProfiler = 0;		// Automatic change to profiler level if time between handles is greater than n millis
 

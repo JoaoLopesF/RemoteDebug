@@ -212,10 +212,6 @@ void loop() {
 
 	if ((millis() - mLastTime) >= 1000) {
 
-		// Sample of shortcut
-
-		DEBUG_V("* Teste %d\n", mTimeSeconds);
-
 		// Time
 
 		mLastTime = millis();

@@ -1,4 +1,4 @@
-# RemoteDebug Library for ESP8266 and ESP32
+# RemoteDebug Library for ESP8266 or ESP32
 
 ### A library to remotely debug over a telnet connection
 
@@ -31,7 +31,7 @@ News:
 Now _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
 
-And now have a shortcuts (see it below in [Using](#usage))
+And now have a shortcuts (see it above)
 
 ## Telnet
 
@@ -125,9 +125,8 @@ Youtube:
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
 ```
 ###instance
-```cpp
+
 RemoteDebug Debug;
-```
 
 ###setup
 
@@ -185,7 +184,7 @@ DEBUG_E("This is a error - var %d\n", var);
 
 // Note: if you want a simple println you must ended with new line characters
 
-DEBUG_V("This is a println\n");
+DEBUG_V("This println\n");
 
 ```
 
