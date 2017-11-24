@@ -78,7 +78,7 @@ class RemoteDebug: public Print
 {
 	public:
 
-	void begin(String hostName);
+	void begin(String hostName, uint8_t = DEBUG);
 
 	void stop();
 
@@ -91,6 +91,7 @@ class RemoteDebug: public Print
 	void setHelpProjectsCmds(String help);
 	void setCallBackProjectCmds(void (*callback)());
 	String getLastCommand();
+	void clearLastCommand();
 
 	void showTime(boolean show);
 	void showProfiler(boolean show, uint32_t minTime = 0);
@@ -166,6 +167,7 @@ private:
 	boolean _newLine = true;				// New line write ?
 
 	String _command = "";					// Command received
+	String _lastCommand = "";				// Last Command received
 	uint32_t _lastTimeCommand = millis();	// Last time command received
 	String _helpProjectCmds = "";			// Help of comands setted by project (sketch)
 	void (*_callbackProjectCmds)();			// Callable for projects commands
