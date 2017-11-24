@@ -91,6 +91,7 @@ class RemoteDebug: public Print
 	void setHelpProjectsCmds(String help);
 	void setCallBackProjectCmds(void (*callback)());
 	String getLastCommand();
+	void clearLastCommand();
 
 	void showTime(boolean show);
 	void showProfiler(boolean show, uint32_t minTime = 0);
