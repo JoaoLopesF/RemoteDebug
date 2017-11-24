@@ -36,7 +36,7 @@ String bufferPrint = "";
 
 // Initialize the telnet server
 
-void RemoteDebug::begin (String hostName) {
+void RemoteDebug::begin (String hostName, uint8_t startingDebugLevel = DEBUG) {
 
     // Initialize server telnet
 
@@ -50,6 +50,8 @@ void RemoteDebug::begin (String hostName) {
     // Host name of this device
 
     _hostName = hostName;
+    _clientDebugLevel = startingDebugLevel;
+    _lastDebugLevel = startingDebugLevel;
 }
 
 // Stop the server
@@ -205,12 +207,12 @@ void RemoteDebug::handle() {
 
             		if (_command.length() > 0) {
 
-                        processCommand();
+                        _lastCommand = _command; // Store the last command
+			processCommand();
 
                     }
             	}
-
-                _lastCommand = _command; // Store the last command
+                
 		_command = ""; // Init it for next command
 
             } else if (isPrintable(character)) {
