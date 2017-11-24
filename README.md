@@ -31,7 +31,7 @@ News:
 Now _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
 
-And now have a shortcuts (see it above)
+And now have a shortcuts (see it below in [Using](#usage))
 
 ## Telnet
 
