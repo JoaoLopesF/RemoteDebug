@@ -1,4 +1,4 @@
-# RemoteDebug Library for ESP8266 or ESP32
+# RemoteDebug Library for ESP8266 and ESP32
 
 ### A library to remotely debug over a telnet connection
 
@@ -184,7 +184,7 @@ DEBUG_E("This is a error - var %d\n", var);
 
 // Note: if you want a simple println you must ended with new line characters
 
-DEBUG_V("This println\n");
+DEBUG_V("This is a println\n");
 
 ```
 
