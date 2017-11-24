@@ -36,7 +36,7 @@ String bufferPrint = "";
 
 // Initialize the telnet server
 
-void RemoteDebug::begin (String hostName, uint8_t startingDebugLevel = DEBUG) {
+void RemoteDebug::begin (String hostName, uint8_t startingDebugLevel) {
 
     // Initialize server telnet
 
