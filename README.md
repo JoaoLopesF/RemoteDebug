@@ -28,7 +28,7 @@ With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity which can b
 
 ## New in latest version
 
-- Now _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
+- Now _RemoteDebug_ is improved with client buffering (if last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
 
 I see about this first in the pfodESP8266BufferedClient library, thanks him for the solution
