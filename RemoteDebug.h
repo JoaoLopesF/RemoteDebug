@@ -78,7 +78,7 @@ class RemoteDebug: public Print
 {
 	public:
 
-	void begin(String hostName, uint9_t = DEBUG);
+	void begin(String hostName, uint8_t = DEBUG);
 
 	void stop();
 
