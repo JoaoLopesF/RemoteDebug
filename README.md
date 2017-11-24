@@ -125,8 +125,9 @@ Youtube:
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
 ```
 ###instance
-
+```cpp
 RemoteDebug Debug;
+```
 
 ###setup
 
