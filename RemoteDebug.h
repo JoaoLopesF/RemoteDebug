@@ -167,6 +167,7 @@ private:
 	boolean _newLine = true;				// New line write ?
 
 	String _command = "";					// Command received
+	String _lastCommand = "";				// Last Command received
 	uint32_t _lastTimeCommand = millis();	// Last time command received
 	String _helpProjectCmds = "";			// Help of comands setted by project (sketch)
 	void (*_callbackProjectCmds)();			// Callable for projects commands
