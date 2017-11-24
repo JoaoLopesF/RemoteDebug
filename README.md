@@ -26,7 +26,7 @@ This has a few disadvantages:
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity which can be used for streaming debugging information in real-time.
 
-### New in 1.2.0 version
+### New in version 1.2.0
 
 Now _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
