@@ -72,13 +72,32 @@ bool system_update_cpu_freq(uint8 freq);
 #define COLOR_BACKGROUND_CYAN "\x1B[46m"
 #define COLOR_BACKGROUND_WHITE "\x1B[47m"
 
+// Shortcuts
+
+#define DEBUG(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
+
+#define DEBUG_P(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_V(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_D(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_I(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_W(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_E(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(__VA_ARGS__); }
+
+// Buffering (sends in interval of time to avoid ESP misterious delays)
+
+#define CLIENT_BUFFERING true
+#ifdef CLIENT_BUFFERING
+#define DELAY_TO_SEND 10 // Time to send buffer
+#define MAX_SIZE_SEND 1400 // To respect the 1460 limit of TCP/IP
+#endif
+
 // Class
 
 class RemoteDebug: public Print
 {
 	public:
 
-	void begin(String hostName, uint8_t = DEBUG);
+	void begin(String hostName, uint8_t startingDebugLevel = DEBUG);
 
 	void stop();
 
@@ -113,17 +132,6 @@ class RemoteDebug: public Print
 
     // Debug levels
 
-	// Old levels
-
-//	static const uint8_t VERBOSE = 0;
-//	static const uint8_t DEBUG = 1;
-//	static const uint8_t INFO = 2;
-//	static const uint8_t WARNING = 3;
-//	static const uint8_t ERROR = 4;
-//	static const uint8_t ANY = 5;
-
-	// New levels
-
 	static const uint8_t PROFILER = 0; 	// Used for show time of execution of pieces of code(profiler)
 	static const uint8_t VERBOSE = 1; 	// Used for show verboses messages
 	static const uint8_t DEBUG = 2;   	// Used for show debug messages
@@ -140,40 +148,48 @@ private:
 
 	// Variables
 
-	String _hostName = "";					// Host name
+	String _hostName = "";				// Host name
 
-	boolean _connected = false;				// Client is connected ?
+	boolean _connected = false;			// Client is connected ?
 
-	uint8_t _clientDebugLevel = DEBUG;		// Level setted by user in telnet
+	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
 	uint8_t _lastDebugLevel = DEBUG;		// Last Level setted by active()
 
-	uint8_t _levelBeforeProfiler = DEBUG;   // Last Level before Profiler level
-	uint32_t _levelProfilerDisable = 0;		// time in millis to disable the profiler level
+	uint8_t _levelBeforeProfiler = DEBUG;  // Last Level before Profiler level
+	uint32_t _levelProfilerDisable = 0;	// time in millis to disable the profiler level
 	uint32_t _autoLevelProfiler = 0;		// Automatic change to profiler level if time between handles is greater than n millis
 
-	boolean _showTime = false;				// Show time in millis
+	boolean _showTime = false;			// Show time in millis
 
-	boolean _showProfiler = false;			// Show time between messages
-	uint32_t _minTimeShowProfiler = 0;		// Minimal time to show profiler
+	boolean _showProfiler = false;		// Show time between messages
+	uint32_t _minTimeShowProfiler = 0;	// Minimal time to show profiler
 
-	boolean _showDebugLevel = true;			// Show debug Level
+	boolean _showDebugLevel = true;		// Show debug Level
 
 	boolean _showColors = false;			// Show colors
 
-	boolean _serialEnabled = false;			// Send to serial too (not recommended)
+	boolean _serialEnabled = false;		// Send to serial too (not recommended)
 
-	boolean _resetCommandEnabled = false;	// Command in telnet to reset ESP8266
+	boolean _resetCommandEnabled = false;// Command in telnet to reset ESP8266
 
 	boolean _newLine = true;				// New line write ?
 
-	String _command = "";					// Command received
-	String _lastCommand = "";				// Last Command received
-	uint32_t _lastTimeCommand = millis();	// Last time command received
-	String _helpProjectCmds = "";			// Help of comands setted by project (sketch)
-	void (*_callbackProjectCmds)();			// Callable for projects commands
+	String _command = "";				// Command received
+	String _lastCommand = "";			// Last Command received
+	uint32_t _lastTimeCommand = millis();// Last time command received
+	String _helpProjectCmds = "";		// Help of comands setted by project (sketch)
+	void (*_callbackProjectCmds)();		// Callable for projects commands
 
 	String _filter = "";					// Filter
 	boolean _filterActive = false;
+
+	String _bufferPrint = "";			// Buffer of print write to telnet
+
+#ifdef CLIENT_BUFFERING
+	String _bufferSend = "";				// Buffer to send data to telnet
+	uint16_t _sizeBufferSend = 0;		// Size of it
+	uint32_t _lastTimeSend = 0;			// Last time command send data
+#endif
 
 	// Privates
 

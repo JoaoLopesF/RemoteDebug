@@ -26,6 +26,13 @@ This has a few disadvantages:
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity which can be used for streaming debugging information in real-time.
 
+News:
+
+Now _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
+to avoid misterious delays of networking on ESP32 and ESP8266 boards
+
+And now have a shortcuts (see it above)
+
 ## Telnet
 
 Telnet is a standard way of remotely connecting to a server and is supported on all operating systems (Windows, Mac, Linux...).
@@ -36,7 +43,6 @@ _RemoteDebug_  sets-up a telnet server which is listening to any telnet client t
 _RemoteDebug_ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
 
 ### debug levels
-
 
 _RemoteDebug_ supports the filtering of logging based on **debug levels**:
 
@@ -118,6 +124,9 @@ Youtube:
 ```cpp
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
 ```
+###instance
+
+RemoteDebug Debug;
 
 ###setup
 
@@ -125,9 +134,11 @@ Youtube:
 ```cpp
 // Initialize the telnet server of RemoteDebug
 
-Debug.begin("Telnet_HostName"); // Initiaze the telnet server
+Debug.begin("Telnet_HostName"); // Initiaze the telnet server - this name is used in MDNS.begin
 // OR
 Debug.begin(HOST_NAME); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
+// OR
+Debug.begin(HOST_NAME, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin and set the initial debug level
 
 Debug.setResetCmdEnabled(true); // Enable the reset command
 //Debug.showTime(true); // To show time
@@ -161,6 +172,22 @@ if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
 ```
+- An example of shortcuts (NEW)
+```cpp
+DEBUG("This is a any (always showed) - var %d\n", var);
+
+DEBUG_V("This is a verbose - var %d\n", var);
+DEBUG_D("This is a debug - var %d\n", var);
+DEBUG_I("This is a information - var %d\n", var);
+DEBUG_W("This is a warning - var %d\n", var);
+DEBUG_E("This is a error - var %d\n", var);
+
+// Note: if you want a simple println you must ended with new line characters
+
+DEBUG_V("This println\n");
+
+```
+
 - An example of use debug with serial enabled
   Useful to see messages if setup or
   in cause the ESP8266 is rebooting (telnet connection stop before received all messages)
@@ -184,6 +211,10 @@ Debug.setSerialEnabled(true);
  - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+#### 1.2.0
+
+Shortcuts and client buffering to avoid misterious delay of ESP networking
 
 #### 1.1.0
 Adjustments and now runs in Esp32 too.

@@ -1,7 +1,7 @@
 ////////
 // Libraries Arduino
 //
-// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU)
+// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
 // Author: Joao Lopes
 //
 // Attention: This library is only for help development. Please not use this in production
@@ -15,6 +15,19 @@
 //            Debug.println("bla bla bla");
 //        }
 //
+// Or shortcuts:
+//
+//		DEBUG("This is a any (always showed) - var %d\n", var);
+//
+//		DEBUG_V("This is a verbose - var %d\n", var);
+//		DEBUG_D("This is a debug - var %d\n", var);
+//		DEBUG_I("This is a information - var %d\n", var);
+//		DEBUG_W("This is a warning - var %d\n", var);
+//		DEBUG_E("This is a error - var %d\n", var);
+//
+//		// Note: if you want a simple println you must ended with new line characters
+//
+//		DEBUG_V("This println\n");
 //
 ///////
 
@@ -122,7 +135,6 @@ void setup() {
 
 #ifdef USE_MDNS  // Use the MDNS ?
 
-
     if (MDNS.begin(HOST_NAME)) {
         Serial.print("* MDNS responder started. Hostname -> ");
         Serial.println(HOST_NAME);
@@ -178,29 +190,17 @@ void loop()
 
         // Debug the time (verbose level)
 
-        if (Debug.isActive(Debug.VERBOSE)) {
-            Debug.printf("* Time: %u seconds (VERBOSE)\n", mTimeSeconds);
-        }
+       DEBUG_V("* Time: %u seconds (VERBOSE)\n", mTimeSeconds);
 
         if (mTimeSeconds % 5 == 0) { // Each 5 seconds
 
             // Debug levels
 
-            if (Debug.isActive(Debug.VERBOSE)) {
-                Debug.println("* This is a message of debug level VERBOSE");
-            }
-            if (Debug.isActive(Debug.DEBUG)) {
-                Debug.println("* This is a message of debug level DEBUG");
-            }
-            if (Debug.isActive(Debug.INFO)) {
-                Debug.println("* This is a message of debug level INFO");
-            }
-            if (Debug.isActive(Debug.WARNING)) {
-                Debug.println("* This is a message of debug level WARNING");
-            }
-            if (Debug.isActive(Debug.ERROR)) {
-                Debug.println("* This is a message of debug level ERROR");
-            }
+			DEBUG_V("* This is a message of debug level VERBOSE\n");
+			DEBUG_D("* This is a message of debug level DEBUG\n");
+			DEBUG_I("* This is a message of debug level INFO\n");
+			DEBUG_W("* This is a message of debug level WARNING\n");
+			DEBUG_E("* This is a message of debug level ERROR\n");
         }
      }
 

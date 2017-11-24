@@ -14,12 +14,12 @@
 //            New commands for CPU frequencies
 //    - 1.1.0 Support to ESP32 - August 2017
 //    - 1.1.1 Added support for the pass through of commands, and default debug levels - 11/24/2017 - B. Harville
-//
+//	  - 1.2.0 Added shortcuts and buffering to avoid delays
 //  TODO: - Page HTML for begin/stop Telnet server
 //        - Authentications
 ///////
 
-#define VERSION "1.1.1"
+#define VERSION "1.2.0"
 
 #include <Arduino.h>
 
@@ -30,43 +30,46 @@
 WiFiServer telnetServer(TELNET_PORT);
 WiFiClient telnetClient;
 
-// Buffer of print write to telnet
-
-String bufferPrint = "";
-
 // Initialize the telnet server
 
-void RemoteDebug::begin (String hostName, uint8_t startingDebugLevel) {
+void RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
 
-    // Initialize server telnet
+	// Initialize server telnet
 
-    telnetServer.begin();
-    telnetServer.setNoDelay(true);
+	telnetServer.begin();
+	telnetServer.setNoDelay(true);
 
-    // Reserve space to buffer of print writes
+	// Reserve space to buffer of print writes
 
-    bufferPrint.reserve(BUFFER_PRINT);
+	_bufferPrint.reserve(BUFFER_PRINT);
 
-    // Host name of this device
+#ifdef CLIENT_BUFFERING
+	// Reserve space to buffer of send
 
-    _hostName = hostName;
-    _clientDebugLevel = startingDebugLevel;
-    _lastDebugLevel = startingDebugLevel;
+	_bufferPrint.reserve(MAX_SIZE_SEND);
+
+#endif
+
+	// Host name of this device
+
+	_hostName = hostName;
+	_clientDebugLevel = startingDebugLevel;
+	_lastDebugLevel = startingDebugLevel;
 }
 
 // Stop the server
 
-void RemoteDebug::stop () {
+void RemoteDebug::stop() {
 
-    // Stop Client
+	// Stop Client
 
-    if (telnetClient && telnetClient.connected()) {
-        telnetClient.stop();
-    }
+	if (telnetClient && telnetClient.connected()) {
+		telnetClient.stop();
+	}
 
-    // Stop server
+	// Stop server
 
-    telnetServer.stop();
+	telnetServer.stop();
 }
 
 // Handle the connection (in begin of loop in sketch)
@@ -81,10 +84,10 @@ void RemoteDebug::handle() {
 
 	if (_clientDebugLevel == PROFILER) {
 		if (millis() > _levelProfilerDisable) {
-			 _clientDebugLevel = _levelBeforeProfiler;
-			 if (_connected) {
-				 telnetClient.println("* Debug level profile inactive now");
-			 }
+			_clientDebugLevel = _levelBeforeProfiler;
+			if (_connected) {
+				telnetClient.println("* Debug level profile inactive now");
+			}
 		}
 	}
 
@@ -97,23 +100,23 @@ void RemoteDebug::handle() {
 		uint32_t diff = (millis() - lastTime);
 
 		if (diff >= _autoLevelProfiler) {
-			 _levelBeforeProfiler = _clientDebugLevel;
-			 _clientDebugLevel = PROFILER;
-			 _levelProfilerDisable = 1000; // Disable it at 1 sec
-			 if (_connected) {
-				 telnetClient.printf("* Debug level profile active now - time between handels: %u\r\n", diff);
-			 }
+			_levelBeforeProfiler = _clientDebugLevel;
+			_clientDebugLevel = PROFILER;
+			_levelProfilerDisable = 1000; // Disable it at 1 sec
+			if (_connected) {
+				telnetClient.printf("* Debug level profile active now - time between handels: %u\r\n", diff);
+			}
 		}
 
 		lastTime = millis();
 	}
 #endif
 
-    // look for Client connect trial
+	// look for Client connect trial
 
-    if (telnetServer.hasClient()) {
+	if (telnetServer.hasClient()) {
 
-    	// Old connection logic
+		// Old connection logic
 
 //      if (!telnetClient || !telnetClient.connected()) {
 //
@@ -123,9 +126,9 @@ void RemoteDebug::handle() {
 //
 //        }
 
-    	// New connection logic - 10/08/17
+		// New connection logic - 10/08/17
 
-    	if (telnetClient && telnetClient.connected()) {
+		if (telnetClient && telnetClient.connected()) {
 
 			// Verify if the IP is same than actual conection
 
@@ -150,126 +153,150 @@ void RemoteDebug::handle() {
 
 			}
 
-         } else {
+		} else {
 
-        	 // New TCP client
+			// New TCP client
 
-        	 telnetClient = telnetServer.available();
+			telnetClient = telnetServer.available();
 
-         }
+		}
 
-         if (!telnetClient) { // No client yet ???
-           return;
-         }
+		if (!telnetClient) { // No client yet ???
+			return;
+		}
 
-         // Set client
+		// Set client
 
-         telnetClient.setNoDelay(true); // More faster
-         telnetClient.flush();  // clear input buffer, else you get strange characters
+		telnetClient.setNoDelay(true); // More faster
+		telnetClient.flush(); // clear input buffer, else you get strange characters
 
-        _lastTimeCommand = millis(); // To mark time for inactivity
+		_bufferPrint = "";			// Clean buffer
 
-        // Show the initial message
+		_lastTimeCommand = millis(); // To mark time for inactivity
 
-		showHelp ();
+		_command = "";				// Clear command
+		_lastCommand = "";			// Clear las command
 
-        // Empty buffer in
+		// Show the initial message
 
-        while(telnetClient.available()) {
-            telnetClient.read();
-        }
+		showHelp();
 
-    }
+#ifdef CLIENT_BUFFERING
+		// Client buffering - send data in intervals to avoid delays or if its is too big
+		_bufferSend = "";
+		_sizeBufferSend = 0;
+		_lastTimeSend = millis();
+#endif
 
-    // Is client connected ? (to reduce overhead in active)
+		// Empty buffer in
 
-    _connected = (telnetClient && telnetClient.connected());
+		delay(100);
 
-    // Get command over telnet
+		while (telnetClient.available()) {
+			telnetClient.read();
+		}
 
-    if (_connected) {
+	}
 
-    	char last = ' '; // To avoid process two times the "\r\n"
+	// Is client connected ? (to reduce overhead in active)
 
-        while(telnetClient.available()) {  // get data from Client
+	_connected = (telnetClient && telnetClient.connected());
 
-            // Get character
+	// Get command over telnet
 
-            char character = telnetClient.read();
+	if (_connected) {
 
-            // Newline (CR or LF) - once one time if (\r\n) - 26/07/17
+		char last = ' '; // To avoid process two times the "\r\n"
 
-            if (isCRLF(character) == true) {
+		while (telnetClient.available()) {  // get data from Client
 
-            	if (isCRLF(last) == false) {
+			// Get character
 
-                    // Process the command
+			char character = telnetClient.read();
 
-            		if (_command.length() > 0) {
+			// Newline (CR or LF) - once one time if (\r\n) - 26/07/17
 
-                        _lastCommand = _command; // Store the last command
-			processCommand();
+			if (isCRLF(character) == true) {
 
-                    }
-            	}
-                
-		_command = ""; // Init it for next command
+				if (isCRLF(last) == false) {
 
-            } else if (isPrintable(character)) {
+					// Process the command
 
-                // Concat
+					if (_command.length() > 0) {
 
-                _command.concat(character);
+						_lastCommand = _command; // Store the last command
+						processCommand();
 
-            }
+					}
+				}
 
-            // Last char
+				_command = ""; // Init it for next command
 
-            last = character;
-        }
+			} else if (isPrintable(character)) {
+
+				// Concat
+
+				_command.concat(character);
+
+			}
+
+			// Last char
+
+			last = character;
+		}
+
+#ifdef CLIENT_BUFFERING
+		// Client buffering - send data in intervals to avoid delays or if its is too big
+
+		if ((millis() - _lastTimeSend) >= DELAY_TO_SEND || _sizeBufferSend >= MAX_SIZE_SEND) {
+			telnetClient.print(_bufferSend);
+			_bufferSend = "";
+			_sizeBufferSend = 0;
+			_lastTimeSend = millis();
+		}
+#endif
 
 #ifdef MAX_TIME_INACTIVE
 
-        // Inactivit - close connection if not received commands from user in telnet
-        // For reduce overheads
+		// Inactivit - close connection if not received commands from user in telnet
+		// For reduce overheads
 
-        if ((millis() - _lastTimeCommand) > MAX_TIME_INACTIVE) {
-            telnetClient.println("* Closing session by inactivity");
-            telnetClient.stop();
-            _connected = false;
-        }
+		if ((millis() - _lastTimeCommand) > MAX_TIME_INACTIVE) {
+			telnetClient.println("* Closing session by inactivity");
+			telnetClient.stop();
+			_connected = false;
+		}
 #endif
 
-    }
+	}
 //DV("*handle time: ", (millis() - timeBegin));
 }
 
 // Send to serial too  (not recommended)
 
 void RemoteDebug::setSerialEnabled(boolean enable) {
-    _serialEnabled = enable;
-    _showColors = false; // Desativa isto para Serial
+	_serialEnabled = enable;
+	_showColors = false; // Desativa isto para Serial
 }
 
 // Allow ESP reset over telnet client
 
 void RemoteDebug::setResetCmdEnabled(boolean enable) {
-    _resetCommandEnabled = enable;
+	_resetCommandEnabled = enable;
 }
 
 // Show time in millis
 
 void RemoteDebug::showTime(boolean show) {
-    _showTime = show;
+	_showTime = show;
 }
 
 // Show profiler - time in millis between messages of debug
 
 void RemoteDebug::showProfiler(boolean show, uint32_t minTime) {
-    _showProfiler = show;
-    _minTimeShowProfiler = minTime;
+	_showProfiler = show;
+	_minTimeShowProfiler = minTime;
 }
-
 
 #ifdef ALPHA_VERSION // In test, not good yet
 // Automatic change to profiler level if time between handles is greater than n mills (0 - disable)
@@ -282,35 +309,35 @@ void RemoteDebug::autoProfilerLevel(uint32_t millisElapsed) {
 // Show debug level
 
 void RemoteDebug::showDebugLevel(boolean show) {
-    _showDebugLevel = show;
+	_showDebugLevel = show;
 }
 
 // Show colors
 
 void RemoteDebug::showColors(boolean show) {
-    if (_serialEnabled == false) {
-        _showColors = show;
-    } else {
-        _showColors = false; // Desativa isto para Serial
-    }
+	if (_serialEnabled == false) {
+		_showColors = show;
+	} else {
+		_showColors = false; // Desativa isto para Serial
+	}
 }
 
 // Is active ? client telnet connected and level of debug equal or greater then setted by user in telnet
 
 boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
-    // Active -> Debug level ok and
-    //           Telnet connected or
-    //           Serial enabled (not recommended)
+	// Active -> Debug level ok and
+	//           Telnet connected or
+	//           Serial enabled (not recommended)
 
-    boolean ret = (debugLevel >= _clientDebugLevel &&
-                    (_connected || _serialEnabled));
+	boolean ret = (debugLevel >= _clientDebugLevel
+			&& (_connected || _serialEnabled));
 
-    if (ret) {
-        _lastDebugLevel = debugLevel;
-    }
+	if (ret) {
+		_lastDebugLevel = debugLevel;
+	}
 
-    return ret;
+	return ret;
 
 }
 
@@ -318,181 +345,226 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
 void RemoteDebug::setHelpProjectsCmds(String help) {
 
-    _helpProjectCmds = help;
+	_helpProjectCmds = help;
 
 }
 
 // Set callback of sketch function to process project messages
 
 void RemoteDebug::setCallBackProjectCmds(void (*callback)()) {
-    _callbackProjectCmds = callback;
+	_callbackProjectCmds = callback;
 }
 
 // Print
 
 size_t RemoteDebug::write(uint8_t character) {
 
-    static uint32_t lastTime = millis();
-    static uint32_t elapsed = 0;
+	static uint32_t lastTime = millis();
+	static uint32_t elapsed = 0;
 
-    size_t ret = 0;
+	size_t ret = 0;
 
-    // New line writted before ?
+	// New line writted before ?
 
-    if (_newLine) {
+	if (_newLine) {
 
-        String show = "";
+		String show = "";
 
-        // Show debug level
+		// Show debug level
 
-        if (_showDebugLevel) {
-            if (_showColors == false) {
-                switch (_lastDebugLevel) {
-                	case PROFILER:  show = "P"; break;
-                    case VERBOSE:   show = "v"; break;
-                    case DEBUG:     show = "d"; break;
-                    case INFO:      show = "i"; break;
-                    case WARNING:   show = "w"; break;
-                    case ERROR:     show = "e"; break;
-                }
-            } else {
-                switch (_lastDebugLevel) {
-                	case PROFILER:  show = "P"; break;
-                    case VERBOSE:   show = "v"; break;
-                    case DEBUG:     show = COLOR_BACKGROUND_GREEN; show.concat("d"); break;
-                    case INFO:      show = COLOR_BACKGROUND_WHITE; show.concat("i"); break;
-                    case WARNING:   show = COLOR_BACKGROUND_YELLOW; show.concat("w"); break;
-                    case ERROR:     show = COLOR_BACKGROUND_RED; show.concat("e"); break;
-                }
-                if (show.length() > 1) {
-                    show.concat(COLOR_RESET);
-                }
-            }
-        }
+		if (_showDebugLevel) {
+			if (_showColors == false) {
+				switch (_lastDebugLevel) {
+				case PROFILER:
+					show = "P";
+					break;
+				case VERBOSE:
+					show = "v";
+					break;
+				case DEBUG:
+					show = "d";
+					break;
+				case INFO:
+					show = "i";
+					break;
+				case WARNING:
+					show = "w";
+					break;
+				case ERROR:
+					show = "e";
+					break;
+				}
+			} else {
+				switch (_lastDebugLevel) {
+				case PROFILER:
+					show = "P";
+					break;
+				case VERBOSE:
+					show = "v";
+					break;
+				case DEBUG:
+					show = COLOR_BACKGROUND_GREEN;
+					show.concat("d");
+					break;
+				case INFO:
+					show = COLOR_BACKGROUND_WHITE;
+					show.concat("i");
+					break;
+				case WARNING:
+					show = COLOR_BACKGROUND_YELLOW;
+					show.concat("w");
+					break;
+				case ERROR:
+					show = COLOR_BACKGROUND_RED;
+					show.concat("e");
+					break;
+				}
+				if (show.length() > 1) {
+					show.concat(COLOR_RESET);
+				}
+			}
+		}
 
-        // Show time in millis
+		// Show time in millis
 
-        if (_showTime) {
-            if (show != "")
-                show.concat (" ");
-            show.concat ("t:");
-            show.concat (millis());
-            show.concat ("ms");
-        }
+		if (_showTime) {
+			if (show != "")
+				show.concat(" ");
+			show.concat("t:");
+			show.concat(millis());
+			show.concat("ms");
+		}
 
-        // Show profiler (time between messages)
+		// Show profiler (time between messages)
 
-        if (_showProfiler) {
-            elapsed = (millis() - lastTime);
-            boolean resetColors = false;
-            if (show != "")
-                show.concat (" ");
-            if (_showColors) {
-                if (elapsed < 250) {
-                    ; // not color this
-                } else if (elapsed < 1000) {
-                    show.concat(COLOR_BACKGROUND_CYAN);
-                    resetColors = true;
-                } else if (elapsed < 3000) {
-                    show.concat (COLOR_BACKGROUND_YELLOW);
-                    resetColors = true;
-                } else if (elapsed < 3000) {
-                    show.concat (COLOR_BACKGROUND_MAGENTA);
-                    resetColors = true;
-                } else {
-                    show.concat (COLOR_BACKGROUND_RED);
-                    resetColors = true;
-                }
-            }
-            show.concat("p:^");
-            show.concat (formatNumber(elapsed, 4));
-            show.concat ("ms");
-            if (resetColors) {
-                show.concat(COLOR_RESET);
-            }
-            lastTime = millis();
-        }
+		if (_showProfiler) {
+			elapsed = (millis() - lastTime);
+			boolean resetColors = false;
+			if (show != "")
+				show.concat(" ");
+			if (_showColors) {
+				if (elapsed < 250) {
+					; // not color this
+				} else if (elapsed < 1000) {
+					show.concat(COLOR_BACKGROUND_CYAN);
+					resetColors = true;
+				} else if (elapsed < 3000) {
+					show.concat(COLOR_BACKGROUND_YELLOW);
+					resetColors = true;
+				} else if (elapsed < 3000) {
+					show.concat(COLOR_BACKGROUND_MAGENTA);
+					resetColors = true;
+				} else {
+					show.concat(COLOR_BACKGROUND_RED);
+					resetColors = true;
+				}
+			}
+			show.concat("p:^");
+			show.concat(formatNumber(elapsed, 4));
+			show.concat("ms");
+			if (resetColors) {
+				show.concat(COLOR_RESET);
+			}
+			lastTime = millis();
+		}
 
-        if (show != "") {
+		if (show != "") {
 
-            String send = "(";
-            send.concat(show);
-            send.concat(") ");
+			String send = "(";
+			send.concat(show);
+			send.concat(") ");
 
-            // Write to telnet buffered
+			// Write to telnet buffered
 
-            if (_connected || _serialEnabled) {  // send data to Client
-                bufferPrint = send;
-            }
-        }
+			if (_connected || _serialEnabled) {  // send data to Client
+				_bufferPrint = send;
+			}
+		}
 
-        _newLine = false;
+		_newLine = false;
 
-    }
+	}
 
-    // Print ?
+	// Print ?
 
-    boolean doPrint = false;
+	boolean doPrint = false;
 
-    // New line ?
+	// New line ?
 
-    if (character == '\n') {
+	if (character == '\n') {
 
-        bufferPrint.concat("\r"); // Para clientes windows - 29/01/17
+		_bufferPrint.concat("\r"); // Para clientes windows - 29/01/17
 
-        _newLine = true;
-        doPrint = true;
+		_newLine = true;
+		doPrint = true;
 
-    } else if (bufferPrint.length() == BUFFER_PRINT) { // Limit of buffer
+	} else if (_bufferPrint.length() == BUFFER_PRINT) { // Limit of buffer
 
-        doPrint = true;
+		doPrint = true;
 
-    }
+	}
 
-    // Write to telnet Buffered
+	// Write to telnet Buffered
 
-    bufferPrint.concat((char)character);
+	_bufferPrint.concat((char) character);
 
-    // Send the characters buffered by print.h
+	// Send the characters buffered by print.h
 
-    if (doPrint) { // Print the buffer
+	if (doPrint) { // Print the buffer
 
-        boolean noPrint = false;
+		boolean noPrint = false;
 
-        if (_showProfiler && elapsed < _minTimeShowProfiler) { // Profiler time Minimal
-            noPrint = true;
-        } else if (_filterActive) { // Check filter before print
+		if (_showProfiler && elapsed < _minTimeShowProfiler) { // Profiler time Minimal
+			noPrint = true;
+		} else if (_filterActive) { // Check filter before print
 
-            String aux = bufferPrint;
-            aux.toLowerCase();
+			String aux = _bufferPrint;
+			aux.toLowerCase();
 
-            if (aux.indexOf(_filter) == -1) { // not find -> no print
-                noPrint = true;
-            }
-        }
+			if (aux.indexOf(_filter) == -1) { // not find -> no print
+				noPrint = true;
+			}
+		}
 
-        if (noPrint == false) {
+		if (noPrint == false) {
 
-            // Write to telnet Buffered
+			// Send to telnet buffered
 
-            if (_connected) {  // send data to Client
-                telnetClient.print(bufferPrint);
-            }
+			if (_connected) {  // send data to Client
+#ifndef CLIENT_BUFFERING
+				telnetClient.print(_bufferPrint);
+#else // Cliente buffering
 
-            if (_serialEnabled) { // Echo to serial
-                Serial.print(bufferPrint);
-            }
-        }
+				// Add to buffer of send
 
-        // Empty the buffer
+				_bufferSend.concat(_bufferPrint);
+				_sizeBufferSend+=_bufferPrint.length();
 
-        ret = bufferPrint.length();
-        bufferPrint = "";
-    }
+				// Client buffering - send data in intervals to avoid delays or if its is too big
 
-    // Retorna
+				if ((millis() - _lastTimeSend) >= DELAY_TO_SEND || _sizeBufferSend >= MAX_SIZE_SEND) {
+					telnetClient.print(_bufferSend);
+					_bufferSend = "";
+					_sizeBufferSend = 0;
+					_lastTimeSend = millis();
+				}
+#endif
+			}
 
-    return ret;
+			if (_serialEnabled) { // Echo to serial (not buffering it)
+				Serial.print(_bufferPrint);
+			}
+		}
+
+		// Empty the buffer
+
+		ret = _bufferPrint.length();
+		_bufferPrint = "";
+	}
+
+	// Retorna
+
+	return ret;
 }
 
 ////// Private
@@ -501,325 +573,336 @@ size_t RemoteDebug::write(uint8_t character) {
 
 void RemoteDebug::showHelp() {
 
-    // Show the initial message
+	// Show the initial message
 
-    String help = "";
+	String help = "";
 
 #if defined(ESP8266)
-    help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
+	help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
 #elif defined(ESP32)
-    help.concat("*** Remote debug - over telnet - for ESP32 - version ");
+	help.concat("*** Remote debug - over telnet - for ESP32 - version ");
 #endif
-    help.concat(VERSION);
-    help.concat("\r\n");
-    help.concat("* Host name: ");
-    help.concat(_hostName);
-    help.concat(" IP:");
-    help.concat(WiFi.localIP().toString());
-    help.concat(" Mac address:");
-    help.concat(WiFi.macAddress());
-    help.concat("\r\n");
-    help.concat("* Free Heap RAM: ");
-    help.concat(ESP.getFreeHeap());
-    help.concat("\r\n");
-    help.concat("******************************************************\r\n");
-    help.concat("* Commands:\r\n");
-    help.concat("    ? or help -> display these help of commands\r\n");
-    help.concat("    q -> quit (close this connection)\r\n");
-    help.concat("    m -> display memory available\r\n");
-    help.concat("    v -> set debug level to verbose\r\n");
-    help.concat("    d -> set debug level to debug\r\n");
-    help.concat("    i -> set debug level to info\r\n");
-    help.concat("    w -> set debug level to warning\r\n");
-    help.concat("    e -> set debug level to errors\r\n");
-    help.concat("    l -> show debug level\r\n");
-    help.concat("    t -> show time (millis)\r\n");
-    help.concat("    profiler:\r\n");
-    help.concat("      p      -> show time between actual and last message (in millis)\r\n");
-    help.concat("      p min  -> show only if time is this minimal\r\n");
-    help.concat("      P time -> set debug level to profiler\r\n");
+	help.concat(VERSION);
+	help.concat("\r\n");
+	help.concat("* Host name: ");
+	help.concat(_hostName);
+	help.concat(" IP:");
+	help.concat(WiFi.localIP().toString());
+	help.concat(" Mac address:");
+	help.concat(WiFi.macAddress());
+	help.concat("\r\n");
+	help.concat("* Free Heap RAM: ");
+	help.concat(ESP.getFreeHeap());
+	help.concat("\r\n");
+	help.concat("******************************************************\r\n");
+	help.concat("* Commands:\r\n");
+	help.concat("    ? or help -> display these help of commands\r\n");
+	help.concat("    q -> quit (close this connection)\r\n");
+	help.concat("    m -> display memory available\r\n");
+	help.concat("    v -> set debug level to verbose\r\n");
+	help.concat("    d -> set debug level to debug\r\n");
+	help.concat("    i -> set debug level to info\r\n");
+	help.concat("    w -> set debug level to warning\r\n");
+	help.concat("    e -> set debug level to errors\r\n");
+	help.concat("    l -> show debug level\r\n");
+	help.concat("    t -> show time (millis)\r\n");
+	help.concat("    profiler:\r\n");
+	help.concat(
+			"      p      -> show time between actual and last message (in millis)\r\n");
+	help.concat("      p min  -> show only if time is this minimal\r\n");
+	help.concat("      P time -> set debug level to profiler\r\n");
 #ifdef ALPHA_VERSION // In test, not good yet
-    help.concat("      A time -> set auto debug level to profiler\r\n");
+	help.concat("      A time -> set auto debug level to profiler\r\n");
 #endif
-    help.concat("    c -> show colors\r\n");
-    help.concat("    filter:\r\n");
-    help.concat("          filter <string> -> show only debugs with this\r\n");
-    help.concat("          nofilter        -> disable the filter\r\n");
+	help.concat("    c -> show colors\r\n");
+	help.concat("    filter:\r\n");
+	help.concat("          filter <string> -> show only debugs with this\r\n");
+	help.concat("          nofilter        -> disable the filter\r\n");
 #if defined(ESP8266)
-    help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
-    help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
+	help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
+	help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
 #endif
-    if (_resetCommandEnabled) {
-        help.concat("    reset -> reset the ESP8266\r\n");
-    }
+	if (_resetCommandEnabled) {
+		help.concat("    reset -> reset the ESP8266\r\n");
+	}
 
-    if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
-        help.concat("\r\n");
-        help.concat("    * Project commands:\r\n");
-        String show = "\r\n";
-        show.concat(_helpProjectCmds);
-        show.replace("\n", "\n    "); // ident this
-        help.concat(show);
-    }
+	if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
+		help.concat("\r\n");
+		help.concat("    * Project commands:\r\n");
+		String show = "\r\n";
+		show.concat(_helpProjectCmds);
+		show.replace("\n", "\n    "); // ident this
+		help.concat(show);
+	}
 
-    help.concat("\r\n");
-    help.concat("* Please type the command and press enter to execute.(? or h for this help)\r\n");
-    help.concat("***\r\n");
+	help.concat("\r\n");
+	help.concat(
+			"* Please type the command and press enter to execute.(? or h for this help)\r\n");
+	help.concat("***\r\n");
 
-    telnetClient.print(help);
+	telnetClient.print(help);
 }
 
 // Get last command received
 
 String RemoteDebug::getLastCommand() {
 
-    return _lastCommand;
+	return _lastCommand;
 }
 
 // Clear the last command received
 
 void RemoteDebug::clearLastCommand() {
-    _lastCommand = "";
+	_lastCommand = "";
 }
 
 // Process user command over telnet
 
 void RemoteDebug::processCommand() {
 
-    telnetClient.print("* Debug: Command recevied: ");
-    telnetClient.println(_command);
+	telnetClient.print("* Debug: Command recevied: ");
+	telnetClient.println(_command);
 
-    String options = "";
-    uint8_t pos = _command.indexOf(" ");
-    if (pos > 0) {
-        options = _command.substring (pos+1);
-    }
+	String options = "";
+	uint8_t pos = _command.indexOf(" ");
+	if (pos > 0) {
+		options = _command.substring(pos + 1);
+	}
 
-    // Set time of last command received
+	// Set time of last command received
 
-    _lastTimeCommand = millis();
+	_lastTimeCommand = millis();
 
-    // Process the command
+	// Process the command
 
-    if (_command == "h" || _command == "?") {
+	if (_command == "h" || _command == "?") {
 
-        // Show help
+		// Show help
 
-        showHelp();
+		showHelp();
 
-    } else if (_command == "q") {
+	} else if (_command == "q") {
 
-        // Quit
+		// Quit
 
-        telnetClient.println("* Closing telnet connection ...");
+		telnetClient.println("* Closing telnet connection ...");
 
-        telnetClient.stop();
+		telnetClient.stop();
 
-    } else if (_command == "m") {
+	} else if (_command == "m") {
 
-        telnetClient.print("* Free Heap RAM: ");
-        telnetClient.println(ESP.getFreeHeap());
+		telnetClient.print("* Free Heap RAM: ");
+		telnetClient.println(ESP.getFreeHeap());
 
 #if defined(ESP8266)
 
-    } else if (_command == "cpu80") {
+	} else if (_command == "cpu80") {
 
-        // Change ESP8266 CPU para 80 MHz
+		// Change ESP8266 CPU para 80 MHz
 
-        system_update_cpu_freq(80);
-        telnetClient.println("CPU ESP8266 changed to: 80 MHz");
+		system_update_cpu_freq(80);
+		telnetClient.println("CPU ESP8266 changed to: 80 MHz");
 
-    } else if (_command == "cpu160") {
+	} else if (_command == "cpu160") {
 
-        // Change ESP8266 CPU para 160 MHz
+		// Change ESP8266 CPU para 160 MHz
 
-        system_update_cpu_freq(160);
-        telnetClient.println("CPU ESP8266 changed to: 160 MHz");
+		system_update_cpu_freq(160);
+		telnetClient.println("CPU ESP8266 changed to: 160 MHz");
 
 #endif
 
-    } else if (_command == "v") {
+	} else if (_command == "v") {
 
-        // Debug level
+		// Debug level
 
-        _clientDebugLevel = VERBOSE;
+		_clientDebugLevel = VERBOSE;
 
-        telnetClient.println("* Debug level setted to Verbose");
+		telnetClient.println("* Debug level setted to Verbose");
 
-    } else if (_command == "d") {
+	} else if (_command == "d") {
 
-        // Debug level
+		// Debug level
 
-        _clientDebugLevel = DEBUG;
+		_clientDebugLevel = DEBUG;
 
-        telnetClient.println("* Debug level setted to Debug");
+		telnetClient.println("* Debug level setted to Debug");
 
-    } else if (_command == "i") {
+	} else if (_command == "i") {
 
-        // Debug level
+		// Debug level
 
-        _clientDebugLevel = INFO;
+		_clientDebugLevel = INFO;
 
-        telnetClient.println("* Debug level setted to Info");
+		telnetClient.println("* Debug level setted to Info");
 
-    } else if (_command == "w") {
+	} else if (_command == "w") {
 
-        // Debug level
+		// Debug level
 
-        _clientDebugLevel = WARNING;
+		_clientDebugLevel = WARNING;
 
-        telnetClient.println("* Debug level setted to Warning");
+		telnetClient.println("* Debug level setted to Warning");
 
-    } else if (_command == "e") {
+	} else if (_command == "e") {
 
-        // Debug level
+		// Debug level
 
-        _clientDebugLevel = ERROR;
+		_clientDebugLevel = ERROR;
 
-        telnetClient.println("* Debug level setted to Error");
+		telnetClient.println("* Debug level setted to Error");
 
-    } else if (_command == "l") {
+	} else if (_command == "l") {
 
-        // Show debug level
+		// Show debug level
 
-        _showDebugLevel = !_showDebugLevel;
+		_showDebugLevel = !_showDebugLevel;
 
-        telnetClient.printf("* Show debug level: %s\r\n", (_showDebugLevel)?"On":"Off");
+		telnetClient.printf("* Show debug level: %s\r\n",
+				(_showDebugLevel) ? "On" : "Off");
 
-    } else if (_command == "t") {
+	} else if (_command == "t") {
 
-        // Show time
+		// Show time
 
-        _showTime = !_showTime;
+		_showTime = !_showTime;
 
-        telnetClient.printf("* Show time: %s\r\n", (_showTime)?"On":"Off");
+		telnetClient.printf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
 
-    } else if (_command == "p") {
+	} else if (_command == "p") {
 
-        // Show profiler
+		// Show profiler
 
-        _showProfiler = !_showProfiler;
-        _minTimeShowProfiler = 0;
+		_showProfiler = !_showProfiler;
+		_minTimeShowProfiler = 0;
 
-        telnetClient.printf("* Show profiler: %s\r\n", (_showProfiler)?"On":"Off");
+		telnetClient.printf("* Show profiler: %s\r\n",
+				(_showProfiler) ? "On" : "Off");
 
-    } else if (_command.startsWith("p ")) {
+	} else if (_command.startsWith("p ")) {
 
-        // Show profiler with minimal time
+		// Show profiler with minimal time
 
-        if (options.length() > 0) { // With minimal time
-            int32_t aux = options.toInt();
-            if (aux > 0) { // Valid number
-                _showProfiler = true;
-                _minTimeShowProfiler = aux;
-                telnetClient.printf("* Show profiler: On (with minimal time: %u)\r\n", _minTimeShowProfiler);
-            }
-        }
+		if (options.length() > 0) { // With minimal time
+			int32_t aux = options.toInt();
+			if (aux > 0) { // Valid number
+				_showProfiler = true;
+				_minTimeShowProfiler = aux;
+				telnetClient.printf(
+						"* Show profiler: On (with minimal time: %u)\r\n",
+						_minTimeShowProfiler);
+			}
+		}
 
-    } else if (_command == "P") {
+	} else if (_command == "P") {
 
-        // Debug level profile
+		// Debug level profile
 
-    	_levelBeforeProfiler = _clientDebugLevel;
-        _clientDebugLevel = PROFILER;
+		_levelBeforeProfiler = _clientDebugLevel;
+		_clientDebugLevel = PROFILER;
 
-        if (_showProfiler == false) {
-        	_showProfiler = true;
-        }
+		if (_showProfiler == false) {
+			_showProfiler = true;
+		}
 
-        _levelProfilerDisable = 1000; // Default
+		_levelProfilerDisable = 1000; // Default
 
-        if (options.length() > 0) { // With time of disable
-            int32_t aux = options.toInt();
-            if (aux > 0) { // Valid number
-                _levelProfilerDisable = millis() + aux;
-            }
-        }
+		if (options.length() > 0) { // With time of disable
+			int32_t aux = options.toInt();
+			if (aux > 0) { // Valid number
+				_levelProfilerDisable = millis() + aux;
+			}
+		}
 
-        telnetClient.printf("* Debug level setted to Profiler (disable in %u millis)\r\n", _levelProfilerDisable);
+		telnetClient.printf(
+				"* Debug level setted to Profiler (disable in %u millis)\r\n",
+				_levelProfilerDisable);
 
-    } else if (_command == "A") {
+	} else if (_command == "A") {
 
-        // Auto debug level profile
+		// Auto debug level profile
 
-        _autoLevelProfiler = 1000; // Default
+		_autoLevelProfiler = 1000; // Default
 
-        if (options.length() > 0) { // With time of disable
-            int32_t aux = options.toInt();
-            if (aux > 0) { // Valid number
-            	_autoLevelProfiler = aux;
-            }
-        }
+		if (options.length() > 0) { // With time of disable
+			int32_t aux = options.toInt();
+			if (aux > 0) { // Valid number
+				_autoLevelProfiler = aux;
+			}
+		}
 
-        telnetClient.printf("* Auto profiler debug level active (time >= %u millis)\r\n", _autoLevelProfiler);
+		telnetClient.printf(
+				"* Auto profiler debug level active (time >= %u millis)\r\n",
+				_autoLevelProfiler);
 
-    } else if (_command == "c") {
+	} else if (_command == "c") {
 
-        // Show colors
+		// Show colors
 
-        _showColors = !_showColors;
+		_showColors = !_showColors;
 
-        telnetClient.printf("* Show colors: %s\r\n", (_showColors)?"On":"Off");
+		telnetClient.printf("* Show colors: %s\r\n",
+				(_showColors) ? "On" : "Off");
 
-    } else if (_command.startsWith("filter ") && options.length() > 0) {
+	} else if (_command.startsWith("filter ") && options.length() > 0) {
 
-        setFilter(options);
+		setFilter(options);
 
-    } else if (_command == "nofilter") {
+	} else if (_command == "nofilter") {
 
-        setNoFilter();
-    } else if (_command == "reset" && _resetCommandEnabled) {
+		setNoFilter();
+	} else if (_command == "reset" && _resetCommandEnabled) {
 
-        telnetClient.println("* Reset ...");
+		telnetClient.println("* Reset ...");
 
-        telnetClient.println("* Closing telnet connection ...");
+		telnetClient.println("* Closing telnet connection ...");
 
 #if defined(ESP8266)
-        telnetClient.println("* Resetting the ESP8266 ...");
+		telnetClient.println("* Resetting the ESP8266 ...");
 #elif defined(ESP32)
-        telnetClient.println("* Resetting the ESP32 ...");
+		telnetClient.println("* Resetting the ESP32 ...");
 #endif
 
-        telnetClient.stop();
-        telnetServer.stop();
+		telnetClient.stop();
+		telnetServer.stop();
 
-        delay (500);
+		delay(500);
 
-        // Reset
+		// Reset
 
-        ESP.restart();
+		ESP.restart();
 
-    } else  {
+	} else {
 
-        // Project commands - setted by programmer
+		// Project commands - setted by programmer
 
-        if (_callbackProjectCmds) {
+		if (_callbackProjectCmds) {
 
-            _callbackProjectCmds();
+			_callbackProjectCmds();
 
-        }
-    }
+		}
+	}
 }
 
 // Filter
 
 void RemoteDebug::setFilter(String filter) {
 
-    _filter = filter;
-    _filter.toLowerCase(); // TODO: option to case insensitive ?
-    _filterActive = true;
+	_filter = filter;
+	_filter.toLowerCase(); // TODO: option to case insensitive ?
+	_filterActive = true;
 
-    telnetClient.print("* Debug: Filter active: ");
-    telnetClient.println(_filter);
+	telnetClient.print("* Debug: Filter active: ");
+	telnetClient.println(_filter);
 
 }
 
 void RemoteDebug::setNoFilter() {
 
-    _filter = "";
-    _filterActive = false;
+	_filter = "";
+	_filterActive = false;
 
-    telnetClient.println("* Debug: Filter disabled");
+	telnetClient.println("* Debug: Filter disabled");
 
 }
 
@@ -827,23 +910,23 @@ void RemoteDebug::setNoFilter() {
 
 String RemoteDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
 
-    // Putting zeroes in left
+	// Putting zeroes in left
 
-    String ret = "";
+	String ret = "";
 
-    for (uint8_t i=1; i<=size; i++) {
-        uint32_t max = pow(10, i);
-        if (value < max) {
-            for (uint8_t j=(size - i); j>0; j--) {
-                ret.concat(insert);
-            }
-            break;
-        }
-    }
+	for (uint8_t i = 1; i <= size; i++) {
+		uint32_t max = pow(10, i);
+		if (value < max) {
+			for (uint8_t j = (size - i); j > 0; j--) {
+				ret.concat(insert);
+			}
+			break;
+		}
+	}
 
-    ret.concat(value);
+	ret.concat(value);
 
-    return ret;
+	return ret;
 }
 
 // Is CR or LF ?
