@@ -536,14 +536,28 @@ size_t RemoteDebug::write(uint8_t character) {
 				telnetClient.print(_bufferPrint);
 #else // Cliente buffering
 
+				uint8_t size = _bufferPrint.length();
+
+				// Buffer too big ?
+
+				if ((_sizeBufferSend + size) >= MAX_SIZE_SEND) {
+
+					// Send it
+
+					telnetClient.print(_bufferSend);
+					_bufferSend = "";
+					_sizeBufferSend = 0;
+					_lastTimeSend = millis();
+				}
+
 				// Add to buffer of send
 
 				_bufferSend.concat(_bufferPrint);
-				_sizeBufferSend+=_bufferPrint.length();
+				_sizeBufferSend+=size;
 
 				// Client buffering - send data in intervals to avoid delays or if its is too big
 
-				if ((millis() - _lastTimeSend) >= DELAY_TO_SEND || _sizeBufferSend >= MAX_SIZE_SEND) {
+				if ((millis() - _lastTimeSend) >= DELAY_TO_SEND) {
 					telnetClient.print(_bufferSend);
 					_bufferSend = "";
 					_sizeBufferSend = 0;

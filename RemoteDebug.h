@@ -88,7 +88,7 @@ bool system_update_cpu_freq(uint8 freq);
 #define CLIENT_BUFFERING true
 #ifdef CLIENT_BUFFERING
 #define DELAY_TO_SEND 10 // Time to send buffer
-#define MAX_SIZE_SEND 1400 // To respect the 1460 limit of TCP/IP
+#define MAX_SIZE_SEND 1460 // Maximum size of packet (limit of TCP/IP)
 #endif
 
 // Class
