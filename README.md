@@ -125,9 +125,10 @@ Youtube:
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
 ```
 ###instance
-
+- After #include, before setup
+```cpp
 RemoteDebug Debug;
-
+```
 ###setup
 
 - In the setup function after WiFi initialization
