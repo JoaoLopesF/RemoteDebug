@@ -3,7 +3,7 @@
 //
 // Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
 // Author: Joao Lopes
-// Tanks: Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
+// Thanks: Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
 //
 // Versions:
 //    - 0.9.0 Beta 1 - August 2016
@@ -324,7 +324,7 @@ void RemoteDebug::showColors(boolean show) {
 	}
 }
 
-// Is active ? client telnet connected and level of debug equal or greater then setted by user in telnet
+// Is active ? client telnet connected and level of debug equal or greater then set by user in telnet
 
 boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
@@ -343,7 +343,7 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
 }
 
-// Set help for commands over telnet setted by sketch
+// Set help for commands over telnet set by sketch
 
 void RemoteDebug::setHelpProjectsCmds(String help) {
 
@@ -603,7 +603,7 @@ void RemoteDebug::showHelp() {
 	help.concat(_hostName);
 	help.concat(" IP:");
 	help.concat(WiFi.localIP().toString());
-	help.concat(" Mac address:");
+	help.concat(" MAC address:");
 	help.concat(WiFi.macAddress());
 	help.concat("\r\n");
 	help.concat("* Free Heap RAM: ");
@@ -611,7 +611,7 @@ void RemoteDebug::showHelp() {
 	help.concat("\r\n");
 	help.concat("******************************************************\r\n");
 	help.concat("* Commands:\r\n");
-	help.concat("    ? or help -> display these help of commands\r\n");
+	help.concat("    ? or help -> display these help commands\r\n");
 	help.concat("    q -> quit (close this connection)\r\n");
 	help.concat("    m -> display memory available\r\n");
 	help.concat("    v -> set debug level to verbose\r\n");
@@ -675,7 +675,7 @@ void RemoteDebug::clearLastCommand() {
 
 void RemoteDebug::processCommand() {
 
-	telnetClient.print("* Debug: Command recevied: ");
+	telnetClient.print("* Debug: Command received: ");
 	telnetClient.println(_command);
 
 	String options = "";
@@ -733,7 +733,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = VERBOSE;
 
-		telnetClient.println("* Debug level setted to Verbose");
+		telnetClient.println("* Debug level set to Verbose");
 
 	} else if (_command == "d") {
 
@@ -741,7 +741,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = DEBUG;
 
-		telnetClient.println("* Debug level setted to Debug");
+		telnetClient.println("* Debug level set to Debug");
 
 	} else if (_command == "i") {
 
@@ -749,7 +749,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = INFO;
 
-		telnetClient.println("* Debug level setted to Info");
+		telnetClient.println("* Debug level set to Info");
 
 	} else if (_command == "w") {
 
@@ -757,7 +757,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = WARNING;
 
-		telnetClient.println("* Debug level setted to Warning");
+		telnetClient.println("* Debug level set to Warning");
 
 	} else if (_command == "e") {
 
@@ -765,7 +765,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = ERROR;
 
-		telnetClient.println("* Debug level setted to Error");
+		telnetClient.println("* Debug level set to Error");
 
 	} else if (_command == "l") {
 
@@ -830,7 +830,7 @@ void RemoteDebug::processCommand() {
 		}
 
 		telnetClient.printf(
-				"* Debug level setted to Profiler (disable in %u millis)\r\n",
+				"* Debug level set to Profiler (disable in %u millis)\r\n",
 				_levelProfilerDisable);
 
 	} else if (_command == "A") {
@@ -889,7 +889,7 @@ void RemoteDebug::processCommand() {
 
 	} else {
 
-		// Project commands - setted by programmer
+		// Project commands - set by programmer
 
 		if (_callbackProjectCmds) {
 
