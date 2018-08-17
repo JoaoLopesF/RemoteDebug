@@ -38,6 +38,9 @@ And now have a shortcuts (see it above)
 Telnet is a standard way of remotely connecting to a server and is supported on all operating systems (Windows, Mac, Linux...).
 A typical telnet client for Windows is Putty for example.
 
+Have a good tool for mobiles: "Fing"
+Its show all devices in local network, show ports opened and can execute the telnet client too (external App)
+
 _RemoteDebug_  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
 
 _RemoteDebug_ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
@@ -75,23 +78,6 @@ _RemoteDebug_ supports custom commands that can be entered in the telnet client.
 
 Also please see my another library: https://github.com/JoaoLopesF/ArduinoUtil
 
-##Warning
-
-In beta versions, the **isActive** method was misspelled,
-Please when upgrading from a beta to the current one, please review your code.
-
-From:
-
-```
-if (Debug.ative(Debug.<level>)) ....
-```
-
-To:
-
-```
-if (Debug.isActive(Debug.<level>)) ....
-```
-
 ##DISCLAIMER:
 
 The current version of _RemoteDebug_ does not yet include any authentication and is intended only for development.
@@ -125,10 +111,9 @@ Youtube:
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
 ```
 ###instance
-- After #include, before setup
-```cpp
+
 RemoteDebug Debug;
-```
+
 ###setup
 
 - In the setup function after WiFi initialization
@@ -165,6 +150,30 @@ if (Debug.isActive(Debug.<level>)) {
     Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
 ```
+Or short way (new) (prefered if only one debug at time):
+```cpp
+
+rdebug("This is a any (always showed) - var %d\n", var);
+
+rdebugV("This is a verbose - var %d\n", var);
+rdebugD("This is a debug - var %d\n", var);
+rdebugI("This is a information - var %d\n", var);
+rdebugW("This is a warning - var %d\n", var);
+rdebugE("This is a error - var %d\n", var);
+
+rdebugV("This println\n"); // Note: if you want a simple println you must ended with new line characters
+
+```
+Instead of rdebug can be used old short way: 
+```
+DEBUG(...)
+DEBUG_V(...)
+DEBUG_D(...)
+DEBUG_I(...)
+DEBUG_W(...)
+DEBUG_E(...)
+````
+
 - An example of use debug levels: (supposing the data is a lot of characteres)
 ```cpp
 if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
@@ -172,21 +181,6 @@ if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
 } else if (Debug.isActive(Debug.DEBUG)) { // Debug message short
     Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
-```
-- An example of shortcuts (NEW)
-```cpp
-DEBUG("This is a any (always showed) - var %d\n", var);
-
-DEBUG_V("This is a verbose - var %d\n", var);
-DEBUG_D("This is a debug - var %d\n", var);
-DEBUG_I("This is a information - var %d\n", var);
-DEBUG_W("This is a warning - var %d\n", var);
-DEBUG_E("This is a error - var %d\n", var);
-
-// Note: if you want a simple println you must ended with new line characters
-
-DEBUG_V("This println\n");
-
 ```
 
 - An example of use debug with serial enabled
@@ -213,22 +207,55 @@ Debug.setSerialEnabled(true);
 
 ## Releases
 
+#### 1.2.2
+
+  - Adjustments, as avoid ESP32 include errors
+  - Telnet port of server can be modified by project
+    Just put it in your .ino, before the include:
+
+    ````
+    #define TELNET_PORT 1000
+
+    #include "RemoteDebug.h"
+    ````
+
 #### 1.2.0
 
-Shortcuts and client buffering to avoid misterious delay of ESP networking
+  - Shortcuts and client buffering to avoid misterious delay of ESP networking
 
 #### 1.1.0
-Adjustments and now runs in Esp32 too.
+
+  - Adjustments and now runs in Esp32 too.
 
 #### 1.0.0
-Adjustments and improvements from Beta versions.
-News features:
-- Filter
-- Colors
-- Support to Windows telnet client
+
+  - Adjustments and improvements from Beta versions.
+
+  News features:
+  - Filter
+  - Colors
+  - Support to Windows telnet client
 
 #### 0.9
-- First Beta
+
+  - First Beta
+
+        Warning !
+
+        In beta versions, the **isActive** method was misspelled,
+        Please when upgrading from a beta to the current one, please review your code.
+
+        From:
+
+        ```
+        if (Debug.ative(Debug.<level>)) ....
+        ```
+
+        To:
+
+        ```
+        if (Debug.isActive(Debug.<level>)) ....
+        ```
 
 # Know issues
 
