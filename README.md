@@ -93,10 +93,9 @@ Future extension could include a secure way for authentication and further testi
 
 ## How it looks
 
-![Imgur]
-(http://i.imgur.com/QiccbmK.png)
+![Imgur](http://i.imgur.com/QiccbmK.png)
 
-Youtube:
+    Youtube:
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
 ## Usage
