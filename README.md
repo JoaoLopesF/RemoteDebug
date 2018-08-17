@@ -4,8 +4,10 @@
 
 ### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
 
-#### Works with the ESP8266 Arduino platform v2.0.0 or higher / or ESP32. Refer to https://github.com/esp8266/Arduino
-https://github.com/espressif/arduino-esp32
+#### Works with the ESP8266 Arduino platform v2.0.0 or higher / or ESP32.
+
+    https://github.com/esp8266/Arduino
+    https://github.com/espressif/arduino-esp32
 
 ## Contents
  - [About](#about)
@@ -206,6 +208,12 @@ Debug.setSerialEnabled(true);
  - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+#### 1.3.0 - 17/08/18
+
+  - Bug in write with latest ESP8266 SDK - August 2018
+  - Port number can be modified in project Arduino (.ino file)
+  -  Few adjustments as ESP32 includes
 
 #### 1.2.2
 
