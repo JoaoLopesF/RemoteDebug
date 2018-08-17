@@ -1,25 +1,63 @@
-////////
-// Libraries Arduino
-//
-// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
-// Author: Joao Lopes
-// Tanks: Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
-//
-// Versions:
-//    - 0.9.0 Beta 1 - August 2016
-//    - 0.9.1 Beta 2 - Octuber 2016
-//    - 1.0.0 RC - January 2017
-//	  - 1.0.1 New connection logic - August 2017
-//	  - 	  New level -> profiler and auto-profiler
-//            New commands for CPU frequencies
-//    - 1.1.0 Support to ESP32 - August 2017
-//    - 1.1.1 Added support for the pass through of commands, and default debug levels - 11/24/2017 - B. Harville
-//	  - 1.2.0 Added shortcuts and buffering to avoid delays
-//  TODO: - Page HTML for begin/stop Telnet server
-//        - Authentications
-///////
+/*
+ * Libraries Arduino
+ * *****************
+ * Library : Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
+ * Author  : Joao Lopes
+ * Comments: Based on example of TelnetServer code in http: *www.rudiswiki.de/wiki9/WiFiTelnetServer
+ * License : See RemoteDebug.h
+ *
+ * Versions:
+ *    - 0.9.0 Beta 1 - August 2016
+ *    - 0.9.1 Beta 2 - Octuber 2016
+ *    - 1.0.0 RC - January 2017
+ *	  - 1.0.1 New connection logic - August 2017
+ *	  - 	  New level -> profiler and auto-profiler
+ *            New commands for CPU frequencies
+ *    - 1.1.0 Support to ESP32 - August 2017
+ *    - 1.1.1 Added support for the pass through of commands, and default debug levels - 11/24/2017 - B. Harville
+ *	  - 1.2.0 Added shortcuts and buffering to avoid delays
+ *	  - 1.2.1 Adjusts to not cause error in Arduino
+ *    - 1.3.0 Bug in write with latest ESP8266 SDK - August 2018
+ *    	      Port number can be modified in project Arduino (.ino file)
+ *    		  Few adjustments as ESP32 includes
+ */
 
-#define VERSION "1.2.0"
+/*
+ *  TODO: - Page HTML for begin/stop Telnet server
+ *        - Authentications
+ */
+
+///// Includes
+
+#include "stdint.h"
+
+#if defined(ESP8266)
+// ESP8266 SDK
+extern "C" {
+bool system_update_cpu_freq(uint8_t freq);
+}
+#endif
+
+#include "Arduino.h"
+#include "Print.h"
+
+// ESP8266 or ESP32 ?
+
+#if defined(ESP8266)
+
+#include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
+
+#elif defined(ESP32)
+
+#include <WiFi.h>
+
+#else
+
+#error Only for ESP8266 or ESP32
+
+#endif
+
+#define VERSION "1.3.0"
 
 #include <Arduino.h>
 
@@ -55,6 +93,7 @@ void RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
 	_hostName = hostName;
 	_clientDebugLevel = startingDebugLevel;
 	_lastDebugLevel = startingDebugLevel;
+
 }
 
 // Stop the server
@@ -324,7 +363,7 @@ void RemoteDebug::showColors(boolean show) {
 	}
 }
 
-// Is active ? client telnet connected and level of debug equal or greater then setted by user in telnet
+// Is active ? client telnet connected and level of debug equal or greater then set by user in telnet
 
 boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
@@ -343,7 +382,7 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
 }
 
-// Set help for commands over telnet setted by sketch
+// Set help for commands over telnet set by sketch
 
 void RemoteDebug::setHelpProjectsCmds(String help) {
 
@@ -359,7 +398,21 @@ void RemoteDebug::setCallBackProjectCmds(void (*callback)()) {
 
 // Print
 
+size_t RemoteDebug::write(const uint8_t *buffer, size_t size) {
+
+	// Process buffer
+	// Insert due a write bug w/ latest Esp8266 SDK - 17/08/18
+
+	for(size_t i=0; i<size; i++) {
+		write((uint8_t) buffer[i]);
+	}
+
+	return size;
+}
+
 size_t RemoteDebug::write(uint8_t character) {
+
+	// Write logic
 
     uint32_t elapsed = 0;
 
@@ -489,6 +542,10 @@ size_t RemoteDebug::write(uint8_t character) {
 	// Print ?
 
 	boolean doPrint = false;
+
+//	// Test
+//
+//	telnetClient.printf(" %c(%u) buf=%s\r\n", character, character, _bufferPrint.c_str());
 
 	// New line ?
 
@@ -733,7 +790,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = VERBOSE;
 
-		telnetClient.println("* Debug level setted to Verbose");
+		telnetClient.println("* Debug level set to Verbose");
 
 	} else if (_command == "d") {
 
@@ -741,7 +798,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = DEBUG;
 
-		telnetClient.println("* Debug level setted to Debug");
+		telnetClient.println("* Debug level set to Debug");
 
 	} else if (_command == "i") {
 
@@ -749,7 +806,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = INFO;
 
-		telnetClient.println("* Debug level setted to Info");
+		telnetClient.println("* Debug level set to Info");
 
 	} else if (_command == "w") {
 
@@ -757,7 +814,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = WARNING;
 
-		telnetClient.println("* Debug level setted to Warning");
+		telnetClient.println("* Debug level set to Warning");
 
 	} else if (_command == "e") {
 
@@ -765,7 +822,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = ERROR;
 
-		telnetClient.println("* Debug level setted to Error");
+		telnetClient.println("* Debug level set to Error");
 
 	} else if (_command == "l") {
 
@@ -830,7 +887,7 @@ void RemoteDebug::processCommand() {
 		}
 
 		telnetClient.printf(
-				"* Debug level setted to Profiler (disable in %u millis)\r\n",
+				"* Debug level set to Profiler (disable in %u millis)\r\n",
 				_levelProfilerDisable);
 
 	} else if (_command == "A") {
@@ -889,7 +946,7 @@ void RemoteDebug::processCommand() {
 
 	} else {
 
-		// Project commands - setted by programmer
+		// Project commands - set by programmer
 
 		if (_callbackProjectCmds) {
 

@@ -16,19 +16,19 @@
 //            Debug.println("bla bla bla");
 //        }
 //
-// Or shortcuts:
+// Or short way (prefered if only one debug  at time)
 //
-//		DEBUG("This is a any (always showed) - var %d\n", var);
+//		rdebug("This is a any (always showed) - var %d\n", var);
 //
-//		DEBUG_V("This is a verbose - var %d\n", var);
-//		DEBUG_D("This is a debug - var %d\n", var);
-//		DEBUG_I("This is a information - var %d\n", var);
-//		DEBUG_W("This is a warning - var %d\n", var);
-//		DEBUG_E("This is a error - var %d\n", var);
+//		rdebugV("This is a verbose - var %d\n", var);
+//		rdebugD("This is a debug - var %d\n", var);
+//		rdebugI("This is a information - var %d\n", var);
+//		rdebugW("This is a warning - var %d\n", var);
+//		rdebugE("This is a error - var %d\n", var);
 //
 //		// Note: if you want a simple println you must ended with new line characters
 //
-//		DEBUG_V("This println\n");
+//		rdebugV("This println\n");
 //
 ///////
 
@@ -197,6 +197,10 @@ void setup() {
 			"* Please try change debug level in telnet, to see how it works");
 	Serial.println("*");
 
+    Serial.print("* Info: SDK version: ");
+    Serial.println(ESP.getSdkVersion());
+    Serial.println("*");
+
 #endif
 
 }
@@ -235,11 +239,11 @@ void loop() {
 
 			// Debug levels
 
-			DEBUG_V("* This is a message of debug level VERBOSE\n");
-			DEBUG_D("* This is a message of debug level DEBUG\n");
-			DEBUG_I("* This is a message of debug level INFO\n");
-			DEBUG_W("* This is a message of debug level WARNING\n");
-			DEBUG_E("* This is a message of debug level ERROR\n");
+			rdebugV("* This is a message of debug level VERBOSE\n");
+			rdebugD("* This is a message of debug level DEBUG\n");
+			rdebugI("* This is a message of debug level INFO\n");
+			rdebugW("* This is a message of debug level WARNING\n");
+			rdebugE("* This is a message of debug level ERROR\n");
 		}
 #endif
 	}
@@ -276,9 +280,9 @@ void loop() {
 	uint32_t time = (millis() - timeBeginLoop);
 
 	if (time > 100) {
-		DEBUG_I("* Time elapsed for the loop: %u ms.\n", time);
+		rdebugI("* Time elapsed for the loop: %u ms.\n", time);
 	} else if (time > 200) {
-		DEBUG_W("* Time elapsed for the loop: %u ms.\n", time);
+		rdebugW("* Time elapsed for the loop: %u ms.\n", time);
 	}
 #endif
 

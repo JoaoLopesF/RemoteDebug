@@ -1,45 +1,51 @@
-////////
-// Header for RemoteDebug
-///////
+/*
+ * Header for RemoteDebug
+ *
+ * Copyright (C) 2018  Joao Lopes https://github.com/JoaoLopesF/RemoteDebug
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This header file describes the public API for sending debug messages to a telnet client.
+ *
+ */
 
 #ifndef RemoteDebug_h
 #define RemoteDebug_h
 
-//#define ALPHA_VERSION true // In development, not yet good
-
-#if defined(ESP8266)
-// ESP8266 SDK
-extern "C" {
-bool system_update_cpu_freq(uint8 freq);
-}
-#endif
-
-// Libraries
+// Includes
 
 #include "Arduino.h"
 #include "Print.h"
 
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
-#elif defined(ESP32)
-#include <WiFi.h>
-#else
-#error Only for ESP8266 or ESP32
-#endif
+// Port for telnet server (now can be defined in project too - 17/08/18)
 
-// Port for telnet
-
+#ifndef TELNET_PORT
 #define TELNET_PORT 23
+#endif
 
 // Maximun time for inactivity (em miliseconds)
 // Default: 10 minutes
 // Comment it if you not want this
 
+#ifndef MAX_TIME_INACTIVE
 #define MAX_TIME_INACTIVE 600000
+#endif
 
 // Buffered print write to telnet -> length of buffer
 
+#ifndef BUFFER_PRINT
 #define BUFFER_PRINT 150
+#endif
 
 // ANSI Colors
 
@@ -74,14 +80,25 @@ bool system_update_cpu_freq(uint8 freq);
 
 // Shortcuts
 
-#define DEBUG(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
+#define DEBUG(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(#__VA_ARGS__); }
 
-#define DEBUG_P(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_V(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_D(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_I(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_W(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_E(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_P(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG_V(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG_D(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG_I(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG_W(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG_E(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(#__VA_ARGS__); }
+
+// Another way
+
+#define rdebug(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(#__VA_ARGS__); }
+
+#define rdebugP(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(#__VA_ARGS__); }
+#define rdebugV(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(#__VA_ARGS__); }
+#define rdebugD(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(#__VA_ARGS__); }
+#define rdebugI(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(#__VA_ARGS__); }
+#define rdebugW(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(#__VA_ARGS__); }
+#define rdebugE(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(#__VA_ARGS__); }
 
 // Buffering (sends in interval of time to avoid ESP misterious delays)
 
@@ -90,6 +107,10 @@ bool system_update_cpu_freq(uint8 freq);
 #define DELAY_TO_SEND 10 // Time to send buffer
 #define MAX_SIZE_SEND 1460 // Maximum size of packet (limit of TCP/IP)
 #endif
+
+// Enable if you test fetures yet in development
+
+//#define ALPHA_VERSION true
 
 // Class
 
@@ -129,6 +150,8 @@ class RemoteDebug: public Print
 	// Print
 
 	virtual size_t write(uint8_t);
+
+    virtual size_t write(const uint8_t *buffer, size_t size); // Insert due a write bug w/ latest Esp8266 SDK - 17/08/18
 
     // Debug levels
 
