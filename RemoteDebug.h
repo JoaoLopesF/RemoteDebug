@@ -80,25 +80,25 @@
 
 // Shortcuts
 
-#define DEBUG(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
 
-#define DEBUG_P(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(#__VA_ARGS__); }
-#define DEBUG_V(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(#__VA_ARGS__); }
-#define DEBUG_D(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(#__VA_ARGS__); }
-#define DEBUG_I(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(#__VA_ARGS__); }
-#define DEBUG_W(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(#__VA_ARGS__); }
-#define DEBUG_E(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(#__VA_ARGS__); }
+#define DEBUG_P(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_V(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_D(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_I(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_W(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(__VA_ARGS__); }
+#define DEBUG_E(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(__VA_ARGS__); }
 
 // Another way
 
-#define rdebug(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(#__VA_ARGS__); }
+#define rdebug(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
 
-#define rdebugP(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(#__VA_ARGS__); }
-#define rdebugV(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(#__VA_ARGS__); }
-#define rdebugD(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(#__VA_ARGS__); }
-#define rdebugI(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(#__VA_ARGS__); }
-#define rdebugW(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(#__VA_ARGS__); }
-#define rdebugE(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(#__VA_ARGS__); }
+#define rdebugP(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
+#define rdebugV(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
+#define rdebugD(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(__VA_ARGS__); }
+#define rdebugI(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(__VA_ARGS__); }
+#define rdebugW(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(__VA_ARGS__); }
+#define rdebugE(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(__VA_ARGS__); }
 
 // Buffering (sends in interval of time to avoid ESP misterious delays)
 

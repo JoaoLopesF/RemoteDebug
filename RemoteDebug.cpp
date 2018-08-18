@@ -20,6 +20,7 @@
  *    - 1.3.0 Bug in write with latest ESP8266 SDK - August 2018
  *    	      Port number can be modified in project Arduino (.ino file)
  *    		  Few adjustments as ESP32 includes
+ *    - 1.3.1 Retired # from VARGS precompiler macros
  */
 
 /*
