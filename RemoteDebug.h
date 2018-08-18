@@ -33,7 +33,21 @@
 #define TELNET_PORT 23
 #endif
 
-// Maximun time for inactivity (em miliseconds)
+// Simple password request - left commented if not need this - 18/07/18
+// Notes:
+// In this simple feature, the password is echoed in screen
+// No have mask (*) yet
+// telnet use advanced authentication (kerberos, etc.)
+// Such now as RemoteDebug now is not for production releases,
+// this kind of authentication will not be done now.
+
+//#define REMOTEDEBUG_PASSWORD "r3m0t3."
+
+#ifdef REMOTEDEBUG_PASSWORD
+	#define REMOTEDEBUG_PWD_ATTEMPTS 3
+#endif
+
+// Maximum time for inactivity (em miliseconds)
 // Default: 10 minutes
 // Comment it if you not want this
 
@@ -91,7 +105,7 @@
 
 // Another way
 
-#define rdebug(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
+#define rdebug(...)  { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
 
 #define rdebugP(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
 #define rdebugV(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
@@ -176,13 +190,13 @@ private:
 	boolean _connected = false;			// Client is connected ?
 
 	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
-	uint8_t _lastDebugLevel = DEBUG;		// Last Level setted by active()
+	uint8_t _lastDebugLevel = DEBUG;	// Last Level setted by active()
 
-	uint32_t _lastTimePrint = millis();  // Last time print a line
+	uint32_t _lastTimePrint = millis(); // Last time print a line
 
-	uint8_t _levelBeforeProfiler = DEBUG;// Last Level before Profiler level
+	uint8_t _levelBeforeProfiler=DEBUG;	// Last Level before Profiler level
 	uint32_t _levelProfilerDisable = 0;	// time in millis to disable the profiler level
-	uint32_t _autoLevelProfiler = 0;		// Automatic change to profiler level if time between handles is greater than n millis
+	uint32_t _autoLevelProfiler = 0;	// Automatic change to profiler level if time between handles is greater than n millis
 
 	boolean _showTime = false;			// Show time in millis
 
@@ -191,13 +205,13 @@ private:
 
 	boolean _showDebugLevel = true;		// Show debug Level
 
-	boolean _showColors = false;			// Show colors
+	boolean _showColors = false;		// Show colors
 
 	boolean _serialEnabled = false;		// Send to serial too (not recommended)
 
-	boolean _resetCommandEnabled = false;// Command in telnet to reset ESP8266
+	boolean _resetCommandEnabled=false;	// Command in telnet to reset ESP8266
 
-	boolean _newLine = true;				// New line write ?
+	boolean _newLine = true;			// New line write ?
 
 	String _command = "";				// Command received
 	String _lastCommand = "";			// Last Command received
@@ -205,16 +219,19 @@ private:
 	String _helpProjectCmds = "";		// Help of comands setted by project (sketch)
 	void (*_callbackProjectCmds)();		// Callable for projects commands
 
-	String _filter = "";					// Filter
+	String _filter = "";				// Filter
 	boolean _filterActive = false;
 
 	String _bufferPrint = "";			// Buffer of print write to telnet
 
 #ifdef CLIENT_BUFFERING
-	String _bufferSend = "";				// Buffer to send data to telnet
+	String _bufferSend = "";			// Buffer to send data to telnet
 	uint16_t _sizeBufferSend = 0;		// Size of it
 	uint32_t _lastTimeSend = 0;			// Last time command send data
 #endif
+
+	boolean _PasswordOk = false; 		// Password request ? - 18/07/18
+	uint8_t _PasswordAttempt = 0;
 
 	// Privates
 

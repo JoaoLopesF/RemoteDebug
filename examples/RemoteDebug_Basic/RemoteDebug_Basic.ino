@@ -173,9 +173,6 @@ void setup() {
     Serial.println("* Please try change debug level in telnet, to see how it works");
     Serial.println("*");
 
-    Serial.print("* Info: SDK version: ");
-    Serial.println(ESP.getSdkVersion());
-    Serial.println("*");
 }
 
 void loop()
