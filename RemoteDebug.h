@@ -36,7 +36,7 @@
 // Simple password request - left commented if not need this - 18/07/18
 // Notes:
 // It is very simple feature, only text, no cryptography,
-// and the password is echoed in screen (no have mask '*'s yet)
+// and the password is echoed in screen (I not discovery yet how disable it)
 // telnet use advanced authentication (kerberos, etc.)
 // Such now as RemoteDebug now is not for production releases,
 // this kind of authentication will not be done now.
@@ -122,7 +122,7 @@
 #define MAX_SIZE_SEND 1460 // Maximum size of packet (limit of TCP/IP)
 #endif
 
-// Enable if you test fetures yet in development
+// Enable if you test features yet in development
 
 //#define ALPHA_VERSION true
 
@@ -240,6 +240,9 @@ private:
 	String formatNumber(uint32_t value, uint8_t size, char insert='0');
 	boolean isCRLF(char character);
 
+#ifdef ALPHA_VERSION // In test, not good yet
+	void sendTelnetCommand(uint8_t command, uint8_t option);
+#endif
 };
 
 #endif

@@ -69,6 +69,10 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #include "RemoteDebug.h"
 
+#ifdef ALPHA_VERSION // In test, not good yet
+#include "telnet.h"
+#endif
+
 ////// Variables
 
 // Telnet server
@@ -213,6 +217,14 @@ void RemoteDebug::handle() {
 	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
 			_PasswordAttempt = 1;
 	#endif
+
+	#ifdef ALPHA_VERSION // In test, not good yet
+			// Send command to telnet client to not do local echos
+			// Experimental code !
+
+			sendTelnetCommand(TELNET_WONT, TELNET_ECHO);
+	#endif
+
 #else
 			_PasswordOk = true;
 #endif
@@ -569,10 +581,6 @@ size_t RemoteDebug::write(uint8_t character) {
 	// Print ?
 
 	boolean doPrint = false;
-
-//	// Test
-//
-//	TelnetClient.printf(" %c(%u) buf=%s\r\n", character, character, _bufferPrint.c_str());
 
 	// New line ?
 
@@ -1012,13 +1020,15 @@ void RemoteDebug::processCommand() {
 
 	} else { // Process the password - 18/08/18
 
-
 		if (_command == REMOTEDEBUG_PASSWORD) {
 
 			TelnetClient.println("* Password ok, allowing access now...");
 
 			_PasswordOk = true;
 
+#ifdef ALPHA_VERSION // In test, not good yet
+			sendTelnetCommand(TELNET_WILL, TELNET_ECHO); // Send a command to telnet to restore echoes = 18/08/18
+#endif
 			showHelp();
 
 		} else {
@@ -1110,4 +1120,18 @@ String RemoteDebug::expand(String string) {
 
 	return string;
 }
+
+#ifdef ALPHA_VERSION // In test, not good yet
+// Send telnet commands (as used with password request) - 18/08/18
+// Experimental code !
+
+void RemoteDebug::sendTelnetCommand(uint8_t command, uint8_t option) {
+
+	// Send a command to the telnet client
+
+	TelnetClient.printf("%c%c%c", TELNET_IAC, command, option);
+	TelnetClient.flush();
+}
+#endif
+
 /////// End
