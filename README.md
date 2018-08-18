@@ -214,7 +214,7 @@ Debug.setSerialEnabled(true);
 
         Notes:
           It is very simple feature, only text, no cryptography,
-          and the password is echoed in screen (no have mask '*'s yet)
+          and the password is echoed in screen (I not discovery yet how disable it)
  
           telnet use advanced authentication (kerberos, etc.)
           Such as now RemoteDebug is not for production (releases), 
