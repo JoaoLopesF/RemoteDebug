@@ -35,19 +35,19 @@
 
 // Simple password request - left commented if not need this - 18/07/18
 // Notes:
-// In this simple feature, the password is echoed in screen
-// No have mask (*) yet
+// It is very simple feature, only text, no cryptography,
+// and the password is echoed in screen (no have mask '*'s yet)
 // telnet use advanced authentication (kerberos, etc.)
 // Such now as RemoteDebug now is not for production releases,
 // this kind of authentication will not be done now.
 
-//#define REMOTEDEBUG_PASSWORD "r3m0t3."
+#define REMOTEDEBUG_PASSWORD "r3m0t3."
 
 #ifdef REMOTEDEBUG_PASSWORD
 	#define REMOTEDEBUG_PWD_ATTEMPTS 3
 #endif
 
-// Maximum time for inactivity (em miliseconds)
+// Maximum time for inactivity (em milliseconds)
 // Default: 10 minutes
 // Comment it if you not want this
 

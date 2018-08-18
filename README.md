@@ -213,8 +213,8 @@ Debug.setSerialEnabled(true);
   - Simple text password request feature (disabled by default)
 
         Notes:
-          In this simple feature, the password is echoed in screen.
-          No have mask (*) yet.
+          It is very simple feature, only text, no cryptography,
+          and the password is echoed in screen (no have mask '*'s yet)
  
           telnet use advanced authentication (kerberos, etc.)
           Such as now RemoteDebug is not for production (releases), 
