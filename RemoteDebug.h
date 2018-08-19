@@ -28,6 +28,7 @@
 #include "Print.h"
 
 // Port for telnet server (now can be defined in project too - 17/08/18)
+// Can be by project, just define it before include this file
 
 #ifndef TELNET_PORT
 #define TELNET_PORT 23
@@ -40,8 +41,11 @@
 // telnet use advanced authentication (kerberos, etc.)
 // Such now as RemoteDebug now is not for production releases,
 // this kind of authentication will not be done now.
+// Can be by project, just define it before include this file
 
-#define REMOTEDEBUG_PASSWORD "r3m0t3."
+#ifndef REMOTEDEBUG_PASSWORD
+//#define REMOTEDEBUG_PASSWORD "r3m0t3."
+#endif
 
 #ifdef REMOTEDEBUG_PASSWORD
 	#define REMOTEDEBUG_PWD_ATTEMPTS 3
@@ -50,12 +54,14 @@
 // Maximum time for inactivity (em milliseconds)
 // Default: 10 minutes
 // Comment it if you not want this
+// Can be by project, just define it before include this file
 
 #ifndef MAX_TIME_INACTIVE
 #define MAX_TIME_INACTIVE 600000
 #endif
 
 // Buffered print write to telnet -> length of buffer
+// Can be by project, just define it before include this file
 
 #ifndef BUFFER_PRINT
 #define BUFFER_PRINT 150
