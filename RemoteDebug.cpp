@@ -735,10 +735,14 @@ void RemoteDebug::showHelp() {
 	#if defined(ESP8266)
 		help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
 		help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
-	#endif
 		if (_resetCommandEnabled) {
 			help.concat("    reset -> reset the ESP8266\r\n");
 		}
+	#elif defined(ESP32)
+		if (_resetCommandEnabled) {
+			help.concat("    reset -> reset the ESP32\r\n");
+		}
+	#endif
 
 		if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
 			help.concat("\r\n");
