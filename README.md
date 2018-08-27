@@ -97,7 +97,7 @@ Future extension could include a secure way for authentication and further testi
   
 ## News
 
-In 1.5.0 version, we have rdegub* macros (see below), 
+In 1.5.0 version, we have rdebug* macros (see below), 
 debugs with auto funcion name and core id (core id only for ESP32).
 And new rdebug?ln macros to put auto new line.
 
@@ -262,7 +262,7 @@ Debug.setSerialEnabled(true);
  - The default is 5 minutes (You can change it in RemoteDebug.h)  
  - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
- - Please not forget to use if clause with Debug.isActive (if not using rdegub*)
+ - Please not forget to use if clause with Debug.isActive (if not using rdebub*)
    ---> This is very important to reduce overheads and work of debug levels
 
  - Please see the samples, basic or advanced, to learn how to use  
