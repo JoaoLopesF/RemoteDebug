@@ -22,10 +22,12 @@
 #ifndef RemoteDebug_h
 #define RemoteDebug_h
 
-// Includes
+//////// Includes
 
 #include "Arduino.h"
 #include "Print.h"
+
+//////// Defines
 
 // Port for telnet server (now can be defined in project too - 17/08/18)
 // Can be by project, just define it before include this file
@@ -98,31 +100,10 @@
 #define COLOR_BACKGROUND_CYAN "\x1B[46m"
 #define COLOR_BACKGROUND_WHITE "\x1B[47m"
 
-// Shortcuts
-
-#define DEBUG(...)   { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
-
-#define DEBUG_P(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_V(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_D(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_I(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_W(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(__VA_ARGS__); }
-#define DEBUG_E(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(__VA_ARGS__); }
-
-// Another way
-
-#define rdebug(...)  { if (Debug.isActive(Debug.ANY)) Debug.printf(__VA_ARGS__); }
-
-#define rdebugP(...) { if (Debug.isActive(Debug.PROFILER)) Debug.printf(__VA_ARGS__); }
-#define rdebugV(...) { if (Debug.isActive(Debug.VERBOSE)) Debug.printf(__VA_ARGS__); }
-#define rdebugD(...) { if (Debug.isActive(Debug.DEBUG)) Debug.printf(__VA_ARGS__); }
-#define rdebugI(...) { if (Debug.isActive(Debug.INFO)) Debug.printf(__VA_ARGS__); }
-#define rdebugW(...) { if (Debug.isActive(Debug.WARNING)) Debug.printf(__VA_ARGS__); }
-#define rdebugE(...) { if (Debug.isActive(Debug.ERROR)) Debug.printf(__VA_ARGS__); }
-
 // Buffering (sends in interval of time to avoid ESP misterious delays)
 
 #define CLIENT_BUFFERING true
+
 #ifdef CLIENT_BUFFERING
 #define DELAY_TO_SEND 10 // Time to send buffer
 #define MAX_SIZE_SEND 1460 // Maximum size of packet (limit of TCP/IP)
@@ -132,12 +113,91 @@
 
 //#define ALPHA_VERSION true
 
-// Class
+////// Shortcuts macros
+
+// Macros whith auto function ? (comment this if not want this) - 25/08/18
+
+#define DEBUG_AUTO_FUNC true
+
+#ifdef DEBUG_AUTO_FUNC
+
+	#ifdef ESP32
+
+		// ESP32 -> Multicore  - show core id ?
+
+		#define DEBUG_AUTO_CORE true   // debug show core id ? (comment to disable it)
+
+		#ifdef DEBUG_AUTO_CORE
+
+			#define rdebugA(fmt, ...) if (Debug.isActive(Debug.ANY)) 		Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+			#define rdebugP(fmt, ...) if (Debug.isActive(Debug.PROFILER))	Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+			#define rdebugV(fmt, ...) if (Debug.isActive(Debug.VERBOSE)) 	Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+			#define rdebugD(fmt, ...) if (Debug.isActive(Debug.DEBUG)) 		Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+			#define rdebugI(fmt, ...) if (Debug.isActive(Debug.INFO)) 		Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+			#define rdebugW(fmt, ...) if (Debug.isActive(Debug.WARNING)) 	Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+			#define rdebugE(fmt, ...) if (Debug.isActive(Debug.ERROR)) 		Debug.printf("(%s)(C%d) " fmt, __func__, xPortGetCoreID(), ##__VA_ARGS__)
+
+		#endif
+
+	#endif
+
+	#ifndef DEBUG_AUTO_CORE // No auto core or for ESP8266
+
+		#define rdebugA(fmt, ...) if (Debug.isActive(Debug.ANY)) 		Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+		#define rdebugP(fmt, ...) if (Debug.isActive(Debug.PROFILER)) 	Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+		#define rdebugV(fmt, ...) if (Debug.isActive(Debug.VERBOSE)) 	Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+		#define rdebugD(fmt, ...) if (Debug.isActive(Debug.DEBUG)) 		Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+		#define rdebugI(fmt, ...) if (Debug.isActive(Debug.INFO)) 		Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+		#define rdebugW(fmt, ...) if (Debug.isActive(Debug.WARNING)) 	Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+		#define rdebugE(fmt, ...) if (Debug.isActive(Debug.ERROR)) 		Debug.printf("(%s) " fmt, __func__, ##__VA_ARGS__)
+
+	#endif
+
+#else // Without auto func
+
+	#define rdebugA(fmt, ...) if (Debug.isActive(Debug.ANY)) 		Debug.printf(fmt, ##__VA_ARGS__)
+	#define rdebugP(fmt, ...) if (Debug.isActive(Debug.PROFILER)) 	Debug.printf(fmt, ##__VA_ARGS__)
+	#define rdebugV(fmt, ...) if (Debug.isActive(Debug.VERBOSE)) 	Debug.printf(fmt, ##__VA_ARGS__)
+	#define rdebugD(fmt, ...) if (Debug.isActive(Debug.DEBUG)) 		Debug.printf(fmt, ##__VA_ARGS__)
+	#define rdebugI(fmt, ...) if (Debug.isActive(Debug.INFO)) 		Debug.printf(fmt, ##__VA_ARGS__)
+	#define rdebugW(fmt, ...) if (Debug.isActive(Debug.WARNING)) 	Debug.printf(fmt, ##__VA_ARGS__)
+	#define rdebugE(fmt, ...) if (Debug.isActive(Debug.ERROR)) 		Debug.printf(fmt, ##__VA_ARGS__)
+
+#endif
+
+// With newline
+
+#define rdebugAln(fmt, ...) rdebugA(fmt "\n", ##__VA_ARGS__)
+#define rdebugPln(fmt, ...) rdebugP(fmt "\n", ##__VA_ARGS__)
+#define rdebugVln(fmt, ...) rdebugV(fmt "\n", ##__VA_ARGS__)
+#define rdebugDln(fmt, ...) rdebugD(fmt "\n", ##__VA_ARGS__)
+#define rdebugIln(fmt, ...) rdebugI(fmt "\n", ##__VA_ARGS__)
+#define rdebugWln(fmt, ...) rdebugW(fmt "\n", ##__VA_ARGS__)
+#define rdebugEln(fmt, ...) rdebugE(fmt "\n", ##__VA_ARGS__)
+
+// For old versions compatibility
+
+#define rdebug(fmt, ...) rdebugA(fmt, ...)
+
+// Another way - for compatibility
+
+#define DEBUG(fmt, ...)   rdebugA(fmt, ##__VA_ARGS__)
+
+#define DEBUG_A(fmt, ...) rdebugA(fmt, ##__VA_ARGS__)
+#define DEBUG_P(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+#define DEBUG_V(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+#define DEBUG_D(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+#define DEBUG_I(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+#define DEBUG_W(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+#define DEBUG_E(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+
+///// Class
 
 class RemoteDebug: public Print
 {
 	public:
 
+	void begin(String hostName, uint16_t port, uint8_t startingDebugLevel = DEBUG);
 	void begin(String hostName, uint8_t startingDebugLevel = DEBUG);
 
 	void stop();
@@ -186,6 +246,11 @@ class RemoteDebug: public Print
 	// Expand characters as CR/LF to \\r, \\n
 
 	String expand(String string);
+
+	// Destructor
+
+	~RemoteDebug();
+
 
 private:
 

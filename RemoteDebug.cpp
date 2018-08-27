@@ -26,6 +26,10 @@
  *        		Such as RemoteDebug now is not for production releases,
  *       		this kind of authentication will not be done now.
  *       	  Few adjustments
+ *    - 1.5.0 Port can be pass in begin method
+ *    		  Class destructor implemented
+ *    		  Auto function and core if (for ESP32) in rdebug macros
+ *    		  Added new rdebug?ln to put auto new line
  */
 
 /*
@@ -63,7 +67,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.4.0"
+#define VERSION "1.5.0"
 
 #include <Arduino.h>
 
@@ -83,10 +87,14 @@ WiFiClient TelnetClient;
 // Initialize the telnet server
 
 void RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
+	begin(hostName, TELNET_PORT, startingDebugLevel);
+}
+
+void RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLevel) {
 
 	// Initialize server telnet
 
-	TelnetServer.begin();
+	TelnetServer.begin(port);
 	TelnetServer.setNoDelay(true);
 
 	// Reserve space to buffer of print writes
@@ -103,9 +111,27 @@ void RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
 	// Host name of this device
 
 	_hostName = hostName;
+
+	// Debug level
+
 	_clientDebugLevel = startingDebugLevel;
 	_lastDebugLevel = startingDebugLevel;
 
+}
+
+// Destructor
+
+RemoteDebug::~RemoteDebug() {
+
+	// Flush
+
+	if (TelnetClient && TelnetClient.connected()) {
+		TelnetClient.flush();
+	}
+
+	// Stop
+
+	stop();
 }
 
 // Stop the server
@@ -348,14 +374,15 @@ void RemoteDebug::handle() {
 #endif
 
 	}
-//DV("*handle time: ", (millis() - timeBegin));
+
+	//DV("*handle time: ", (millis() - timeBegin));
 }
 
-// Send to serial too  (not recommended)
+// Send to serial too (use only if need)
 
 void RemoteDebug::setSerialEnabled(boolean enable) {
 	_serialEnabled = enable;
-	_showColors = false; // Desativa isto para Serial
+	_showColors = false; // Disable it for Serial
 }
 
 // Allow ESP reset over telnet client
@@ -397,7 +424,7 @@ void RemoteDebug::showColors(boolean show) {
 	if (_serialEnabled == false) {
 		_showColors = show;
 	} else {
-		_showColors = false; // Desativa isto para Serial
+		_showColors = false; // Disable it for Serial
 	}
 }
 
@@ -407,7 +434,7 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
 	// Active -> Debug level ok and
 	//           Telnet connected or
-	//           Serial enabled (not recommended)
+	//           Serial enabled (use only if need)
 	//			 Password ok (if enabled) - 18/08/18
 
 	boolean ret = (_PasswordOk && debugLevel >= _clientDebugLevel
@@ -472,19 +499,19 @@ size_t RemoteDebug::write(uint8_t character) {
 					show = "P";
 					break;
 				case VERBOSE:
-					show = "v";
+					show = "V";
 					break;
 				case DEBUG:
-					show = "d";
+					show = "D";
 					break;
 				case INFO:
-					show = "i";
+					show = "I";
 					break;
 				case WARNING:
-					show = "w";
+					show = "W";
 					break;
 				case ERROR:
-					show = "e";
+					show = "E";
 					break;
 				}
 			} else {
@@ -493,23 +520,23 @@ size_t RemoteDebug::write(uint8_t character) {
 					show = "P";
 					break;
 				case VERBOSE:
-					show = "v";
+					show = "V";
 					break;
 				case DEBUG:
 					show = COLOR_BACKGROUND_GREEN;
-					show.concat("d");
+					show.concat("D");
 					break;
 				case INFO:
 					show = COLOR_BACKGROUND_WHITE;
-					show.concat("i");
+					show.concat("I");
 					break;
 				case WARNING:
 					show = COLOR_BACKGROUND_YELLOW;
-					show.concat("w");
+					show.concat("W");
 					break;
 				case ERROR:
 					show = COLOR_BACKGROUND_RED;
-					show.concat("e");
+					show.concat("E");
 					break;
 				}
 				if (show.length() > 1) {

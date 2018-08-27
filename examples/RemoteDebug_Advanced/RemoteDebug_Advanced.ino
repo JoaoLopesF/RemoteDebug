@@ -12,13 +12,13 @@
 // Example of use:
 //
 //        if (Debug.isActive(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
-//            Debug.printf("bla bla bla: %d %s\n", number, str);
+//            Debug.printf("bla bla bla: %d %s", number, str);
 //            Debug.println("bla bla bla");
 //        }
 //
-// Or short way (prefered if only one debug  at time)
+// Or short way (prefered if only one debug at time)
 //
-//		rdebug("This is a any (always showed) - var %d\n", var);
+//		rdebugA("This is a any (always showed) - var %d\n", var);
 //
 //		rdebugV("This is a verbose - var %d\n", var);
 //		rdebugD("This is a debug - var %d\n", var);
@@ -26,9 +26,20 @@
 //		rdebugW("This is a warning - var %d\n", var);
 //		rdebugE("This is a error - var %d\n", var);
 //
-//		// Note: if you want a simple println you must ended with new line characters
+//		rdebugV("This is println\n");
 //
-//		rdebugV("This println\n");
+//		If you want a auto new line:
+//
+//		rdebugAln("This is a any (always showed) - var %d", var);
+//
+//		rdebugVln("This is a verbose - var %d", var);
+//		rdebugDln("This is a debug - var %d", var);
+//		rdebugIln("This is a information - var %d", var);
+//		rdebugWln("This is a warning - var %d", var);
+//		rdebugEln("This is a error - var %d", var);
+//
+//		rdebugVln("This is println");
+//
 //
 ///////
 
@@ -111,8 +122,8 @@ void setup() {
 
 	// Buildin led of ESP8266
 
-	pinMode(BUILTIN_LED, OUTPUT);
-	digitalWrite(BUILTIN_LED, LOW);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
 
 	// Connect WiFi
 
@@ -221,25 +232,28 @@ void loop() {
 		// Blink the led
 
 		mLedON = !mLedON;
-		digitalWrite(BUILTIN_LED, (mLedON) ? LOW : HIGH);
+		digitalWrite(LED_BUILTIN, (mLedON) ? LOW : HIGH);
 
 #ifndef PRODUCTION // Not in PRODUCTION
 
 		// Debug the time (verbose level) (without shortcut)
 
-		if (Debug.isActive(Debug.VERBOSE)) {
-			Debug.printf("* Time: %u seconds (VERBOSE)\n", mTimeSeconds);
-		}
+		rdebugVln("* Time: %u seconds (VERBOSE)", mTimeSeconds);
 
 		if (mTimeSeconds % 5 == 0) { // Each 5 seconds
 
 			// Debug levels
 
-			rdebugV("* This is a message of debug level VERBOSE\n");
-			rdebugD("* This is a message of debug level DEBUG\n");
-			rdebugI("* This is a message of debug level INFO\n");
-			rdebugW("* This is a message of debug level WARNING\n");
-			rdebugE("* This is a message of debug level ERROR\n");
+			rdebugVln("* This is a message of debug level VERBOSE");
+			rdebugDln("* This is a message of debug level DEBUG");
+			rdebugIln("* This is a message of debug level INFO");
+			rdebugWln("* This is a message of debug level WARNING");
+			rdebugEln("* This is a message of debug level ERROR");
+
+			// Call a function
+
+			foo();
+
 		}
 #endif
 	}
@@ -282,6 +296,17 @@ void loop() {
 	}
 #endif
 
+}
+
+
+// Function example to show a new auto function name of rdebug* macros
+
+void foo() {
+
+  uint8_t var = 1;
+
+  rdebugVln("this is a debug - var %u", var);
+  rdebugVln("This is a println");
 }
 
 #ifndef PRODUCTION // Not in PRODUCTION

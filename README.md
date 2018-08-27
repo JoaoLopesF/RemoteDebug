@@ -12,6 +12,7 @@
 ## Contents
  - [About](#about)
  - [Standard telnet](#telnet)
+ - [News](#news)
  - [Wishlist](#wishlist)
  - [Using](#usage)
  - [Know issues](#knowissues)
@@ -86,10 +87,45 @@ The current version of _RemoteDebug_ does not yet include any authentication and
 
 Future extension could include a secure way for authentication and further testing to support production environments.
   
+## News
+
+In 1.5.0 version, we have rdegub* macros (see below), 
+debugs with auto funcion name and core id (core id only for ESP32).
+And new rdebug?ln macros to put auto new line.
+
+So:
+```cpp
+void foo() {
+
+  uint8_t var = 1;
+
+  rdebugVln("this is a debug - var %u", var); // see a suffix ln in rdebug macro
+}
+
+void loop() {
+
+  // ....
+
+  foo();
+
+  // ....
+}
+```
+It will show in telnet client: 
+````
+(V p:^0000ms) (foo)(C1) this is a debug - var 1
+````
+    Where:  V -> verbose
+            p -> profiler time
+            (foo) -> this is a function name that calls the rDebug*
+            (C1) -> It is running it Core 1 (only) for ESP32
+
+And You can change port number in begin method (see below)
+
 ## Wishlist
 
     - Http page to begin/stop the telnet server
-    - Authentication as telnet support (kerberos, etc.) / Support for production environment 
+    - Authentication as telnet support (kerberos, etc.) to support production environment 
 
 ## How it looks
 
@@ -102,12 +138,6 @@ Future extension could include a secure way for authentication and further testi
 
 ###includes
 
-```cpp
-#include <ESP8266WiFi.h> //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
-//
-// Please see the samples how do your code to run in ESP32 too
-//
-```
 ```cpp
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
 ```
@@ -122,13 +152,27 @@ RemoteDebug Debug;
 // Initialize the telnet server of RemoteDebug
 
 Debug.begin("Telnet_HostName"); // Initiaze the telnet server - this name is used in MDNS.begin
+
 // OR
+
 Debug.begin(HOST_NAME); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
+
 // OR
-Debug.begin(HOST_NAME, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin and set the initial debug level
+
+Debug.begin(HOST_NAME, PORT); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
+
+// OR
+
+Debug.begin(HOST_NAME, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in 
+
+// OR
+
+Debug.begin(HOST_NAME, PORT, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in 
+
+// Options
 
 Debug.setResetCmdEnabled(true); // Enable the reset command
-//Debug.showTime(true); // To show time
+
 // Debug.showProfiler(true); // To show profiler - time between messages of Debug
 
 ```
@@ -142,32 +186,41 @@ Debug.handle();
 - In any place of you code:
 ```cpp
 if (Debug.isActive(Debug.<level>)) {
-    Debug.printf("bla bla bla: %d %s\n", number, str); // OR
-    Debug.printf("bla bla bla: %d %s\n", number, str.c_str()); // Note: if type is String need c_str() // OR
+    Debug.printf("bla bla bla: %d %s", number, str); // OR
+    Debug.printf("bla bla bla: %d %s", number, str.c_str()); // Note: if type is String need c_str() // OR
     Debug.println("bla bla bla 2 ln");
-    // Note: to show floats with printf,
+    Debug.printf("float: %f\n", value); // Not works in ESP8266 :-(
+    // Note: to show floats with printf (ESP8266 only),
     // you can use my ArduinoUtil library -> https://github.com/JoaoLopesF/ArduinoUtil
-    Debug.printf("float: %f\n", value); // Not works :-(
     Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
 ```
 Or short way (new) (prefered if only one debug at time):
 ```cpp
 
-rdebug("This is a any (always showed) - var %d\n", var);
-
+rdebugA("This is a any (always showed) - var %d\n", var);
 rdebugV("This is a verbose - var %d\n", var);
 rdebugD("This is a debug - var %d\n", var);
 rdebugI("This is a information - var %d\n", var);
 rdebugW("This is a warning - var %d\n", var);
 rdebugE("This is a error - var %d\n", var);
 
-rdebugV("This println\n"); // Note: if you want a simple println you must ended with new line characters
+rdebugV("This is a println\n"); // Note: if you want a simple println you must ended with new line characters
 
+// Or with new ln macros:
+
+rdebugAln("This is a any (always showed) - var %d", var);
+rdebugVln("This is a verbose - var %d", var);
+rdebugDln("This is a debug - var %d", var);
+rdebugIln("This is a information - var %d", var);
+rdebugWln("This is a warning - var %d", var);
+rdebugEln("This is a error - var %d", var);
+
+rdebugVln("This is a println");
 ```
 Instead of rdebug can be used old short way: 
 ```
-DEBUG(...)
+DEBUG_A(...)
 DEBUG_V(...)
 DEBUG_D(...)
 DEBUG_I(...)
@@ -186,11 +239,13 @@ if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
 
 - An example of use debug with serial enabled
   Useful to see messages if setup or
-  in cause the ESP8266 is rebooting (telnet connection stop before received all messages)
+  in cause the ESP8266/ESP32 is rebooting (telnet connection stop before received all messages)
   Only for this purposes I suggest it
 ```
 // Setup after Debug.begin
+
 Debug.setSerialEnabled(true);
+
 // All messages too send to serial too, and can be see in serial monitor
 ```
 
@@ -199,7 +254,7 @@ Debug.setSerialEnabled(true);
  - The default is 5 minutes (You can change it in RemoteDebug.h)  
  - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
- - Please not forget to use if clause with Debug.isActive
+ - Please not forget to use if clause with Debug.isActive (if not using rdegub*)
    ---> This is very important to reduce overheads and work of debug levels
 
  - Please see the samples, basic or advanced, to learn how to use  
@@ -207,6 +262,13 @@ Debug.setSerialEnabled(true);
  - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+#### 1.5.0 - 26/08/18
+
+  - Auto function name and ESP32 core id for rdebug* macros
+  - begin method have a option for port number
+  - Few adjustments
+  - Added new rdebug?ln to put auto new line
 
 #### 1.4.0 - 18/08/18
 
