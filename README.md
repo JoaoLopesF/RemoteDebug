@@ -47,7 +47,7 @@ _RemoteDebug_  sets-up a telnet server which is listening to any telnet client t
 
 _RemoteDebug_ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
 
-### debug levels
+### Debug levels
 
 _RemoteDebug_ supports the filtering of logging based on **debug levels**:
 
