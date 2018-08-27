@@ -51,11 +51,12 @@ _RemoteDebug_ is very simple to use, after a few lines of initialization code, y
 
 _RemoteDebug_ supports the filtering of logging based on **debug levels**:
 
+ - Any (always show)
  - Verbose
  - Debug
  - Info
  - Warnings
- - Errors
+ - Errors (always show)
 
 These levels are in the order of most-logging -> least-logging.
 
