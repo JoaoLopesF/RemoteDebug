@@ -67,7 +67,7 @@ These levels are in the order of most-logging -> least-logging.
 
 The telnet client can set the debug level by typing a few simple commands.
 
-### profiler
+### Profiler
 
 _RemoteDebug_ includes a simple profiler. It can be enabled by the connected telnet client or the Arduino code itself.
 
@@ -75,11 +75,11 @@ When enabled, it shows the time between 2 debug statements, using different colo
 
 A typical example would be to insert logging just before and after a function after which you can see how much the is spent in the function.
 
-### overhead
+### Overhead
 
 _RemoteDebug_ is designed to give minimal overhead if there is not telnet client connected.
 
-### custom commands
+### Custom commands
 
 _RemoteDebug_ supports custom commands that can be entered in the telnet client. These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the telnet client.
 
@@ -123,7 +123,7 @@ It will show in telnet client:
     Where:  V -> verbose
             p -> profiler time
             (foo) -> this is a function name that calls the rDebug*
-            (C1) -> It is running it Core 1 (only) for ESP32
+            (C1) -> It is running it Core 1 (only for ESP32)
 
 And You can change port number in begin method (see below)
 
