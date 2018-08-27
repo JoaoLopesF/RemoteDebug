@@ -51,19 +51,21 @@ _RemoteDebug_ is very simple to use, after a few lines of initialization code, y
 
 _RemoteDebug_ supports the filtering of logging based on **debug levels**:
 
-    Only show for it debug level:
+Only show for it actual debug level:
 
     - Verbose
     - Debug
     - Info
     - Warnings
 
-    Always show (only if connected):
+Note: These levels are in the order of most-logging -> least-logging.
 
-    - Errors 
+Or for always show (not depends of actual debug level):
+
     - Any 
+    - Errors 
 
-These levels are in the order of most-logging -> least-logging.
+Note: All debugs is processed and showed only if have a client connection.
 
 The telnet client can set the debug level by typing a few simple commands.
 
@@ -75,9 +77,10 @@ When enabled, it shows the time between 2 debug statements, using different colo
 
 A typical example would be to insert logging just before and after a function after which you can see how much the is spent in the function.
 
-### Overhead
+### Lightweight
 
-_RemoteDebug_ is designed to give minimal overhead if there is not telnet client connected.
+_RemoteDebug_ is designed to give minimal overhead (connected or not) and 
+only process debugs,if there is a telnet client connected.
 
 ### Custom commands
 
