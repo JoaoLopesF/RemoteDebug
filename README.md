@@ -35,9 +35,9 @@ to avoid misterious delays of networking on ESP32 and ESP8266 boards
 ## Telnet
 
 Telnet is a standard way of remotely connecting to a server and is supported on all operating systems (Windows, Mac, Linux...).
-A typical telnet client for Windows is Putty for example.
+A typical telnet client for Windows is [b]Putty[/b]: https://www.putty.org/ .
 
-Have a good tool for mobiles: "Fing"
+Have a good tool for mobiles: "[b]Fing[/b]"
 Its show all devices in local network, show ports opened and can execute the telnet client too (external App)
 
 _RemoteDebug_  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
