@@ -29,8 +29,18 @@ This has a few disadvantages:
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity which can be used for streaming debugging information in real-time.
 
+This library is good for IoT projects, mobile robots (can debug it in moviment with a cable ?),
+WiFi or BLE projects, etc.
+
+The MiP_ESP8266_Library is a example of this. see in:  https://github.com/Tiogaplanet/MiP_ESP8266_Library
+
 _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
+
+Note: If your project is not wireless, you can use my another library,
+the lightweight __SerialDebug__.
+
+https://github.com/JoaoLopesF/SerialDebug
 
 ## Telnet
 
@@ -85,9 +95,6 @@ only process debugs,if there is a telnet client connected.
 ### Custom commands
 
 _RemoteDebug_ supports custom commands that can be entered in the telnet client. These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the telnet client.
-
-
-Also please see my another library: https://github.com/JoaoLopesF/ArduinoUtil
 
 ##DISCLAIMER:
 
@@ -271,6 +278,10 @@ Debug.setSerialEnabled(true);
 
 ## Releases
 
+#### 1.5.1 - 28/08/18
+
+  - New silent mode (command s)
+  
 #### 1.5.0 - 26/08/18
 
   - Auto function name and ESP32 core id for rdebug* macros

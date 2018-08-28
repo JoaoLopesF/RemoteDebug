@@ -260,6 +260,8 @@ private:
 
 	boolean _connected = false;			// Client is connected ?
 
+	boolean _silence = false;			// Silence mode ?
+
 	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
 	uint8_t _lastDebugLevel = DEBUG;	// Last Level setted by active()
 

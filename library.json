@@ -1,0 +1,14 @@
+{
+  "name": "RemoteDebug",
+  "keywords": "Debug, Remote, Telnet, WiFi",
+  "description": "Remote debug over telnet for Arduino ESP8266 and ESP32",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/JoaoLopesF/RemoteDebug.git"
+  },
+  "version": "1.5.1",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
+

@@ -30,6 +30,7 @@
  *    		  Class destructor implemented
  *    		  Auto function and core if (for ESP32) in rdebug macros
  *    		  Added new rdebug?ln to put auto new line
+ *    - 1.5.1 New command: silence 
  */
 
 /*
@@ -67,7 +68,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.0"
+#define VERSION "1.5.1"
 
 #include <Arduino.h>
 
@@ -275,6 +276,7 @@ void RemoteDebug::handle() {
 
 		_lastTimePrint = millis();	// Clear the time
 
+		_silence = false;			// No silence 
 
 		// Show the initial message
 
@@ -370,6 +372,7 @@ void RemoteDebug::handle() {
 			TelnetClient.println("* Closing session by inactivity");
 			TelnetClient.stop();
 			_connected = false;
+			_silence = false;
 		}
 #endif
 
@@ -432,13 +435,15 @@ void RemoteDebug::showColors(boolean show) {
 
 boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
-	// Active -> Debug level ok and
+	// Active -> Not in silence (new)
+	// 			 Debug level ok and
 	//           Telnet connected or
 	//           Serial enabled (use only if need)
 	//			 Password ok (if enabled) - 18/08/18
 
-	boolean ret = (_PasswordOk && debugLevel >= _clientDebugLevel
-			&& (_connected || _serialEnabled));
+	boolean ret = (!_silence && 
+					_PasswordOk && debugLevel >= _clientDebugLevel &&
+					(_connected || _serialEnabled));
 
 	if (ret) {
 		_lastDebugLevel = debugLevel;
@@ -745,6 +750,7 @@ void RemoteDebug::showHelp() {
 		help.concat("    i -> set debug level to info\r\n");
 		help.concat("    w -> set debug level to warning\r\n");
 		help.concat("    e -> set debug level to errors\r\n");
+		help.concat("    s -> silence (Not to show anything else, good for analysis)\r\n");
 		help.concat("    l -> show debug level\r\n");
 		help.concat("    t -> show time (millis)\r\n");
 		help.concat("    profiler:\r\n");
@@ -933,6 +939,22 @@ void RemoteDebug::processCommand() {
 
 			TelnetClient.printf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
 
+		} else if (_command == "s") {
+
+			// Silence (new) = 28/08/18
+
+			_silence = !_silence;
+
+			if (_silence) {
+
+				TelnetClient.println("* Debug now is in silent mode!");
+				TelnetClient.println("* Press s again to return show debugs");
+
+			} else {
+
+				TelnetClient.println("* Debug now exit from silent mode!");
+			}
+
 		} else if (_command == "p") {
 
 			// Show profiler
@@ -1075,6 +1097,7 @@ void RemoteDebug::processCommand() {
 				TelnetClient.println("* Many attempts. Closing session now.");
 				TelnetClient.stop();
 				_connected = false;
+				_silence = false;
 
 			} else {
 
