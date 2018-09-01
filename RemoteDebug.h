@@ -177,7 +177,7 @@
 
 // For old versions compatibility
 
-#define rdebug(fmt, ...) rdebugA(fmt, ...)
+#define rdebug(fmt, ...) rdebugA(fmt, ##__VA_ARGS__)
 
 // Another way - for compatibility
 
