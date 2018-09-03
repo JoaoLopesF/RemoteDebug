@@ -21,16 +21,17 @@
  *    	      Port number can be modified in project Arduino (.ino file)
  *    		  Few adjustments as ESP32 includes
  *    - 1.3.1 Retired # from VARGS precompiler macros
- *    - 1.4.0 A simple text password request, if enabled
+ *    - 1.4.0 A simple text password request, if enabled (thanks @jeroenst for suggestion)
  *        		Note: telnet use advanced authentication (kerberos, etc.)
  *        		Such as RemoteDebug now is not for production releases,
  *       		this kind of authentication will not be done now.
  *       	  Few adjustments
- *    - 1.5.0 Port can be pass in begin method
+ *    - 1.5.0 Port can be pass in begin method (thanks @PjotrekSE for suggestion)
  *    		  Class destructor implemented
  *    		  Auto function and core if (for ESP32) in rdebug macros
  *    		  Added new rdebug?ln to put auto new line
  *    - 1.5.1 New command: silence 
+ *    - 1.5.2 Correct rdebug macro (thanks @stritti)
  */
 
 /*
@@ -68,7 +69,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.1"
+#define VERSION "1.5.2"
 
 #include <Arduino.h>
 

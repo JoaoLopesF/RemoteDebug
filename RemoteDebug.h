@@ -177,19 +177,19 @@
 
 // For old versions compatibility
 
-#define rdebug(fmt, ...) rdebugA(fmt, ...)
+#define rdebug(fmt, ...) 	rdebugA(fmt, ##__VA_ARGS__)
 
 // Another way - for compatibility
 
-#define DEBUG(fmt, ...)   rdebugA(fmt, ##__VA_ARGS__)
+#define DEBUG(fmt, ...)   	rdebugA(fmt, ##__VA_ARGS__)
 
-#define DEBUG_A(fmt, ...) rdebugA(fmt, ##__VA_ARGS__)
-#define DEBUG_P(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
-#define DEBUG_V(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
-#define DEBUG_D(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
-#define DEBUG_I(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
-#define DEBUG_W(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
-#define DEBUG_E(fmt, ...) rdebug(fmt, ##__VA_ARGS__)
+#define DEBUG_A(fmt, ...) 	rdebugA(fmt, ##__VA_ARGS__)
+#define DEBUG_P(fmt, ...) 	rdebugP(fmt, ##__VA_ARGS__)
+#define DEBUG_V(fmt, ...) 	rdebugV(fmt, ##__VA_ARGS__)
+#define DEBUG_D(fmt, ...) 	rdebugD(fmt, ##__VA_ARGS__)
+#define DEBUG_I(fmt, ...) 	rdebugI(fmt, ##__VA_ARGS__)
+#define DEBUG_W(fmt, ...) 	rdebugW(fmt, ##__VA_ARGS__)
+#define DEBUG_E(fmt, ...) 	rdebugE(fmt, ##__VA_ARGS__)
 
 ///// Class
 
