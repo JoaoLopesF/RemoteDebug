@@ -32,6 +32,7 @@
  *    		  Added new rdebug?ln to put auto new line
  *    - 1.5.1 New command: silence 
  *    - 1.5.2 Correct rdebug macro (thanks @stritti)
+ *    - 1.5.3 Serial output adjustments (due bug in password logic)
  */
 
 /*
@@ -69,7 +70,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.2"
+#define VERSION "1.5.3"
 
 #include <Arduino.h>
 
@@ -241,9 +242,11 @@ void RemoteDebug::handle() {
 			// Password request ? - 18/07/18
 
 #ifdef REMOTEDEBUG_PASSWORD
-			_PasswordOk = false;
+
+			_passwordOk = false;
+
 	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
-			_PasswordAttempt = 1;
+			_passwordAttempt = 1;
 	#endif
 
 	#ifdef ALPHA_VERSION // In test, not good yet
@@ -253,8 +256,6 @@ void RemoteDebug::handle() {
 			sendTelnetCommand(TELNET_WONT, TELNET_ECHO);
 	#endif
 
-#else
-			_PasswordOk = true;
 #endif
 
 		}
@@ -442,9 +443,18 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 	//           Serial enabled (use only if need)
 	//			 Password ok (if enabled) - 18/08/18
 
-	boolean ret = (!_silence && 
-					_PasswordOk && debugLevel >= _clientDebugLevel &&
+	// Password request ? - 04/03/18
+
+#ifdef REMOTEDEBUG_PASSWORD
+
+	boolean ret = (_PasswordOk &&
+					debugLevel >= _clientDebugLevel &&
 					(_connected || _serialEnabled));
+#else
+
+	boolean ret = (debugLevel >= _clientDebugLevel &&
+					(_connected || _serialEnabled));
+#endif
 
 	if (ret) {
 		_lastDebugLevel = debugLevel;
@@ -717,82 +727,11 @@ void RemoteDebug::showHelp() {
 
 	String help = "";
 
-	// Password request ? - 18/07/18
+	// Password request ? - 04/03/18
 
-	if (_PasswordOk) {
+#ifdef REMOTEDEBUG_PASSWORD
 
-#if defined(ESP8266)
-		help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
-#elif defined(ESP32)
-		help.concat("*** Remote debug - over telnet - for ESP32 - version ");
-#endif
-		help.concat(VERSION);
-		help.concat("\r\n");
-		help.concat("* Host name: ");
-		help.concat(_hostName);
-		help.concat(" IP:");
-		help.concat(WiFi.localIP().toString());
-		help.concat(" Mac address:");
-		help.concat(WiFi.macAddress());
-		help.concat("\r\n");
-		help.concat("* Free Heap RAM: ");
-		help.concat(ESP.getFreeHeap());
-		help.concat("\r\n");
-		help.concat("* ESP SDK version: ");
-		help.concat(ESP.getSdkVersion());
-		help.concat("\r\n");
-		help.concat("******************************************************\r\n");
-		help.concat("* Commands:\r\n");
-		help.concat("    ? or help -> display these help of commands\r\n");
-		help.concat("    q -> quit (close this connection)\r\n");
-		help.concat("    m -> display memory available\r\n");
-		help.concat("    v -> set debug level to verbose\r\n");
-		help.concat("    d -> set debug level to debug\r\n");
-		help.concat("    i -> set debug level to info\r\n");
-		help.concat("    w -> set debug level to warning\r\n");
-		help.concat("    e -> set debug level to errors\r\n");
-		help.concat("    s -> silence (Not to show anything else, good for analysis)\r\n");
-		help.concat("    l -> show debug level\r\n");
-		help.concat("    t -> show time (millis)\r\n");
-		help.concat("    profiler:\r\n");
-		help.concat(
-				"      p      -> show time between actual and last message (in millis)\r\n");
-		help.concat("      p min  -> show only if time is this minimal\r\n");
-		help.concat("      P time -> set debug level to profiler\r\n");
-	#ifdef ALPHA_VERSION // In test, not good yet
-		help.concat("      A time -> set auto debug level to profiler\r\n");
-	#endif
-		help.concat("    c -> show colors\r\n");
-		help.concat("    filter:\r\n");
-		help.concat("          filter <string> -> show only debugs with this\r\n");
-		help.concat("          nofilter        -> disable the filter\r\n");
-	#if defined(ESP8266)
-		help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
-		help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
-		if (_resetCommandEnabled) {
-			help.concat("    reset -> reset the ESP8266\r\n");
-		}
-	#elif defined(ESP32)
-		if (_resetCommandEnabled) {
-			help.concat("    reset -> reset the ESP32\r\n");
-		}
-	#endif
-
-		if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
-			help.concat("\r\n");
-			help.concat("    * Project commands:\r\n");
-			String show = "\r\n";
-			show.concat(_helpProjectCmds);
-			show.replace("\n", "\n    "); // ident this
-			help.concat(show);
-		}
-
-		help.concat("\r\n");
-		help.concat(
-				"* Please type the command and press enter to execute.(? or h for this help)\r\n");
-		help.concat("***\r\n");
-
-	} else {
+	if (!_passwordOk) {
 
 		help.concat("\r\n");
 		help.concat("* Please enter with a password to access");
@@ -805,7 +744,85 @@ void RemoteDebug::showHelp() {
 #endif
 		help.concat(':');
 		help.concat("\r\n");
+
+		TelnetClient.print(help);
+
+		return;
+}
+
+#endif
+
+	// Show help
+
+#if defined(ESP8266)
+	help.concat("*** Remote debug - over telnet - for ESP8266 (NodeMCU) - version ");
+#elif defined(ESP32)
+	help.concat("*** Remote debug - over telnet - for ESP32 - version ");
+#endif
+	help.concat(VERSION);
+	help.concat("\r\n");
+	help.concat("* Host name: ");
+	help.concat(_hostName);
+	help.concat(" IP:");
+	help.concat(WiFi.localIP().toString());
+	help.concat(" Mac address:");
+	help.concat(WiFi.macAddress());
+	help.concat("\r\n");
+	help.concat("* Free Heap RAM: ");
+	help.concat(ESP.getFreeHeap());
+	help.concat("\r\n");
+	help.concat("* ESP SDK version: ");
+	help.concat(ESP.getSdkVersion());
+	help.concat("\r\n");
+	help.concat("******************************************************\r\n");
+	help.concat("* Commands:\r\n");
+	help.concat("    ? or help -> display these help of commands\r\n");
+	help.concat("    q -> quit (close this connection)\r\n");
+	help.concat("    m -> display memory available\r\n");
+	help.concat("    v -> set debug level to verbose\r\n");
+	help.concat("    d -> set debug level to debug\r\n");
+	help.concat("    i -> set debug level to info\r\n");
+	help.concat("    w -> set debug level to warning\r\n");
+	help.concat("    e -> set debug level to errors\r\n");
+	help.concat("    l -> show debug level\r\n");
+	help.concat("    t -> show time (millis)\r\n");
+	help.concat("    profiler:\r\n");
+	help.concat(
+			"      p      -> show time between actual and last message (in millis)\r\n");
+	help.concat("      p min  -> show only if time is this minimal\r\n");
+	help.concat("      P time -> set debug level to profiler\r\n");
+#ifdef ALPHA_VERSION // In test, not good yet
+	help.concat("      A time -> set auto debug level to profiler\r\n");
+#endif
+	help.concat("    c -> show colors\r\n");
+	help.concat("    filter:\r\n");
+	help.concat("          filter <string> -> show only debugs with this\r\n");
+	help.concat("          nofilter        -> disable the filter\r\n");
+#if defined(ESP8266)
+	help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
+	help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
+	if (_resetCommandEnabled) {
+		help.concat("    reset -> reset the ESP8266\r\n");
 	}
+#elif defined(ESP32)
+	if (_resetCommandEnabled) {
+		help.concat("    reset -> reset the ESP32\r\n");
+	}
+#endif
+
+	if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
+		help.concat("\r\n");
+		help.concat("    * Project commands:\r\n");
+		String show = "\r\n";
+		show.concat(_helpProjectCmds);
+		show.replace("\n", "\n    "); // ident this
+		help.concat(show);
+	}
+
+	help.concat("\r\n");
+	help.concat(
+			"* Please type the command and press enter to execute.(? or h for this help)\r\n");
+	help.concat("***\r\n");
 
 	TelnetClient.print(help);
 }
@@ -827,258 +844,17 @@ void RemoteDebug::clearLastCommand() {
 
 void RemoteDebug::processCommand() {
 
-	// Password request ? - 18/07/18
-
-	if (_PasswordOk) {
-
-		TelnetClient.print("* Debug: Command recevied: ");
-		TelnetClient.println(_command);
-
-		String options = "";
-		uint8_t pos = _command.indexOf(" ");
-		if (pos > 0) {
-			options = _command.substring(pos + 1);
-		}
-
-		// Set time of last command received
-
-		_lastTimeCommand = millis();
-
-		// Process the command
-
-		if (_command == "h" || _command == "?") {
-
-			// Show help
-
-			showHelp();
-
-		} else if (_command == "q") {
-
-			// Quit
-
-			TelnetClient.println("* Closing telnet connection ...");
-
-			TelnetClient.stop();
-
-		} else if (_command == "m") {
-
-			TelnetClient.print("* Free Heap RAM: ");
-			TelnetClient.println(ESP.getFreeHeap());
-
-	#if defined(ESP8266)
-
-		} else if (_command == "cpu80") {
-
-			// Change ESP8266 CPU para 80 MHz
-
-			system_update_cpu_freq(80);
-			TelnetClient.println("CPU ESP8266 changed to: 80 MHz");
-
-		} else if (_command == "cpu160") {
-
-			// Change ESP8266 CPU para 160 MHz
-
-			system_update_cpu_freq(160);
-			TelnetClient.println("CPU ESP8266 changed to: 160 MHz");
-
-	#endif
-
-		} else if (_command == "v") {
-
-			// Debug level
-
-			_clientDebugLevel = VERBOSE;
-
-			TelnetClient.println("* Debug level set to Verbose");
-
-		} else if (_command == "d") {
-
-			// Debug level
-
-			_clientDebugLevel = DEBUG;
-
-			TelnetClient.println("* Debug level set to Debug");
-
-		} else if (_command == "i") {
-
-			// Debug level
-
-			_clientDebugLevel = INFO;
-
-			TelnetClient.println("* Debug level set to Info");
-
-		} else if (_command == "w") {
-
-			// Debug level
-
-			_clientDebugLevel = WARNING;
-
-			TelnetClient.println("* Debug level set to Warning");
-
-		} else if (_command == "e") {
-
-			// Debug level
-
-			_clientDebugLevel = ERROR;
-
-			TelnetClient.println("* Debug level set to Error");
-
-		} else if (_command == "l") {
-
-			// Show debug level
-
-			_showDebugLevel = !_showDebugLevel;
-
-			TelnetClient.printf("* Show debug level: %s\r\n",
-					(_showDebugLevel) ? "On" : "Off");
-
-		} else if (_command == "t") {
-
-			// Show time
-
-			_showTime = !_showTime;
-
-			TelnetClient.printf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
-
-		} else if (_command == "s") {
-
-			// Silence (new) = 28/08/18
-
-			_silence = !_silence;
-
-			if (_silence) {
-
-				TelnetClient.println("* Debug now is in silent mode!");
-				TelnetClient.println("* Press s again to return show debugs");
-
-			} else {
-
-				TelnetClient.println("* Debug now exit from silent mode!");
-			}
-
-		} else if (_command == "p") {
-
-			// Show profiler
-
-			_showProfiler = !_showProfiler;
-			_minTimeShowProfiler = 0;
-
-			TelnetClient.printf("* Show profiler: %s\r\n",
-					(_showProfiler) ? "On" : "Off");
-
-		} else if (_command.startsWith("p ")) {
-
-			// Show profiler with minimal time
-
-			if (options.length() > 0) { // With minimal time
-				int32_t aux = options.toInt();
-				if (aux > 0) { // Valid number
-					_showProfiler = true;
-					_minTimeShowProfiler = aux;
-					TelnetClient.printf(
-							"* Show profiler: On (with minimal time: %u)\r\n",
-							_minTimeShowProfiler);
-				}
-			}
-
-		} else if (_command == "P") {
-
-			// Debug level profile
-
-			_levelBeforeProfiler = _clientDebugLevel;
-			_clientDebugLevel = PROFILER;
-
-			if (_showProfiler == false) {
-				_showProfiler = true;
-			}
-
-			_levelProfilerDisable = 1000; // Default
-
-			if (options.length() > 0) { // With time of disable
-				int32_t aux = options.toInt();
-				if (aux > 0) { // Valid number
-					_levelProfilerDisable = millis() + aux;
-				}
-			}
-
-			TelnetClient.printf(
-					"* Debug level set to Profiler (disable in %u millis)\r\n",
-					_levelProfilerDisable);
-
-		} else if (_command == "A") {
-
-			// Auto debug level profile
-
-			_autoLevelProfiler = 1000; // Default
-
-			if (options.length() > 0) { // With time of disable
-				int32_t aux = options.toInt();
-				if (aux > 0) { // Valid number
-					_autoLevelProfiler = aux;
-				}
-			}
-
-			TelnetClient.printf(
-					"* Auto profiler debug level active (time >= %u millis)\r\n",
-					_autoLevelProfiler);
-
-		} else if (_command == "c") {
-
-			// Show colors
-
-			_showColors = !_showColors;
-
-			TelnetClient.printf("* Show colors: %s\r\n",
-					(_showColors) ? "On" : "Off");
-
-		} else if (_command.startsWith("filter ") && options.length() > 0) {
-
-			setFilter(options);
-
-		} else if (_command == "nofilter") {
-
-			setNoFilter();
-		} else if (_command == "reset" && _resetCommandEnabled) {
-
-			TelnetClient.println("* Reset ...");
-
-			TelnetClient.println("* Closing telnet connection ...");
-
-	#if defined(ESP8266)
-			TelnetClient.println("* Resetting the ESP8266 ...");
-	#elif defined(ESP32)
-			TelnetClient.println("* Resetting the ESP32 ...");
-	#endif
-
-			TelnetClient.stop();
-			TelnetServer.stop();
-
-			delay(500);
-
-			// Reset
-
-			ESP.restart();
-
-		} else {
-
-			// Project commands - set by programmer
-
-			if (_callbackProjectCmds) {
-
-				_callbackProjectCmds();
-
-			}
-		}
-
 #ifdef REMOTEDEBUG_PASSWORD
 
-	} else { // Process the password - 18/08/18
+	// Password request ? - 18/07/18
+
+	if (!_passwordOk) { // Process the password - 18/08/18 - adjust in 04/09/08
 
 		if (_command == REMOTEDEBUG_PASSWORD) {
 
 			TelnetClient.println("* Password ok, allowing access now...");
 
-			_PasswordOk = true;
+			_passwordOk = true;
 
 #ifdef ALPHA_VERSION // In test, not good yet
 			sendTelnetCommand(TELNET_WILL, TELNET_ECHO); // Send a command to telnet to restore echoes = 18/08/18
@@ -1091,9 +867,9 @@ void RemoteDebug::processCommand() {
 
 	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
 
-			_PasswordAttempt++;
+			_passwordAttempt++;
 
-			if (_PasswordAttempt > REMOTEDEBUG_PWD_ATTEMPTS) {
+			if (_passwordAttempt > REMOTEDEBUG_PWD_ATTEMPTS) {
 
 				TelnetClient.println("* Many attempts. Closing session now.");
 				TelnetClient.stop();
@@ -1106,9 +882,251 @@ void RemoteDebug::processCommand() {
 			}
 
 	#endif
+		}
+
+		return;
+
+	#endif //REMOTEDEBUG_PASSWORD
+
+	// Process commands
+
+	TelnetClient.print("* Debug: Command recevied: ");
+	TelnetClient.println(_command);
+
+	String options = "";
+	uint8_t pos = _command.indexOf(" ");
+	if (pos > 0) {
+		options = _command.substring(pos + 1);
+	}
+
+	// Set time of last command received
+
+	_lastTimeCommand = millis();
+
+	// Process the command
+
+	if (_command == "h" || _command == "?") {
+
+		// Show help
+
+		showHelp();
+
+	} else if (_command == "q") {
+
+		// Quit
+
+		TelnetClient.println("* Closing telnet connection ...");
+
+		TelnetClient.stop();
+
+	} else if (_command == "m") {
+
+		TelnetClient.print("* Free Heap RAM: ");
+		TelnetClient.println(ESP.getFreeHeap());
+
+#if defined(ESP8266)
+
+	} else if (_command == "cpu80") {
+
+		// Change ESP8266 CPU para 80 MHz
+
+		system_update_cpu_freq(80);
+		TelnetClient.println("CPU ESP8266 changed to: 80 MHz");
+
+	} else if (_command == "cpu160") {
+
+		// Change ESP8266 CPU para 160 MHz
+
+		system_update_cpu_freq(160);
+		TelnetClient.println("CPU ESP8266 changed to: 160 MHz");
+
+#endif
+
+	} else if (_command == "v") {
+
+		// Debug level
+
+		_clientDebugLevel = VERBOSE;
+
+		TelnetClient.println("* Debug level set to Verbose");
+
+	} else if (_command == "d") {
+
+		// Debug level
+
+		_clientDebugLevel = DEBUG;
+
+		TelnetClient.println("* Debug level set to Debug");
+
+	} else if (_command == "i") {
+
+		// Debug level
+
+		_clientDebugLevel = INFO;
+
+		TelnetClient.println("* Debug level set to Info");
+
+	} else if (_command == "w") {
+
+		// Debug level
+
+		_clientDebugLevel = WARNING;
+
+		TelnetClient.println("* Debug level set to Warning");
+
+	} else if (_command == "e") {
+
+		// Debug level
+
+		_clientDebugLevel = ERROR;
+
+		TelnetClient.println("* Debug level set to Error");
+
+	} else if (_command == "l") {
+
+		// Show debug level
+
+		_showDebugLevel = !_showDebugLevel;
+
+		TelnetClient.printf("* Show debug level: %s\r\n",
+				(_showDebugLevel) ? "On" : "Off");
+
+	} else if (_command == "t") {
+
+		// Show time
+
+		_showTime = !_showTime;
+
+		TelnetClient.printf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
+
+	} else if (_command == "s") {
+
+		// Silence (new) = 28/08/18
+
+		_silence = !_silence;
+
+		if (_silence) {
+
+			TelnetClient.println("* Debug now is in silent mode!");
+			TelnetClient.println("* Press s again to return show debugs");
+
+		} else {
+
+			TelnetClient.println("* Debug now exit from silent mode!");
+		}
+
+	} else if (_command == "p") {
+
+		// Show profiler
+
+		_showProfiler = !_showProfiler;
+		_minTimeShowProfiler = 0;
+
+		TelnetClient.printf("* Show profiler: %s\r\n",
+				(_showProfiler) ? "On" : "Off");
+
+	} else if (_command.startsWith("p ")) {
+
+		// Show profiler with minimal time
+
+		if (options.length() > 0) { // With minimal time
+			int32_t aux = options.toInt();
+			if (aux > 0) { // Valid number
+				_showProfiler = true;
+				_minTimeShowProfiler = aux;
+				TelnetClient.printf(
+						"* Show profiler: On (with minimal time: %u)\r\n",
+						_minTimeShowProfiler);
+			}
+		}
+
+	} else if (_command == "P") {
+
+		// Debug level profile
+
+		_levelBeforeProfiler = _clientDebugLevel;
+		_clientDebugLevel = PROFILER;
+
+		if (_showProfiler == false) {
+			_showProfiler = true;
+		}
+
+		_levelProfilerDisable = 1000; // Default
+
+		if (options.length() > 0) { // With time of disable
+			int32_t aux = options.toInt();
+			if (aux > 0) { // Valid number
+				_levelProfilerDisable = millis() + aux;
+			}
+		}
+
+		TelnetClient.printf(
+				"* Debug level set to Profiler (disable in %u millis)\r\n",
+				_levelProfilerDisable);
+
+	} else if (_command == "A") {
+
+		// Auto debug level profile
+
+		_autoLevelProfiler = 1000; // Default
+
+		if (options.length() > 0) { // With time of disable
+			int32_t aux = options.toInt();
+			if (aux > 0) { // Valid number
+				_autoLevelProfiler = aux;
+			}
+		}
+
+		TelnetClient.printf(
+				"* Auto profiler debug level active (time >= %u millis)\r\n",
+				_autoLevelProfiler);
+
+	} else if (_command == "c") {
+
+		// Show colors
+
+		_showColors = !_showColors;
+
+		TelnetClient.printf("* Show colors: %s\r\n",
+				(_showColors) ? "On" : "Off");
+
+	} else if (_command.startsWith("filter ") && options.length() > 0) {
+
+		setFilter(options);
+
+	} else if (_command == "nofilter") {
+
+		setNoFilter();
+	} else if (_command == "reset" && _resetCommandEnabled) {
+
+		TelnetClient.println("* Reset ...");
+
+		TelnetClient.println("* Closing telnet connection ...");
+
+#if defined(ESP8266)
+		TelnetClient.println("* Resetting the ESP8266 ...");
+#elif defined(ESP32)
+		TelnetClient.println("* Resetting the ESP32 ...");
+#endif
+
+		TelnetClient.stop();
+		TelnetServer.stop();
+
+		delay(500);
+
+		// Reset
+
+		ESP.restart();
+
+	} else {
+
+		// Project commands - set by programmer
+
+		if (_callbackProjectCmds) {
+
+			_callbackProjectCmds();
 
 		}
-#endif //REMOTEDEBUG_PASSWORD
 	}
 }
 

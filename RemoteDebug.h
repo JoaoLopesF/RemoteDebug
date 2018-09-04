@@ -303,8 +303,10 @@ private:
 	uint32_t _lastTimeSend = 0;			// Last time command send data
 #endif
 
-	boolean _PasswordOk = false; 		// Password request ? - 18/07/18
-	uint8_t _PasswordAttempt = 0;
+#ifdef REMOTEDEBUG_PASSWORD
+	boolean _passwordOk = false; 		// Password request ? - 18/07/18
+	uint8_t _passwordAttempt = 0;
+#endif
 
 	// Privates
 
