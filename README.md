@@ -10,22 +10,22 @@
     https://github.com/espressif/arduino-esp32
 
 ## Contents
-- [About](#about)
-- [Standard telnet](#telnet)
-- [News](#news)
-- [Wishlist](#wishlist)
-- [Using](#usage)
-- [Know issues](#knowissues)
-- [Releases](#releases)
-- [Thanks](#thanks)
+  - [About](#about)
+  - [Standard telnet](#telnet)
+  - [News](#news)
+  - [Wishlist](#wishlist)
+  - [Using](#usage)
+  - [Know issues](#knowissues)
+  - [Releases](#releases)
+  - [Thanks](#thanks)
 
 ## About
 
 By default the Arduino only has as debug possibility via the Serial port.
 This has a few disadvantages:
 
-  - requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
-  - debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
+    - requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
+    - debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity which can be used for streaming debugging information in real-time.
 
@@ -38,9 +38,8 @@ _RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
 
 Note: If your project is not wireless, you can use my another library,
-the lightweight __SerialDebug__.
-
-https://github.com/JoaoLopesF/SerialDebug
+the __SerialDebug__ library. [SerialDebug Github](https://github.com/JoaoLopesF/SerialDebug)
+This works in any Arduino, except for Tiny* AVR boards.
 
 ## Telnet
 
@@ -193,14 +192,14 @@ Debug.setResetCmdEnabled(true); // Enable the reset command
 // Debug.showProfiler(true); // To show profiler - time between messages of Debug
 
 ```
-- In the tail of loop function
+  - In the tail of loop function
 ```cpp
 // Remote debug over telnet
 
 Debug.handle();
 
 ```
-- In any place of you code:
+  - In any place of you code:
 ```cpp
 if (Debug.isActive(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s", number, str); // OR
@@ -214,7 +213,6 @@ if (Debug.isActive(Debug.<level>)) {
 ```
 Or short way (new) (prefered if only one debug at time):
 ```cpp
-
 rdebugA("This is a any (always showed) - var %d\n", var);
 rdebugV("This is a verbose - var %d\n", var);
 rdebugD("This is a debug - var %d\n", var);
@@ -236,7 +234,7 @@ rdebugEln("This is a error - var %d", var);
 rdebugVln("This is a println");
 ```
 Instead of rdebug can be used old short way: 
-```
+```cpp
 DEBUG_A(...)
 DEBUG_V(...)
 DEBUG_D(...)
@@ -244,8 +242,7 @@ DEBUG_I(...)
 DEBUG_W(...)
 DEBUG_E(...)
 ````
-
-  - An example of use debug levels: (supposing the data is a lot of characteres)
+An example of use debug levels: (supposing the data is a lot of characteres)
 ```cpp
 if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s\n", data.c_str()); // Note: if type is String need c_str()
@@ -254,45 +251,54 @@ if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
 }
 ```
 
-  - An example of use debug with serial enabled
-    Useful to see messages if setup or
-    in cause the ESP8266/ESP32 is rebooting (telnet connection stop before received all messages)
-    Only for this purposes I suggest it
+An example of use debug with serial enabled
+
+      Useful to see messages if setup or
+      in cause the ESP8266/ESP32 is rebooting (telnet connection stop before received all messages)
+      Only for this purposes I suggest it
 
 ```cpp
 // Setup after Debug.begin
 
-Debug.setSerialEnabled(true);
-
-// All messages too send to serial too, and can be see in serial monitor
+Debug.setSerialEnabled(true); // All messages too send to serial too, and can be see in serial monitor
 ```
 
-  - For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
-  - Please pless enter or any key if you need keep the connection
-  - The default is 5 minutes (You can change it in RemoteDebug.h)  
-  - You can use mDNS to register each node with different name, it helps to connect without know the IP.
+For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
+ 
+    - Please pless enter or any key if you need keep the connection
+    - The default is 5 minutes (You can change it in RemoteDebug.h)  
+    - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
-  - Please not forget to use if clause with Debug.isActive (if not using rdebug*)
+Please not forget to use if clause with Debug.isActive (if not using rdebug*)
+    
     ---> This is very important to reduce overheads and work of debug levels
 
-  - Please see the samples, basic or advanced, to learn how to use  
+Please see the samples, basic or advanced, to learn how to use  
 
-  - In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
+In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
 
-#### 1.5.1 - 28/08/18
+#### 1.5.3 2018-09-04
+
+  - Serial output adjustments (due bug in password logic)
+
+#### 1.5.2 
+
+  - Correct rdebug macro (thanks @stritti)
+ 
+#### 1.5.1 - 2018-08-28
 
   - New silent mode (command s)
   
-#### 1.5.0 - 26/08/18
+#### 1.5.0 - 2018-08=26
 
   - Auto function name and ESP32 core id for rdebug* macros
   - begin method have a option for port number
   - Few adjustments
   - Added new rdebug?ln to put auto new line
 
-#### 1.4.0 - 18/08/18
+#### 1.4.0 - 2018-08-18
 
   - Simple text password request feature (disabled by default)
 
@@ -304,11 +310,11 @@ Debug.setSerialEnabled(true);
           Such as now RemoteDebug is not for production (releases), 
           this kind of authentication will not be done now.
 
-#### 1.3.1 - 18/08/18
+#### 1.3.1 - 2018-08-18
 
   - Adjustments in precompiler macros
 
-#### 1.3.0 - 17/08/18
+#### 1.3.0 - 2018-08-17
 
   - Bug in write with latest ESP8266 SDK 
   - Port number can be modified in project Arduino (.ino file)
