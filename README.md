@@ -10,14 +10,14 @@
     https://github.com/espressif/arduino-esp32
 
 ## Contents
- - [About](#about)
- - [Standard telnet](#telnet)
- - [News](#news)
- - [Wishlist](#wishlist)
- - [Using](#usage)
- - [Know issues](#knowissues)
- - [Releases](#releases)
- - [Thanks](#thanks)
+- [About](#about)
+- [Standard telnet](#telnet)
+- [News](#news)
+- [Wishlist](#wishlist)
+- [Using](#usage)
+- [Know issues](#knowissues)
+- [Releases](#releases)
+- [Thanks](#thanks)
 
 ## About
 
@@ -47,7 +47,7 @@ Telnet is a standard way of remotely connecting to a server and is supported on 
 
 MacOSx and Linux have a native telnet client.
 
-For Windows, a typical telnet client is the __Putty__: https://www.putty.org/ .
+For Windows, a typical telnet client is the __Putty__: [putty](https://www.putty.org/) .
 
 Have a good tool for mobiles: the __Fing__, please find it in your mobile store.
 Its show all devices in local network, show ports opened and can execute the telnet client too (external App)
