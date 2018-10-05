@@ -153,6 +153,7 @@ And You can change port number in begin method (see below)
 ![Imgur](https://i.imgur.com/qjvtdjG.png)
 
     Youtube:
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d808de6d61ad488faf8fb5b422704a3d)](https://app.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&utm_medium=referral&utm_content=JoaoLopesF/RemoteDebug&utm_campaign=Badge_Grade_Settings)
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
 ## Usage
