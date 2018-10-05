@@ -605,7 +605,7 @@ size_t RemoteDebug::write(uint8_t character) {
 				} else if (elapsed < 3000) {
 					show.concat(COLOR_BACKGROUND_YELLOW);
 					resetColors = true;
-				} else if (elapsed < 3000) {
+				} else if (elapsed < 5000) {
 					show.concat(COLOR_BACKGROUND_MAGENTA);
 					resetColors = true;
 				} else {

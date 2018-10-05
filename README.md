@@ -1,5 +1,9 @@
 # RemoteDebug Library for ESP8266 or ESP32
 
+<a href="#releases">![build badge](https://img.shields.io/badge/version-v1.5.4-blue.svg)</a>  
+<a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+
+
 ### A library to remotely debug over a telnet connection
 
 ### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
@@ -279,6 +283,10 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
+#### 1.5.4 2018-10-05
+
+  - Few adjustment in write logic
+
 #### 1.5.3 2018-09-04
 
   - Serial output adjustments (due bug in password logic)
@@ -344,10 +352,11 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
   - Adjustments and improvements from Beta versions.
 
-  News features:
-  - Filter
-  - Colors
-  - Support to Windows telnet client
+    New features:
+
+        - Filter
+        - Colors
+        - Support to Windows telnet client
 
 #### 0.9
 
@@ -370,7 +379,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
         if (Debug.isActive(Debug.<level>)) ....
         ```
 
-# Know issues
+## Know issues
 
 - Sometimes (rarely) the connection over telnet becomes very slow.
   Especially right after uploading firmware.
@@ -383,4 +392,4 @@ First thanks a lot for Igrr for bring to us the Arduino ESP8266.
 
 Resources:
 
-- Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
+  - Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
