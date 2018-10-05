@@ -13,14 +13,14 @@
     https://github.com/espressif/arduino-esp32
 
 ## Contents
-- [About](#about)
-- [Standard telnet](#telnet)
-- [News](#news)
-- [Wishlist](#wishlist)
-- [Using](#usage)
-- [Know issues](#knowissues)
-- [Releases](#releases)
-- [Thanks](#thanks)
+ - [About](#about)
+ - [Standard telnet](#telnet)
+ - [News](#news)
+ - [Wishlist](#wishlist)
+ - [Using](#usage)
+ - [Know issues](#knowissues)
+ - [Releases](#releases)
+ - [Thanks](#thanks)
 
 ## About
 
@@ -37,7 +37,7 @@ WiFi or BLE projects, etc.
 
 The MiP_ESP8266_Library is a example of this. see in:  [https://github.com/Tiogaplanet/MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Library)
 
-_RemoteDebug_ is improved with client buffering (is last send is <= 10ms),
+__RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of networking on ESP32 and ESP8266 boards
 
 Note: If your project is not wireless, you can use my another library,
@@ -55,13 +55,13 @@ For Windows, a typical telnet client is the __Putty__: [putty](https://www.putty
 Have a good tool for mobiles: the __Fing__, please find it in your mobile store.
 Its show all devices in local network, show ports opened and can execute the telnet client too (external App)
 
-_RemoteDebug_  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
+__RemoteDebug__  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
 
-_RemoteDebug_ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
+__RemoteDebug__ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
 
 ### Debug levels
 
-_RemoteDebug_ supports the filtering of logging based on **debug levels**:
+__RemoteDebug__ supports the filtering of logging based on **debug levels**:
 
 Only show for it actual debug level:
 
@@ -83,7 +83,7 @@ The telnet client can set the debug level by typing a few simple commands.
 
 ### Profiler
 
-_RemoteDebug_ includes a simple profiler. It can be enabled by the connected telnet client or the Arduino code itself.
+__RemoteDebug__ includes a simple profiler. It can be enabled by the connected telnet client or the Arduino code itself.
 
 When enabled, it shows the time between 2 debug statements, using different colors depending on the elapsed time.
 
@@ -91,16 +91,16 @@ A typical example would be to insert logging just before and after a function af
 
 ### Lightweight
 
-_RemoteDebug_ is designed to give minimal overhead (connected or not) and 
+__RemoteDebug__ is designed to give minimal overhead (connected or not) and 
 only process debugs,if there is a telnet client connected.
 
 ### Custom commands
 
-_RemoteDebug_ supports custom commands that can be entered in the telnet client. These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the telnet client.
+__RemoteDebug__ supports custom commands that can be entered in the telnet client. These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the telnet client.
 
-### DISCLAIMER:
+### DISCLAIMER
 
-The current version of _RemoteDebug_ does not yet include any authentication and is intended only for development.
+The current version of __RemoteDebug__ does not yet include any authentication and is intended only for development.
 
 Future extension could include a secure way for authentication and further testing to support production environments.
   
@@ -111,6 +111,7 @@ debugs with auto funcion name and core id (core id only for ESP32).
 And new rdebug?ln macros to put auto new line.
 
 So:
+
 ```cpp
 void foo() {
 
@@ -128,6 +129,7 @@ void loop() {
   // ....
 }
 ```
+
 It will show in telnet client: 
 
     (V p:^0000ms) (foo)(C1) this is a debug - var 1
@@ -282,32 +284,32 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
-#### 1.5.4 2018-10-05
+#### 1.5.4 - 2018-10-05
 
-  - Few adjustment in write logic
+    - Few adjustment in write logic
 
-#### 1.5.3 2018-09-04
+#### 1.5.3 - 2018-09-04
 
-  - Serial output adjustments (due bug in password logic)
+    - Serial output adjustments (due bug in password logic)
 
 #### 1.5.2 
 
-  - Correct rdebug macro (thanks @stritti)
+    - Correct rdebug macro (thanks @stritti)
  
 #### 1.5.1 - 2018-08-28
 
-  - New silent mode (command s)
+    - New silent mode (command s)
   
 #### 1.5.0 - 2018-08=26
 
-  - Auto function name and ESP32 core id for rdebug* macros
-  - begin method have a option for port number
-  - Few adjustments
-  - Added new rdebug?ln to put auto new line
+    - Auto function name and ESP32 core id for rdebug* macros
+    - begin method have a option for port number
+    - Few adjustments
+    - Added new rdebug?ln to put auto new line
 
 #### 1.4.0 - 2018-08-18
 
-  - Simple text password request feature (disabled by default)
+    - Simple text password request feature (disabled by default)
 
         Notes:
           It is very simple feature, only text, no cryptography,
@@ -319,39 +321,39 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 #### 1.3.1 - 2018-08-18
 
-  - Adjustments in precompiler macros
+    - Adjustments in precompiler macros
 
 #### 1.3.0 - 2018-08-17
 
-  - Bug in write with latest ESP8266 SDK 
-  - Port number can be modified in project Arduino (.ino file)
-  -  Few adjustments as ESP32 includes
+    - Bug in write with latest ESP8266 SDK 
+    - Port number can be modified in project Arduino (.ino file)
+    -  Few adjustments as ESP32 includes
 
 #### 1.2.2
 
-  - Adjustments, as avoid ESP32 include errors
-  - Telnet port of server can be modified by project
-    Just put it in your .ino, before the include:
+    - Adjustments, as avoid ESP32 include errors
+    - Telnet port of server can be modified by project
+      Just put it in your .ino, before the include:
 
-    ````
+    ```cpp
     #define TELNET_PORT 1000
 
     #include "RemoteDebug.h"
-    ````
+    ```
 
 #### 1.2.0
 
-  - Shortcuts and client buffering to avoid misterious delay of ESP networking
+    - Shortcuts and client buffering to avoid misterious delay of ESP networking
 
 #### 1.1.0
 
-  - Adjustments and now runs in Esp32 too.
+    - Adjustments and now runs in Esp32 too.
 
 #### 1.0.0
 
-  - Adjustments and improvements from Beta versions.
+    - Adjustments and improvements from Beta versions.
 
-    New features:
+      New features:
 
         - Filter
         - Colors
@@ -359,7 +361,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 #### 0.9
 
-  - First Beta
+    - First Beta
 
         Warning !
 
@@ -368,27 +370,27 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
         From:
 
-        ```
+        ```cpp
         if (Debug.ative(Debug.<level>)) ....
         ```
 
         To:
 
-        ```
+        ```cpp
         if (Debug.isActive(Debug.<level>)) ....
         ```
 
 ## Know issues
 
-- Sometimes (rarely) the connection over telnet becomes very slow.
-  Especially right after uploading firmware.
-  Reset command in telnet connection or turn off/on can be resolve it.
-  But I need find why it occurs
+    - Sometimes (rarely) the connection over telnet becomes very slow.
+      Especially right after uploading firmware.
+      Reset command in telnet connection or turn off/on can be resolve it.
+      But I need find why it occurs
 
 ## Thanks
 
-First thanks a lot for Igrr for bring to us the Arduino ESP8266.
+    First thanks a lot for Igrr for bring to us the Arduino ESP8266.
 
-Resources:
+    Resources:
 
-  - Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
+      - Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
