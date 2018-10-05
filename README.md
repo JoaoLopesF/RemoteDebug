@@ -2,7 +2,6 @@
 
 <a href="#releases">![build badge](https://img.shields.io/badge/version-v1.5.4-blue.svg)</a> <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
 
-
 ### A library to remotely debug over a telnet connection
 
 ### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
@@ -13,14 +12,15 @@
     https://github.com/espressif/arduino-esp32
 
 ## Contents
- - [About](#about)
- - [Standard telnet](#telnet)
- - [News](#news)
- - [Wishlist](#wishlist)
- - [Using](#usage)
- - [Know issues](#knowissues)
- - [Releases](#releases)
- - [Thanks](#thanks)
+
+- [About](#about)
+- [Standard telnet](#telnet)
+- [News](#news)
+- [Wishlist](#wishlist)
+- [Using](#usage)
+- [Know issues](#knowissues)
+- [Releases](#releases)
+- [Thanks](#thanks)
 
 ## About
 
@@ -74,8 +74,8 @@ Note: These levels are in the order of most-logging -> least-logging.
 
 Or for always show (not depends of actual debug level):
 
-    - Any 
-    - Errors 
+    - Any
+    - Errors
 
 Note: All debugs is processed and showed only if have a client connection.
 
@@ -112,7 +112,7 @@ And new rdebug?ln macros to put auto new line.
 
 So:
 
-```cpp
+````cpp
 void foo() {
 
   uint8_t var = 1;
@@ -128,7 +128,7 @@ void loop() {
 
   // ....
 }
-```
+````
 
 It will show in telnet client: 
 
@@ -159,9 +159,10 @@ And You can change port number in begin method (see below)
 
 ### includes
 
-```cpp
+````cpp
 #include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
-```
+````
+
 ### instance
 
 RemoteDebug Debug;
@@ -169,7 +170,8 @@ RemoteDebug Debug;
 ### setup
 
 - In the setup function after WiFi initialization
-```cpp
+
+````cpp
 // Initialize the telnet server of RemoteDebug
 
 Debug.begin("Telnet_HostName"); // Initiaze the telnet server - this name is used in MDNS.begin
@@ -196,16 +198,19 @@ Debug.setResetCmdEnabled(true); // Enable the reset command
 
 // Debug.showProfiler(true); // To show profiler - time between messages of Debug
 
-```
+````
+
   - In the tail of loop function
-```cpp
+
+````cpp
 // Remote debug over telnet
 
 Debug.handle();
 
 ```
   - In any place of you code:
-```cpp
+
+````cpp
 if (Debug.isActive(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s", number, str); // OR
     Debug.printf("bla bla bla: %d %s", number, str.c_str()); // Note: if type is String need c_str() // OR
@@ -215,9 +220,11 @@ if (Debug.isActive(Debug.<level>)) {
     // you can use my ArduinoUtil library -> https://github.com/JoaoLopesF/ArduinoUtil
     Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
-```
+`````
+
 Or short way (new) (prefered if only one debug at time):
-```cpp
+
+````cpp
 rdebugA("This is a any (always showed) - var %d\n", var);
 rdebugV("This is a verbose - var %d\n", var);
 rdebugD("This is a debug - var %d\n", var);
@@ -237,9 +244,11 @@ rdebugWln("This is a warning - var %d", var);
 rdebugEln("This is a error - var %d", var);
 
 rdebugVln("This is a println");
-```
+````
+
 Instead of rdebug can be used old short way: 
-```cpp
+
+````cpp
 DEBUG_A(...)
 DEBUG_V(...)
 DEBUG_D(...)
@@ -247,14 +256,16 @@ DEBUG_I(...)
 DEBUG_W(...)
 DEBUG_E(...)
 ````
+
 An example of use debug levels: (supposing the data is a lot of characteres)
-```cpp
+
+````cpp
 if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s\n", data.c_str()); // Note: if type is String need c_str()
 } else if (Debug.isActive(Debug.DEBUG)) { // Debug message short
     Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
-```
+````
 
 An example of use debug with serial enabled
 
@@ -262,20 +273,20 @@ An example of use debug with serial enabled
       in cause the ESP8266/ESP32 is rebooting (telnet connection stop before received all messages)
       Only for this purposes I suggest it
 
-```cpp
+````cpp
 // Setup after Debug.begin
 
 Debug.setSerialEnabled(true); // All messages too send to serial too, and can be see in serial monitor
-```
+````
 
 For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
- 
+
     - Please pless enter or any key if you need keep the connection
     - The default is 5 minutes (You can change it in RemoteDebug.h)  
     - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
 Please not forget to use if clause with Debug.isActive (if not using rdebug*)
-    
+
     ---> This is very important to reduce overheads and work of debug levels
 
 Please see the samples, basic or advanced, to learn how to use  
@@ -284,30 +295,30 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
-#### 1.5.4 - 2018-10-05
+### 1.5.4 - 2018-10-05
 
     - Few adjustment in write logic
 
-#### 1.5.3 - 2018-09-04
+### 1.5.3 - 2018-09-04
 
     - Serial output adjustments (due bug in password logic)
 
-#### 1.5.2 
+### 1.5.2 
 
     - Correct rdebug macro (thanks @stritti)
  
-#### 1.5.1 - 2018-08-28
+### 1.5.1 - 2018-08-28
 
     - New silent mode (command s)
   
-#### 1.5.0 - 2018-08=26
+### 1.5.0 - 2018-08=26
 
     - Auto function name and ESP32 core id for rdebug* macros
     - begin method have a option for port number
     - Few adjustments
     - Added new rdebug?ln to put auto new line
 
-#### 1.4.0 - 2018-08-18
+### 1.4.0 - 2018-08-18
 
     - Simple text password request feature (disabled by default)
 
@@ -319,37 +330,37 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
           Such as now RemoteDebug is not for production (releases), 
           this kind of authentication will not be done now.
 
-#### 1.3.1 - 2018-08-18
+### 1.3.1 - 2018-08-18
 
     - Adjustments in precompiler macros
 
-#### 1.3.0 - 2018-08-17
+### 1.3.0 - 2018-08-17
 
     - Bug in write with latest ESP8266 SDK 
     - Port number can be modified in project Arduino (.ino file)
     -  Few adjustments as ESP32 includes
 
-#### 1.2.2
+### 1.2.2
 
     - Adjustments, as avoid ESP32 include errors
     - Telnet port of server can be modified by project
       Just put it in your .ino, before the include:
 
-    ```cpp
+    ````cpp
     #define TELNET_PORT 1000
 
     #include "RemoteDebug.h"
-    ```
+    ````
 
-#### 1.2.0
+### 1.2.0
 
     - Shortcuts and client buffering to avoid misterious delay of ESP networking
 
-#### 1.1.0
+### 1.1.0
 
     - Adjustments and now runs in Esp32 too.
 
-#### 1.0.0
+### 1.0.0
 
     - Adjustments and improvements from Beta versions.
 
@@ -359,7 +370,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
         - Colors
         - Support to Windows telnet client
 
-#### 0.9
+### 0.9
 
     - First Beta
 
@@ -370,15 +381,15 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
         From:
 
-        ```cpp
+        ````cpp
         if (Debug.ative(Debug.<level>)) ....
-        ```
+        ````
 
         To:
 
-        ```cpp
+        ````cpp
         if (Debug.isActive(Debug.<level>)) ....
-        ```
+        ````
 
 ## Know issues
 
