@@ -1,7 +1,6 @@
 # RemoteDebug Library for ESP8266 or ESP32
 
-<a href="#releases">![build badge](https://img.shields.io/badge/version-v1.5.4-blue.svg)</a>  
-<a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+<a href="#releases">![build badge](https://img.shields.io/badge/version-v1.5.4-blue.svg)</a> <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
 
 
 ### A library to remotely debug over a telnet connection
