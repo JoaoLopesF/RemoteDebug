@@ -259,8 +259,6 @@ void RemoteDebug::handle() {
 
 			// Password request ? - 18/07/18
 
-#ifdef REMOTEDEBUG_PASSWORD
-
 			_passwordOk = false;
 
 	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
@@ -273,8 +271,6 @@ void RemoteDebug::handle() {
 
 			sendTelnetCommand(TELNET_WONT, TELNET_ECHO);
 	#endif
-
-#endif
 
 		}
 
@@ -382,11 +378,8 @@ void RemoteDebug::handle() {
 		// Inactivity - close connection if not received commands from user in telnet
 		// For reduce overheads
 
-#ifdef REMOTEDEBUG_PASSWORD // Request password - 18/08/08
-		uint32_t maxTime = 60000; // One minute to password
-#else
 		uint32_t maxTime = MAX_TIME_INACTIVE; // Normal
-#endif
+		if (_password != "") maxTime = 60000; // One minute to password
 
 		if ((millis() - _lastTimeCommand) > maxTime) {
 			TelnetClient.println("* Closing session by inactivity");
@@ -675,11 +668,7 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Send to telnet buffered
 
-			if ((_connected) 
-#ifdef REMOTEDEBUG_PASSWORD
-			&& (_passwordOk)
-#endif 
-			){  // send data to Client
+			if ((_connected) && (_passwordOk)){  // send data to Client
 #ifndef CLIENT_BUFFERING
 				TelnetClient.print(_bufferPrint);
 #else // Cliente buffering
@@ -742,28 +731,26 @@ void RemoteDebug::showHelp() {
 
 	// Password request ? - 04/03/18
 
-#ifdef REMOTEDEBUG_PASSWORD
+	if (_password != ""){
+		if (!_passwordOk) {
 
-	if (!_passwordOk) {
-
-		help.concat("\r\n");
-		help.concat("* Please enter with a password to access");
+			help.concat("\r\n");
+			help.concat("* Please enter with a password to access");
 #ifdef REMOTEDEBUG_PWD_ATTEMPTS
-		help.concat(" (attempt ");
-		help.concat(_passwordAttempt);
-		help.concat(" of ");
-		help.concat(REMOTEDEBUG_PWD_ATTEMPTS);
-		help.concat(")");
+			help.concat(" (attempt ");
+			help.concat(_passwordAttempt);
+			help.concat(" of ");
+			help.concat(REMOTEDEBUG_PWD_ATTEMPTS);
+			help.concat(")");
 #endif
-		help.concat(':');
-		help.concat("\r\n");
+			help.concat(':');
+			help.concat("\r\n");
 
-		TelnetClient.print(help);
+			TelnetClient.print(help);
 
-		return;
-}
-
-#endif
+			return;
+		}
+	}
 
 	// Show help
 
@@ -847,6 +834,13 @@ String RemoteDebug::getLastCommand() {
 	return _lastCommand;
 }
 
+// Set the password for telnet login
+
+void RemoteDebug::setPassword(String password) {
+
+	_password = password;
+}
+
 // Clear the last command received
 
 void RemoteDebug::clearLastCommand() {
@@ -857,13 +851,11 @@ void RemoteDebug::clearLastCommand() {
 
 void RemoteDebug::processCommand() {
 
-#ifdef REMOTEDEBUG_PASSWORD
-
 	// Password request ? - 18/07/18
 
-	if (!_passwordOk) { // Process the password - 18/08/18 - adjust in 04/09/08
+	if ((_password != "") && (!_passwordOk)) { // Process the password - 18/08/18 - adjust in 04/09/08
 
-		if (_command == REMOTEDEBUG_PASSWORD) {
+		if (_command == _password) {
 
 			TelnetClient.println("* Password ok, allowing access now...");
 
@@ -899,8 +891,6 @@ void RemoteDebug::processCommand() {
 
 		return;
 	}
-
-	#endif //REMOTEDEBUG_PASSWORD
 
 	// Process commands
 

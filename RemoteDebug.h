@@ -45,9 +45,7 @@
 // this kind of authentication will not be done now.
 // Can be by project, just define it before include this file
 
-#ifndef REMOTEDEBUG_PASSWORD
-//#define REMOTEDEBUG_PASSWORD "r3m0t3."
-#endif
+// Changed by jeroenst: Password can now be set with the setpassword function
 
 #ifdef REMOTEDEBUG_PASSWORD
 	#define REMOTEDEBUG_PWD_ATTEMPTS 3
@@ -199,6 +197,8 @@ class RemoteDebug: public Print
 
 	void begin(String hostName, uint16_t port, uint8_t startingDebugLevel = DEBUG);
 	void begin(String hostName, uint8_t startingDebugLevel = DEBUG);
+	
+	void setPassword(String password);
 
 	void stop();
 
@@ -303,10 +303,9 @@ private:
 	uint32_t _lastTimeSend = 0;			// Last time command send data
 #endif
 
-#ifdef REMOTEDEBUG_PASSWORD
-	boolean _passwordOk = false; 		// Password request ? - 18/07/18
+	boolean _passwordOk = false; 		// Password login ok?
 	uint8_t _passwordAttempt = 0;
-#endif
+	String _password = "";
 
 	// Privates
 
