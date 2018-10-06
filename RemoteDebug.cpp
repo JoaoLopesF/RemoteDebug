@@ -463,17 +463,8 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
 	// Password request ? - 04/03/18
 
-#ifdef REMOTEDEBUG_PASSWORD
-
-	boolean ret = (_passwordOk &&
-					debugLevel >= _clientDebugLevel &&
-					(_connected || _serialEnabled));
-#else
-
 	boolean ret = (debugLevel >= _clientDebugLevel &&
 					(_connected || _serialEnabled));
-#endif
-
 	if (ret) {
 		_lastDebugLevel = debugLevel;
 	}
@@ -684,7 +675,11 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Send to telnet buffered
 
-			if (_connected) {  // send data to Client
+			if ((_connected) 
+#ifdef REMOTEDEBUG_PASSWORD
+			&& (_passwordOk)
+#endif 
+			){  // send data to Client
 #ifndef CLIENT_BUFFERING
 				TelnetClient.print(_bufferPrint);
 #else // Cliente buffering
