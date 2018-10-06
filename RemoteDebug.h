@@ -47,9 +47,7 @@
 
 // Changed by jeroenst: Password can now be set with the setpassword function
 
-#ifdef REMOTEDEBUG_PASSWORD
-	#define REMOTEDEBUG_PWD_ATTEMPTS 3
-#endif
+#define REMOTEDEBUG_PWD_ATTEMPTS 3
 
 // Maximum time for inactivity (em milliseconds)
 // Default: 10 minutes
