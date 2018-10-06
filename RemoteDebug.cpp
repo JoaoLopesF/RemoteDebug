@@ -465,7 +465,7 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
 #ifdef REMOTEDEBUG_PASSWORD
 
-	boolean ret = (_PasswordOk &&
+	boolean ret = (_passwordOk &&
 					debugLevel >= _clientDebugLevel &&
 					(_connected || _serialEnabled));
 #else
@@ -755,7 +755,7 @@ void RemoteDebug::showHelp() {
 		help.concat("* Please enter with a password to access");
 #ifdef REMOTEDEBUG_PWD_ATTEMPTS
 		help.concat(" (attempt ");
-		help.concat(_PasswordAttempt);
+		help.concat(_passwordAttempt);
 		help.concat(" of ");
 		help.concat(REMOTEDEBUG_PWD_ATTEMPTS);
 		help.concat(")");
@@ -903,6 +903,7 @@ void RemoteDebug::processCommand() {
 		}
 
 		return;
+	}
 
 	#endif //REMOTEDEBUG_PASSWORD
 
