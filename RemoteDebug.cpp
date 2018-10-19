@@ -387,8 +387,14 @@ void RemoteDebug::handle() {
 // Send to serial too (use only if need)
 
 void RemoteDebug::setSerialEnabled(boolean enable) {
+
+#ifndef REMOTEDEBUG_PASSWORD
 	_serialEnabled = enable;
 	_showColors = false; // Disable it for Serial
+#else
+	Serial.println("* setSerialEnabled is disable when telnet password is active");
+#endif
+
 }
 
 // Allow ESP reset over telnet client
@@ -739,7 +745,7 @@ void RemoteDebug::showHelp() {
 		help.concat("* Please enter with a password to access");
 #ifdef REMOTEDEBUG_PWD_ATTEMPTS
 		help.concat(" (attempt ");
-		help.concat(_PasswordAttempt);
+		help.concat(_passwordAttempt);
 		help.concat(" of ");
 		help.concat(REMOTEDEBUG_PWD_ATTEMPTS);
 		help.concat(")");
@@ -887,6 +893,8 @@ void RemoteDebug::processCommand() {
 		}
 
 		return;
+
+	}
 
 	#endif //REMOTEDEBUG_PASSWORD
 
