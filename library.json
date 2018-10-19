@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/JoaoLopesF/RemoteDebug.git"
   },
-  "version": "1.5.3",
+  "version": "1.5.4",
   "frameworks": "arduino",
   "platforms": "*"
 }
