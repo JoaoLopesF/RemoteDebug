@@ -34,6 +34,7 @@
  *    - 1.5.2 Correct rdebug macro (thanks @stritti)
  *    - 1.5.3 Serial output adjustments (due bug in password logic)
  *    - 1.5.4 Serial output not depending of telnet password (thanks @jeroenst for suggestion)
+ *    - 1.5.5 Serial output is now disabled if telnet password is enabled
  */
 
 /*
@@ -71,7 +72,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.4"
+#define VERSION "1.5.5"
 
 #include <Arduino.h>
 
@@ -392,7 +393,7 @@ void RemoteDebug::setSerialEnabled(boolean enable) {
 	_serialEnabled = enable;
 	_showColors = false; // Disable it for Serial
 #else
-	Serial.println("* setSerialEnabled is disable when telnet password is active");
+	Serial.println("* setSerialEnabled is not allowed when telnet password is active");
 #endif
 
 }
