@@ -297,6 +297,11 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
+### 1.5.5 - 2018-10-19
+
+    - Serial output is now disabled if telnet password is enabled
+    - Few adjustments
+
 ### 1.5.4 - 2018-10-05
 
     - Few adjustment in write logic
