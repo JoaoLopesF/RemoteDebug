@@ -33,25 +33,8 @@
  *    - 1.5.1 New command: silence 
  *    - 1.5.2 Correct rdebug macro (thanks @stritti)
  *    - 1.5.3 Serial output adjustments (due bug in password logic)
+ *    - 1.5.4 Serial output not depending of telnet password (thanks @jeroenst for suggestion)
  */
-
-/*
- * Copyright (C) 2018  Joao Lopes https://github.com/JoaoLopesF/RemoteDebug
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * This file contains the code for RemoteDebug library.
-*/
 
 /*
  *  TODO: 	- Page HTML for begin/stop Telnet server
@@ -88,7 +71,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.3"
+#define VERSION "1.5.4"
 
 #include <Arduino.h>
 
@@ -462,12 +445,12 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 	//			 Password ok (if enabled) - 18/08/18
 
 	// Password request ? - 04/03/18
+	// Serial output not depending of telnet password
 
 #ifdef REMOTEDEBUG_PASSWORD
 
-	boolean ret = (_PasswordOk &&
-					debugLevel >= _clientDebugLevel &&
-					(_connected || _serialEnabled));
+	boolean ret = (debugLevel >= _clientDebugLevel &&
+					((_connected && _passwordOk) || _serialEnabled));
 #else
 
 	boolean ret = (debugLevel >= _clientDebugLevel &&
@@ -605,7 +588,7 @@ size_t RemoteDebug::write(uint8_t character) {
 				} else if (elapsed < 3000) {
 					show.concat(COLOR_BACKGROUND_YELLOW);
 					resetColors = true;
-				} else if (elapsed < 5000) {
+				} else if (elapsed < 3000) {
 					show.concat(COLOR_BACKGROUND_MAGENTA);
 					resetColors = true;
 				} else {
@@ -685,6 +668,7 @@ size_t RemoteDebug::write(uint8_t character) {
 			// Send to telnet buffered
 
 			if (_connected) {  // send data to Client
+
 #ifndef CLIENT_BUFFERING
 				TelnetClient.print(_bufferPrint);
 #else // Cliente buffering
