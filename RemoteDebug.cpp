@@ -34,7 +34,8 @@
  *    - 1.5.2 Correct rdebug macro (thanks @stritti)
  *    - 1.5.3 Serial output adjustments (due bug in password logic)
  *    - 1.5.4 Serial output not depending of telnet password (thanks @jeroenst for suggestion)
- *    - 1.5.5 Serial output is now disabled if telnet password is enabled
+ *    - 1.5.5 Serial output is now not allowed if telnet password is enabled
+
  */
 
 /*
