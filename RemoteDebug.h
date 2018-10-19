@@ -43,15 +43,13 @@
 // telnet use advanced authentication (kerberos, etc.)
 // Such now as RemoteDebug now is not for production releases,
 // this kind of authentication will not be done now.
-// Can be by project, just define it before include this file
+// Can be by project, just call setPassword method
 
 #ifndef REMOTEDEBUG_PASSWORD
 //#define REMOTEDEBUG_PASSWORD "r3m0t3."
 #endif
 
-#ifdef REMOTEDEBUG_PASSWORD
-	#define REMOTEDEBUG_PWD_ATTEMPTS 3
-#endif
+#define REMOTEDEBUG_PWD_ATTEMPTS 3
 
 // Maximum time for inactivity (em milliseconds)
 // Default: 10 minutes
@@ -200,6 +198,8 @@ class RemoteDebug: public Print
 	void begin(String hostName, uint16_t port, uint8_t startingDebugLevel = DEBUG);
 	void begin(String hostName, uint8_t startingDebugLevel = DEBUG);
 
+	void setPassword(String password);
+
 	void stop();
 
 	void handle();
@@ -260,6 +260,15 @@ private:
 
 	boolean _connected = false;			// Client is connected ?
 
+#ifndef REMOTEDEBUG_PASSWORD
+	String _password = "";				// Password for telnet
+#else
+	String _password = REMOTEDEBUG_PASSWORD;
+#endif
+
+	boolean _passwordOk = false; 		// Password request ? - 18/07/18
+	uint8_t _passwordAttempt = 0;
+
 	boolean _silence = false;			// Silence mode ?
 
 	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
@@ -301,11 +310,6 @@ private:
 	String _bufferSend = "";			// Buffer to send data to telnet
 	uint16_t _sizeBufferSend = 0;		// Size of it
 	uint32_t _lastTimeSend = 0;			// Last time command send data
-#endif
-
-#ifdef REMOTEDEBUG_PASSWORD
-	boolean _passwordOk = false; 		// Password request ? - 18/07/18
-	uint8_t _passwordAttempt = 0;
 #endif
 
 	// Privates

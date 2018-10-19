@@ -35,12 +35,12 @@
  *    - 1.5.3 Serial output adjustments (due bug in password logic)
  *    - 1.5.4 Serial output not depending of telnet password (thanks @jeroenst for suggestion)
  *    - 1.5.5 Serial output is now not allowed if telnet password is enabled
-
+ *    - 1.5.6 Adjustments based on pull request from @jeroenst (to allow serial output with telnet password and setPassword method) - 2018-10-19
+ *
  */
 
 /*
  *  TODO: 	- Page HTML for begin/stop Telnet server
- *  		- Support to production (releases) too (and security issues of this!)
  */
 
 ///// Includes
@@ -73,7 +73,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.5"
+#define VERSION "1.5.6"
 
 #include <Arduino.h>
 
@@ -122,6 +122,14 @@ void RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLe
 
 	_clientDebugLevel = startingDebugLevel;
 	_lastDebugLevel = startingDebugLevel;
+
+}
+
+// Set the password for telnet - thanks @jeroenst for suggest thist method
+
+void RemoteDebug::setPassword(String password) {
+
+	_password = password;
 
 }
 
@@ -244,23 +252,22 @@ void RemoteDebug::handle() {
 
 			// Password request ? - 18/07/18
 
-#ifdef REMOTEDEBUG_PASSWORD
+			if (_password != "") {
 
-			_passwordOk = false;
+				_passwordOk = false;
 
 	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
-			_passwordAttempt = 1;
+				_passwordAttempt = 1;
 	#endif
 
 	#ifdef ALPHA_VERSION // In test, not good yet
-			// Send command to telnet client to not do local echos
-			// Experimental code !
+				// Send command to telnet client to not do local echos
+				// Experimental code !
 
-			sendTelnetCommand(TELNET_WONT, TELNET_ECHO);
+				sendTelnetCommand(TELNET_WONT, TELNET_ECHO);
 	#endif
 
-#endif
-
+			}
 		}
 
 		if (!TelnetClient) { // No client yet ???
@@ -367,11 +374,11 @@ void RemoteDebug::handle() {
 		// Inactivity - close connection if not received commands from user in telnet
 		// For reduce overheads
 
-#ifdef REMOTEDEBUG_PASSWORD // Request password - 18/08/08
-		uint32_t maxTime = 60000; // One minute to password
-#else
 		uint32_t maxTime = MAX_TIME_INACTIVE; // Normal
-#endif
+
+		if (_password != "") { // Request password - 18/08/08
+			maxTime = 60000; // One minute to password
+		}
 
 		if ((millis() - _lastTimeCommand) > maxTime) {
 			TelnetClient.println("* Closing session by inactivity");
@@ -390,12 +397,8 @@ void RemoteDebug::handle() {
 
 void RemoteDebug::setSerialEnabled(boolean enable) {
 
-#ifndef REMOTEDEBUG_PASSWORD
 	_serialEnabled = enable;
 	_showColors = false; // Disable it for Serial
-#else
-	Serial.println("* setSerialEnabled is not allowed when telnet password is active");
-#endif
 
 }
 
@@ -452,18 +455,8 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 	//           Serial enabled (use only if need)
 	//			 Password ok (if enabled) - 18/08/18
 
-	// Password request ? - 04/03/18
-	// Serial output not depending of telnet password
-
-#ifdef REMOTEDEBUG_PASSWORD
-
-	boolean ret = (debugLevel >= _clientDebugLevel &&
-					((_connected && _passwordOk) || _serialEnabled));
-#else
-
 	boolean ret = (debugLevel >= _clientDebugLevel &&
 					(_connected || _serialEnabled));
-#endif
 
 	if (ret) {
 		_lastDebugLevel = debugLevel;
@@ -673,9 +666,16 @@ size_t RemoteDebug::write(uint8_t character) {
 
 		if (noPrint == false) {
 
-			// Send to telnet buffered
+			// Send to telnet (buffered)
 
-			if (_connected) {  // send data to Client
+			boolean sendToTelnet = _connected;
+
+			if (_password != "" && !_passwordOk) { // With no password -> no telnet output - 2018-10-19
+				sendToTelnet = false;
+			}
+
+			if (sendToTelnet) {  // send data to Client
+
 
 #ifndef CLIENT_BUFFERING
 				TelnetClient.print(_bufferPrint);
@@ -711,7 +711,9 @@ size_t RemoteDebug::write(uint8_t character) {
 #endif
 			}
 
-			if (_serialEnabled) { // Echo to serial (not buffering it)
+			// Echo to serial (not buffering it)
+
+			if (_serialEnabled) {
 				Serial.print(_bufferPrint);
 			}
 		}
@@ -739,9 +741,7 @@ void RemoteDebug::showHelp() {
 
 	// Password request ? - 04/03/18
 
-#ifdef REMOTEDEBUG_PASSWORD
-
-	if (!_passwordOk) {
+	if (_password != "" && !_passwordOk) {
 
 		help.concat("\r\n");
 		help.concat("* Please enter with a password to access");
@@ -759,8 +759,6 @@ void RemoteDebug::showHelp() {
 
 		return;
 }
-
-#endif
 
 	// Show help
 
@@ -854,13 +852,11 @@ void RemoteDebug::clearLastCommand() {
 
 void RemoteDebug::processCommand() {
 
-#ifdef REMOTEDEBUG_PASSWORD
-
 	// Password request ? - 18/07/18
 
-	if (!_passwordOk) { // Process the password - 18/08/18 - adjust in 04/09/08
+	if (_password != "" && !_passwordOk) { // Process the password - 18/08/18 - adjust in 04/09/08 and 2018-10-19
 
-		if (_command == REMOTEDEBUG_PASSWORD) {
+		if (_command == _password) {
 
 			TelnetClient.println("* Password ok, allowing access now...");
 
@@ -897,8 +893,6 @@ void RemoteDebug::processCommand() {
 		return;
 
 	}
-
-	#endif //REMOTEDEBUG_PASSWORD
 
 	// Process commands
 

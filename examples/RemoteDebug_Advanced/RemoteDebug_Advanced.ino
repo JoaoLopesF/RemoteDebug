@@ -174,6 +174,8 @@ void setup() {
 
 	Debug.begin(HOST_NAME); // Initiaze the telnet server
 
+	//Debug.setPassword("r3m0t0."); // Password on telnet connection ?
+
 	Debug.setResetCmdEnabled(true); // Enable the reset command
 
 	//Debug.showDebugLevel(false); // To not show debug levels
