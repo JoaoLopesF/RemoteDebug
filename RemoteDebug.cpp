@@ -36,6 +36,7 @@
  *    - 1.5.4 Serial output not depending of telnet password (thanks @jeroenst for suggestion)
  *    - 1.5.5 Serial output is now not allowed if telnet password is enabled
  *    - 1.5.6 Adjustments based on pull request from @jeroenst (to allow serial output with telnet password and setPassword method) - 2018-10-19
+ *    - 1.5.7 Fixed bug for MAX_TIME_INACTIVE - 2018-11-03
  *
  */
 
@@ -376,7 +377,7 @@ void RemoteDebug::handle() {
 
 		uint32_t maxTime = MAX_TIME_INACTIVE; // Normal
 
-		if (_password != "") { // Request password - 18/08/08
+		if (_password != "" && !_passwordOk) { // Request password - 18/08/08
 			maxTime = 60000; // One minute to password
 		}
 
