@@ -93,16 +93,17 @@ WiFiClient TelnetClient;
 
 // Initialize the telnet server
 
-void RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
-	begin(hostName, TELNET_PORT, startingDebugLevel);
+bool RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
+	return begin(hostName, TELNET_PORT, startingDebugLevel);
 }
 
-void RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLevel) {
+bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLevel) {
 
 	// Initialize server telnet
-	if (port != TELNET_PORT)
-	    throw "Specifying a different port than the default one is not supported";
-
+	if (port != TELNET_PORT) {
+	    return false;
+	}
+	
 	TelnetServer.begin();
 	TelnetServer.setNoDelay(true);
 
@@ -125,7 +126,7 @@ void RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLe
 
 	_clientDebugLevel = startingDebugLevel;
 	_lastDebugLevel = startingDebugLevel;
-
+	return true;
 }
 
 // Set the password for telnet - thanks @jeroenst for suggest thist method
