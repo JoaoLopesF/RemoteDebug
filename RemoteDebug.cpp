@@ -100,8 +100,10 @@ void RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
 void RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLevel) {
 
 	// Initialize server telnet
+	if (port != TELNET_PORT)
+	    throw "Specifying a different port than the default one is not supported";
 
-	TelnetServer.begin(port);
+	TelnetServer.begin();
 	TelnetServer.setNoDelay(true);
 
 	// Reserve space to buffer of print writes
