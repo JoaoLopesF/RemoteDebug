@@ -175,7 +175,9 @@ In the setup function after WiFi initialization
 ```cpp
 // Initialize the telnet server of RemoteDebug
 
-Debug.begin("Telnet_HostName"); // Initiaze the telnet server - this name is used in MDNS.begin
+if (Debug.begin("Telnet_HostName")) {
+  // Initialize the telnet server - this name is used in MDNS.begin
+} 
 
 // OR
 
@@ -183,7 +185,11 @@ Debug.begin(HOST_NAME); // Initiaze the telnet server - HOST_NAME is the used in
 
 // OR
 
-Debug.begin(HOST_NAME, PORT); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
+if (Debug.begin(HOST_NAME, PORT)) {
+ // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
+} else {
+  // Do something since the library unable to start. Most likely because you specified a different port than 22
+}
 
 // OR
 

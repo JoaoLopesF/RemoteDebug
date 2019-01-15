@@ -195,8 +195,8 @@ class RemoteDebug: public Print
 {
 	public:
 
-	void begin(String hostName, uint16_t port, uint8_t startingDebugLevel = DEBUG);
-	void begin(String hostName, uint8_t startingDebugLevel = DEBUG);
+	bool begin(String hostName, uint16_t port, uint8_t startingDebugLevel = DEBUG);
+	bool begin(String hostName, uint8_t startingDebugLevel = DEBUG);
 
 	void setPassword(String password);
 
