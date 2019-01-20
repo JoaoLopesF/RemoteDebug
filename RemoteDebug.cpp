@@ -900,7 +900,7 @@ void RemoteDebug::processCommand() {
 
 	// Process commands
 
-	TelnetClient.print("* Debug: Command recevied: ");
+	TelnetClient.print("* Debug: Command received: ");
 	TelnetClient.println(_command);
 
 	String options = "";
