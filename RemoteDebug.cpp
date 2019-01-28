@@ -376,6 +376,7 @@ void RemoteDebug::handle() {
 #endif
 
 #ifdef MAX_TIME_INACTIVE
+#if MAX_TIME_INACTIVE > 0
 
 		// Inactivity - close connection if not received commands from user in telnet
 		// For reduce overheads
@@ -392,6 +393,7 @@ void RemoteDebug::handle() {
 			_connected = false;
 			_silence = false;
 		}
+#endif
 #endif
 
 	}
