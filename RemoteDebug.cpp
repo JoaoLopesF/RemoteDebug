@@ -296,7 +296,9 @@ void RemoteDebug::handle() {
 
 		// Show the initial message
 
+#if SHOW_HELP
 		showHelp();
+#endif
 
 #ifdef CLIENT_BUFFERING
 		// Client buffering - send data in intervals to avoid delays or if its is too big
