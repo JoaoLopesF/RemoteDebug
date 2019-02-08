@@ -11,33 +11,21 @@
 // Example of use:
 //
 //        if (Debug.isActive(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
-//            Debug.printf("bla bla bla: %d %s", number, str);
+//            Debug.printf("bla bla bla: %d %s\n", number, str);
 //            Debug.println("bla bla bla");
 //        }
 //
 // Or short way (prefered if only one debug at time)
 //
-//		rdebugA("This is a any (always showed) - var %d\n", var);
+//		debugAln("This is a any (always showed) - var %d", var);
 //
-//		rdebugV("This is a verbose - var %d\n", var);
-//		rdebugD("This is a debug - var %d\n", var);
-//		rdebugI("This is a information - var %d\n", var);
-//		rdebugW("This is a warning - var %d\n", var);
-//		rdebugE("This is a error - var %d\n", var);
+//		debugV("This is a verbose - var %d", var);
+//		debugD("This is a debug - var %d", var);
+//		debugI("This is a information - var %d", var);
+//		debugW("This is a warning - var %d", var);
+//		debugE("This is a error - var %d", var);
 //
-//		rdebugV("This is println\n");
-//
-//		If you want a auto new line:
-//
-//		rdebugAln("This is a any (always showed) - var %d", var);
-//
-//		rdebugVln("This is a verbose - var %d", var);
-//		rdebugDln("This is a debug - var %d", var);
-//		rdebugIln("This is a information - var %d", var);
-//		rdebugWln("This is a warning - var %d", var);
-//		rdebugEln("This is a error - var %d", var);
-//
-//		rdebugVln("This is println");
+//		debugV("This is println");
 //
 //
 ///////
@@ -205,17 +193,17 @@ void loop()
 
         // Debug the time (verbose level)
 
-        rdebugVln("* Time: %u seconds (VERBOSE)", mTimeSeconds);
+        debugV("* Time: %u seconds (VERBOSE)", mTimeSeconds);
 
         if (mTimeSeconds % 5 == 0) { // Each 5 seconds
 
             // Debug levels
 
-			rdebugVln("* This is a message of debug level VERBOSE");
-			rdebugDln("* This is a message of debug level DEBUG");
-			rdebugIln("* This is a message of debug level INFO");
-			rdebugWln("* This is a message of debug level WARNING");
-			rdebugEln("* This is a message of debug level ERROR");
+			debugV("* This is a message of debug level VERBOSE");
+			debugD("* This is a message of debug level DEBUG");
+			debugI("* This is a message of debug level INFO");
+			debugW("* This is a message of debug level WARNING");
+			debugE("* This is a message of debug level ERROR");
 
 			// Call a function
 
@@ -233,14 +221,14 @@ void loop()
 
 }
 
-// Function example to show a new auto function name of rdebug* macros
+// Function example to show a new auto function name of debug* macros
 
 void foo() {
 
   uint8_t var = 1;
 
-  rdebugVln("this is a debug - var %u", var);
-  rdebugVln("This is a println");
+  debugV("this is a debug - var %u", var);
+  debugV("This is a println");
 }
 
 /////////// End

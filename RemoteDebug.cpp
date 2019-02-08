@@ -37,6 +37,7 @@
  *    - 1.5.5 Serial output is now not allowed if telnet password is enabled
  *    - 1.5.6 Adjustments based on pull request from @jeroenst (to allow serial output with telnet password and setPassword method) - 2018-10-19
  *    - 1.5.7 Fixed bug for MAX_TIME_INACTIVE - 2018-11-03
+ *	  - 1.5.8 New macros to compatibility with SerialDebug (can use RemoteDebug or SerialDebug) thanks to @phrxmd
  *
  */
 
@@ -74,7 +75,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.6"
+#define VERSION "1.5.8"
 
 #include <Arduino.h>
 
@@ -100,7 +101,8 @@ bool RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
 bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLevel) {
 
 	// Initialize server telnet
-	if (port != TELNET_PORT) {
+
+	if (port != TELNET_PORT) { // Bug: not more can use begin(port)..
 	    return false;
 	}
 	
