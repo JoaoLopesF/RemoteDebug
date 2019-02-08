@@ -13,14 +13,14 @@
 
 ## Contents
 
-[About](#about)
-[Standard telnet](#telnet)
-[News](#news)
-[Wishlist](#wishlist)
-[Using](#usage)
-[Know issues](#knowissues)
-[Releases](#releases)
-[Thanks](#thanks)
+  * [About](#about)
+  * [Standard telnet](#telnet)
+  * [News](#news)
+  * [Wishlist](#wishlist)
+  * [Using](#usage)
+  * [Know issues](#knowissues)
+  * [Releases](#releases)
+  * [Thanks](#thanks)
 
 ## About
 
