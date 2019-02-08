@@ -67,6 +67,13 @@
 #define BUFFER_PRINT 150
 #endif
 
+// Should the help text be displayed on connection.
+// Enabled by default
+
+#ifndef SHOW_HELP
+#define SHOW_HELP true
+#endif
+
 // ANSI Colors
 
 #define COLOR_RESET "\x1B[0m"
