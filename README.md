@@ -1,6 +1,6 @@
 # RemoteDebug Library for ESP8266 or ESP32
 
-<a href="#releases"> ![build badge](https://img.shields.io/badge/version-v1.5.8-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade) <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+<a href="#releases"> ![build badge](https://img.shields.io/badge/version-v1.5.9-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade) <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
 
 ## A library to remotely debug over a telnet connection
 
@@ -302,6 +302,15 @@ Please see the samples, basic or advanced, to learn how to use
 In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+### 1.5.9 - 2019-02-18
+
+	- Bug -> sometimes the command is process twice
+	- Workaround -> check time
+
+### 1.5.8 - 2019-02-08
+
+    - New macros to compatibility with SerialDebug (can use RemoteDebug or SerialDebug) thanks to @phrxmd
 
 ### 1.5.7 - 2018-11-03
 

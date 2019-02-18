@@ -37,7 +37,8 @@
  *    - 1.5.5 Serial output is now not allowed if telnet password is enabled
  *    - 1.5.6 Adjustments based on pull request from @jeroenst (to allow serial output with telnet password and setPassword method) - 2018-10-19
  *    - 1.5.7 Fixed bug for MAX_TIME_INACTIVE - 2018-11-03
- *	  - 1.5.8 New macros to compatibility with SerialDebug (can use RemoteDebug or SerialDebug) thanks to @phrxmd
+ *	  - 1.5.8 New macros to compatibility with SerialDebug (can use RemoteDebug or SerialDebug) thanks to @phrxmd - 2019-02-08
+ *	  - 1.5.9 Bug -> sometimes the processCommand is executed twice. Workaround -> check time - 2019-02-18
  *
  */
 
@@ -75,7 +76,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "1.5.8"
+#define VERSION "1.5.9"
 
 #include <Arduino.h>
 
@@ -861,6 +862,18 @@ void RemoteDebug::clearLastCommand() {
 // Process user command over telnet
 
 void RemoteDebug::processCommand() {
+
+	static uint32_t lastTime = 0;
+
+	// Bug -> sometimes the command is process twice
+	// Workaround -> check time
+	// TODO: see correction for this
+
+	if (lastTime > 0 && (millis() - lastTime) < 500) {
+		TelnetClient.println("* Bug workaround: ignoring command repeating");
+		return;
+	}
+	lastTime = millis();
 
 	// Password request ? - 18/07/18
 
