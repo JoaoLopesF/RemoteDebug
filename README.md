@@ -106,7 +106,7 @@ Future extension could include a secure way for authentication and further testi
   
 ## News
 
-- Preview: In the next version, the 2.0.0, RemoteDebug will have and simple software debugger, based in SerialDebug library
+- Preview: In the next version, the 2.0.0, RemoteDebug will have the simple software debugger, based in SerialDebug library
 
 - Released at 1.5.0 version, we have debug macros (see below), 
 debugs with auto funcion name and core id (core id only for ESP32).
