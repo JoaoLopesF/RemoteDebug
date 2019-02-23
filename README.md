@@ -106,9 +106,10 @@ Future extension could include a secure way for authentication and further testi
   
 ## News
 
-In 1.5.0 version, we have rdebug* macros (see below), 
+- Preview: In the next version, the 2.0.0, RemoteDebug will have and simple software debugger, based in SerialDebug library
+
+- Released at 1.5.0 version, we have debug macros (see below), 
 debugs with auto funcion name and core id (core id only for ESP32).
-And new rdebug?ln macros to put auto new line.
 
 So:
 
@@ -117,7 +118,7 @@ void foo() {
 
     uint8_t var = 1;
 
-    rdebugVln("this is a debug - var %u", var); // see a suffix ln in rdebug macro
+    debugV("this is a debug - var %u", var); 
 }
 
 void loop() {
@@ -141,8 +142,6 @@ It will show in telnet client:
       (foo) -> this is a function name that calls the rDebug*
       (C1) -> It is running it Core 1 (only for ESP32)
 
-And You can change port number in begin method (see below)
-
 ## Wishlist
 
     - Http page to begin/stop the telnet server
@@ -161,7 +160,7 @@ And You can change port number in begin method (see below)
 ### includes
 
 ```cpp
-#include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development       
+#include "RemoteDebug.h"  //https://github.com/JoaoLopesF/RemoteDebug       
 ```
 
 ### instance
@@ -185,19 +184,7 @@ Debug.begin(HOST_NAME); // Initiaze the telnet server - HOST_NAME is the used in
 
 // OR
 
-if (Debug.begin(HOST_NAME, PORT)) {
- // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
-} else {
-  // Do something since the library unable to start. Most likely because you specified a different port than 22
-}
-
-// OR
-
 Debug.begin(HOST_NAME, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in 
-
-// OR
-
-Debug.begin(HOST_NAME, PORT, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in 
 
 // Options
 
@@ -213,6 +200,10 @@ In the tail of loop function
 // Remote debug over telnet
 
 Debug.handle();
+
+// Or 
+
+debugHandle(); // Equal to SerialDebug
 
 ```
 
@@ -233,36 +224,15 @@ if (Debug.isActive(Debug.<level>)) {
 Or short way (new) (prefered if only one debug at time):
 
 ```cpp
-rdebugA("This is a any (always showed) - var %d\n", var);
-rdebugV("This is a verbose - var %d\n", var);
-rdebugD("This is a debug - var %d\n", var);
-rdebugI("This is a information - var %d\n", var);
-rdebugW("This is a warning - var %d\n", var);
-rdebugE("This is a error - var %d\n", var);
+debugA("This is a any (always showed) - var %d", var);
+debugV("This is a verbose - var %d", var);
+debugD("This is a debug - var %d", var);
+debugI("This is a information - var %d", var);
+debugW("This is a warning - var %d", var);
+debugE("This is a error - var %d", var);
 
-rdebugV("This is a println\n"); // Note: if you want a simple println you must ended with new line characters
+debugV("This is a println");
 
-// Or with new ln macros:
-
-rdebugAln("This is a any (always showed) - var %d", var);
-rdebugVln("This is a verbose - var %d", var);
-rdebugDln("This is a debug - var %d", var);
-rdebugIln("This is a information - var %d", var);
-rdebugWln("This is a warning - var %d", var);
-rdebugEln("This is a error - var %d", var);
-
-rdebugVln("This is a println");
-```
-
-Instead of rdebug can be used old short way: 
-
-```cpp
-DEBUG_A(...)
-DEBUG_V(...)
-DEBUG_D(...)
-DEBUG_I(...)
-DEBUG_W(...)
-DEBUG_E(...)
 ```
 
 An example of use debug levels: (supposing the data is a lot of characteres)
@@ -376,12 +346,6 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
     - Telnet port of server can be modified by project
       Just put it in your .ino, before the include:
 
-    ```cpp
-    #define TELNET_PORT 1000
-
-    #include "RemoteDebug.h"
-    ```
-
 ### 1.2.0
 
     - Shortcuts and client buffering to avoid misterious delay of ESP networking
@@ -404,23 +368,6 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
     - First Beta
 
-        Warning !
-
-        In beta versions, the **isActive** method was misspelled,
-        Please when upgrading from a beta to the current one, please review your code.
-
-        From:
-
-        ```cpp
-        if (Debug.ative(Debug.<level>)) ....
-        ```
-
-        To:
-
-        ```cpp
-        if (Debug.isActive(Debug.<level>)) ....
-        ```
-
 ## Know issues
 
     - Sometimes (rarely) the connection over telnet becomes very slow.
@@ -430,7 +377,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Thanks
 
-    First thanks a lot for Igrr for bring to us the Arduino ESP8266.
+    First thanks a lot for Igrr for bring to us the Arduino ESP8266 and to Espressif to Arduino ESP32
 
     Resources:
 
