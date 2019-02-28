@@ -39,7 +39,7 @@ another WiFi projects.
 The MiP_ESP8266_Library is a example of this. see in:  [https://github.com/Tiogaplanet/MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Library)
 
 __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
-to avoid misterious delays of networking on ESP32 and ESP8266 boards
+to avoid misterious delays of WiFi networking on ESP32 and ESP8266 boards
 
 Note: If your project is not wireless, you can use my another library,
 the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library. 
@@ -96,7 +96,7 @@ MacOSx and Linux have a native telnet client.
 For Windows, a typical telnet client is the __Putty__: [putty](https://www.putty.org/) .
 
 Have a good tool for mobiles: the __Fing__, please find it in your mobile store.
-Its show all devices in local network, show ports opened and can execute the telnet client too (external App)
+Its show all devices in local network (WiFi), show ports opened and can execute the telnet client too (external App)
 
 __RemoteDebug__  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
 
@@ -143,7 +143,8 @@ __RemoteDebug__ supports custom commands that can be entered in the telnet clien
 
 ### DISCLAIMER
 
-The current version of __RemoteDebug__ does not yet include any authentication and is intended only for development.
+The current version of __RemoteDebug__ does not yet include any encripted authentication,
+only plain text and is intended only for development
 
 Future extension could include a secure way for authentication and further testing to support production environments.
   
