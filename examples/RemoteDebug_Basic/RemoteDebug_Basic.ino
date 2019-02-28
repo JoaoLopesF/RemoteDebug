@@ -47,19 +47,20 @@
 
 #elif defined(ESP32)
 
-//#define USE_MDNS true // Use the MDNS ? //TODO: not tested in Esp32 yet
+#define USE_MDNS true // Use the MDNS ?
 
 // Includes do ESP32
 
 #include <WiFi.h>
 
 #ifdef USE_MDNS
+#include <DNSServer.h>
 #include "ESPmDNS.h"
 #endif
 
 #else
 
-#error The board must be ESP8266 or ESP32
+#error "The board must be ESP8266 or ESP32"
 
 #endif // ESP
 
@@ -74,9 +75,9 @@ RemoteDebug Debug;
 const char* ssid = "........";
 const char* password = "........";
 
-// Host mDNS
+// Host name
 
-#define HOST_NAME "remotedebug-sample"
+#define HOST_NAME "rem-debug" // PLEASE CHANGE IT
 
 // Time
 
@@ -95,7 +96,7 @@ void setup() {
 
     Serial.begin(115200);
 
-    // Buildin led off ESP8266
+    // Buildin led of ESP
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
@@ -215,7 +216,7 @@ void loop()
 
     Debug.handle();
 
-    // Give a time for ESP8266
+    // Give a time for ESP
 
     yield();
 

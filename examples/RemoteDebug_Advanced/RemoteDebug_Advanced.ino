@@ -6,7 +6,7 @@
 //
 // Attention: This library is only for help development. Please not use this in production
 //
-// First sample to show how to use it - advanced one
+// Sample to show how to use it - advanced one
 //
 // Example of use:
 //
@@ -37,8 +37,11 @@
 #define USE_MDNS true // Use the MDNS ?
 
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
+
+#ifdef USE_MDNS
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
+#endif
 
 //#include <ESP8266WebServer.h> // Discomment if you need web server`
 
@@ -46,23 +49,26 @@
 
 #elif defined(ESP32)
 
-//#define USE_MDNS true // Use the MDNS ? //TODO: not tested in Esp32 yet
+#define USE_MDNS true // Use the MDNS ?
 
 // Includes do ESP32
 
 #include <WiFi.h>
 
 #ifdef USE_MDNS
+#include <DNSServer.h>
 #include "ESPmDNS.h"
 #endif
 
-//#define USE_ARDUINO_OTA  // TODO: test it
+#define USE_ARDUINO_OTA  true
 
 #else
 
-#error The board must be ESP8266 or ESP32
+#error "The board must be ESP8266 or ESP32"
 
 #endif // ESP
+
+// ArduinoOTA
 
 #ifdef USE_ARDUINO_OTA
 #include <ArduinoOTA.h>
@@ -73,7 +79,11 @@
 //#define PRODUCTION true
 
 // HTTP Web server - discomment if you need this
-// ESP8266WebServer HTTPServer(80);
+//#if defined ESP8266
+//ESP8266WebServer HTTPServer(80);
+//#elif defined ESP32
+//WebServer HTTPServer(80);
+//#endif
 
 // Remote debug over telnet - not recommended for production, only for development
 // I put it to show how to do code clean to development and production
@@ -81,6 +91,8 @@
 #ifndef PRODUCTION // Not in PRODUCTION
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
+
+// Instance of RemoteDebug
 
 RemoteDebug Debug;
 
@@ -107,7 +119,7 @@ void setup() {
 
 	Serial.begin(115200);
 
-	// Buildin led of ESP8266
+	// Buildin led of ESP
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
@@ -173,7 +185,7 @@ void setup() {
 	Debug.showProfiler(true); // Profiler
 	Debug.showColors(true); // Colors
 
-	// Debug.setSerialEnabled(true); // if you wants serial echo - only recommended if ESP8266 is plugged in USB
+	// Debug.setSerialEnabled(true); // if you wants serial echo - only recommended if ESP is plugged in USB
 
 	String helpCmd = "bench1 - Benchmark 1\n";
 	helpCmd.concat("bench2 - Benchmark 2");
@@ -268,7 +280,7 @@ void loop() {
 
 #endif
 
-	// Give a time for ESP8266
+	// Give a time for ESP
 
 	yield();
 
@@ -310,31 +322,25 @@ void processCmdRemoteDebug() {
 
 		// Benchmark 1 - Printf
 
-		if (Debug.isActive(Debug.ANY)) {
-			Debug.println("* Benchmark 1 - one Printf");
-		}
+		debugA("* Benchmark 1 - one Printf");
+
 
 		uint32_t timeBegin = millis();
 		uint8_t times = 50;
 
 		for (uint8_t i = 1; i <= times; i++) {
-			if (Debug.isActive(Debug.ANY)) {
-				Debug.printf("%u - 1234567890 - AAAA\n", i);
-			}
+			debugA("%u - 1234567890 - AAAA", i);
+
 		}
 
-		if (Debug.isActive(Debug.ANY)) {
-			Debug.printf("* Time elapsed for %u printf: %ld ms.\n", times,
+		debugA("* Time elapsed for %u printf: %ld ms.\n", times,
 					(millis() - timeBegin));
-		}
 
 	} else if (lastCmd == "bench2") {
 
 		// Benchmark 2 - Print/println
 
-		if (Debug.isActive(Debug.ANY)) {
-			Debug.println("* Benchmark 2 - Print/Println");
-		}
+		debugA("* Benchmark 2 - Print/Println");
 
 		uint32_t timeBegin = millis();
 		uint8_t times = 50;
@@ -347,10 +353,8 @@ void processCmdRemoteDebug() {
 			}
 		}
 
-		if (Debug.isActive(Debug.ANY)) {
-			Debug.printf("* Time elapsed for %u printf: %ld ms.\n", times,
+		debugA("* Time elapsed for %u printf: %ld ms.\n", times,
 					(millis() - timeBegin));
-		}
 	}
 }
 #endif
@@ -366,7 +370,7 @@ void connectWiFi() {
 #ifdef ESP32
 	// ESP32 // TODO: is really necessary ?
 	WiFi.enableSTA(true);
-	delay(1000);
+	delay(100);
 #endif
 
 	// Connect with SSID and password stored
@@ -424,16 +428,13 @@ void connectWiFi() {
 
 #ifdef USE_ARDUINO_OTA
 
-// Initialize o Esp8266 OTA
+// Initialize o Arduino OTA
 
 void initializeOTA() {
 
-	// Port defaults to 8266
-	// ArduinoOTA.setPort(8266);
-	// Hostname defaults to esp8266-[ChipID]
-	// ArduinoOTA.setHostname("myesp8266");
-	// No authentication by default
-	// ArduinoOTA.setPassword((const char *)"123");
+	// TODO: option to authentication (password)
+
+#if defined ESP8266
 
 	ArduinoOTA.onStart([]() {
 		Serial.println("* OTA: Start");
@@ -452,6 +453,35 @@ void initializeOTA() {
 		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
 		else if (error == OTA_END_ERROR) Serial.println("End Failed");
 	});
+
+#elif defined ESP32
+
+	// ArduinoOTA
+
+	ArduinoOTA.onStart([]() {
+		String type;
+		if (ArduinoOTA.getCommand() == U_FLASH)
+			type = "sketch";
+		else // U_SPIFFS
+			type = "filesystem";
+			Serial.println("Start updating " + type);
+		}).onEnd([]() {
+		Serial.println("\nEnd");
+	}).onProgress([](unsigned int progress, unsigned int total) {
+		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+	}).onError([](ota_error_t error) {
+		Serial.printf("Error[%u]: ", error);
+		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+		else if (error == OTA_END_ERROR) Serial.println("End Failed");
+	});
+
+#endif
+
+	// Begin
+
 	ArduinoOTA.begin();
 
 }
