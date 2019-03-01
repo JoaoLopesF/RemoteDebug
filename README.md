@@ -1,5 +1,5 @@
 # RemoteDebug Library for ESP8266 or ESP32
-Library for Arduino to Debug IoT devices over WiFi (telnet) with Print commands like Serial Monitor
+Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
 
 <a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.0-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade) <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
 
@@ -7,21 +7,21 @@ Library for Arduino to Debug IoT devices over WiFi (telnet) with Print commands 
 
 ### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
 
-#### Works with the ESP8266 Arduino platform v2.0.0 or higher / or ESP32
+#### Works with the ESP8266 or ESP32 boards
 
     https://github.com/esp8266/Arduino
     https://github.com/espressif/arduino-esp32
 
 ## Contents
 
-  * [About](#about)
-  * [News](#news)
-  * [Standard telnet](#telnet)
-  * [Wishlist](#wishlist)
-  * [Using](#usage)
-  * [Know issues](#knowissues)
-  * [Releases](#releases)
-  * [Thanks](#thanks)
+  - [About](#about)
+  - [News](#news)
+  - [Standard telnet](#telnet)
+  - [Wishlist](#wishlist)
+  - [Using](#usage)
+  - [Know issues](#knowissues)
+  - [Releases](#releases)
+  - [Thanks](#thanks)
 
 ## About
 
@@ -33,10 +33,17 @@ This has a few disadvantages:
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity (WiFi) which can be used for streaming debugging information in real-time.
 
-This library is good for IoT projects, mobile robots (can debug it in moviment with a cable ?) or
+This library is good for IoT projects, home automation, mobile robots (can debug it in moviment with a cable ?) or
 another WiFi projects.
 
-The MiP_ESP8266_Library is a example of this. see in:  [https://github.com/Tiogaplanet/MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Library)
+In fact, this library was born of a need to debug an IoT project of home automation. 
+In this project there was a central module and three auxiliary modules, 
+and these were far from each other. One was hard to reach, under the roof of the house. 
+To debug this project, accompanying the exchange of messages in realtime, 
+is impossible to do with traditional way, by USB cable.
+
+The MiP_ESP8266_Library and my ESP32 WiFi robot are example of this.
+See it in:  [MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Library) and [ESPlorer_v1](https://github.com/JoaoLopesF/ESPlorer_v1)
 
 __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of WiFi networking on ESP32 and ESP8266 boards
@@ -46,46 +53,21 @@ the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library.
 
 ## News
 
- - Version 2.0.0
+ * Version 2.0.0
 
-    - Now __RemoteDebug__ can have the same simple software debugger, that __SerialDebug__ library have.
-        - this is done, installing another library, the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
-        - The __RemoteDebugger__ act as an add on to __RemoteDebug__.
-        - To support this addon, the changes in __RemoteDebug__, is minimum, just a few callbacks
-        - It is done to no add extra overhead to projects that no need an debugger.
-        - To more informations please access: https://github.com/JoaoLopesF/RemoteDebugger
+   - Now __RemoteDebug__ can have the same simple software debugger, that __SerialDebug__ library have.
+    This is done, installing another library, the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
+    The __RemoteDebugger__ act as an add on to __RemoteDebug__.
+    To support this addon, the changes in __RemoteDebug__, is minimum, just a few callbacks
+    It is done to no add extra overhead to projects that no need an debugger.
+    To more informations please access the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ github repository.
 
-    - Now __RemoteDebug__ have a new color system, more colors, as done in __SerialDebugApp__ 
+   - Now __RemoteDebug__ have a new color system, more colors, as done in __SerialDebugApp__ 
 
- - Version 1.5.* 
+ * Version 1.5.* 
 
-    In 1.5.0 version, we have debug* and rdebug* macros (see below), 
-    debugs with auto funcion name and core id (core id only for ESP32).
-
-So:
-
-```cpp
-void foo() {
-
-    uint8_t var = 1;
-
-    debugV("this is a debug - var %u", var); 
-}
-
-```
-
-It will show in telnet client: 
-
-    (V p:^0000ms) (foo)(C1) this is a debug - var 1
-  
-  Where:
-
-      V -> verbose
-      p -> profiler time
-      (foo) -> this is a function name that calls the rDebug*
-      (C1) -> It is running it Core 1 (only for ESP32)
-
-And You can change port number in begin method (see below)
+    In 1.5.0 version, we have debug* and rdebug* macros (see below), that put automatically,
+    the name of function that called, and core id (core id is only for ESP32)
 
 ## Telnet
 
@@ -220,8 +202,8 @@ Debug.setResetCmdEnabled(true); // Enable the reset command
 // Debug.showProfiler(true); // To show profiler - time between messages of Debug
 
 ```
-Note: to enable the debugger, by RemoteDebugger, please acess this page: 
-https://github.com/JoaoLopesF/RemoteDebugger
+Note: to enable the debugger, by RemoteDebugger, please acess this github repository: 
+__[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
 
 In the tail of loop function
 
@@ -273,6 +255,31 @@ if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
     Debug.printf("routine: data received: %s ...\n", data.substring(0, 20).c_str()); // %.20s not working :-|
 }
 ```
+
+Starting at version 1.5.0, debug macros (debug* and rdebug*), atomatically put the name of function that called the macro,
+and core id (core id only for ESP32).
+
+So:
+
+```cpp
+void foo() {
+
+    uint8_t var = 1;
+    debugV("this is a debug - var %u", var); 
+}
+
+```
+
+    It will show in telnet client: 
+
+        (V p:^0000ms) (foo)(C1) this is a debug - var 1
+    
+    Where:
+
+        V -> verbose
+        p -> profiler time
+        (foo) -> this is a function name that calls the debug macro
+        (C1) -> It is running it Core 1 (only for ESP32)
 
 An example of use debug with serial enabled
 
