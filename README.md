@@ -42,7 +42,7 @@ and these were far from each other. One was hard to reach, under the roof of the
 To debug this project, accompanying the exchange of messages in realtime, 
 is impossible to do with traditional way, by USB cable.
 
-The MiP_ESP8266_Library and my ESP32 WiFi robot are example of this.
+The MiP_ESP8266_Library and my ESP32 WiFi robot are example of projects that uses __RemoteDebug__.
 See it in:  [MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Library) and [ESPlorer_v1](https://github.com/JoaoLopesF/ESPlorer_v1)
 
 __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
