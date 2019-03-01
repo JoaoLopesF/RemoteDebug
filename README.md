@@ -1,7 +1,7 @@
 # RemoteDebug Library for ESP8266 or ESP32
 Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
 
-<a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.0-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade) <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+<a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.1-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade) <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
 
 ## A library to remotely debug over a telnet connection
 
@@ -308,6 +308,13 @@ Please see the samples, basic or advanced, to learn how to use
 In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+### 2.0.1 - 2019-02-29
+
+    - Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
+    - The callback will to be called before print debug messages now
+    - And only if debugger is enabled in RemoteDebugger (command dbg)
+    -  Changed handle debugger logic
 
 ### 2.0.0 - 2019-02-28
 
