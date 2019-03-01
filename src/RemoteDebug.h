@@ -310,7 +310,7 @@ class RemoteDebug: public Print
 
 #ifdef DEBUGGER_ENABLED
 	// For Simple software debugger - based on SerialDebug Library
-	void initDebugger(boolean (*callbackDbgEnabled)(), void (*callbackHandle)(), String (*callbackGetHelp)(), void (*callbackProcessCmd)());
+	void initDebugger(boolean (*callbackEnabled)(), void (*callbackHandle)(const boolean), String (*callbackGetHelp)(), void (*callbackProcessCmd)());
 	WiFiClient* getTelnetClient();
 #endif
 
@@ -399,10 +399,10 @@ private:
 
 #ifdef DEBUGGER_ENABLED
 //	// For Simple software debugger - based on SerialDebug Library
-	void (*_callbackDbgHandle)() = NULL;	// Callable for handle of debugger
+	boolean (*_callbackDbgEnabled)() = NULL;// Callable for debugger enabled
+	void (*_callbackDbgHandle)(const boolean) = NULL;	// Callable for handle of debugger
 	String (*_callbackDbgHelp)() = NULL;	// Callable for get debugger help
 	void (*_callbackDbgProcessCmd)() = NULL;// Callable for process commands of debugger
-	boolean (*_callbackDbgEnabled)() = NULL;// Callable for debugger enabled
 
 #endif
 

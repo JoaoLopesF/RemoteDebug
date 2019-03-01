@@ -8,45 +8,51 @@
  *
  * Versions:
  *  ------	----------	-----------------
- *	2.0.0 	2019-02-22	Added support to RemoteDebug addon library: the RemoteDebugger, an simple software debugger, based on SerialDebug
+ * 	2.0.1	2019-02-28  Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
+ * 						The callback will to be called before print debug messages now
+ * 						And only if debugger is enabled in RemoteDebugger (command dbg)
+ * 					    Changed handle debugger logic
+ *
+ *	2.0.0 	2019-02-28	Added support to RemoteDebug addon library: the RemoteDebugger, an simple software debugger, based on SerialDebug
  *						New color system (uncomment COLOR_NEW_SYSTEM in remotedebug.h to return to old way)
  *	1.5.9 	2019-02-18	Bug> sometimes the processCommand is executed twice. Workaround> check time
  *	1.5.8 	2019-02-08	New macros to compatibility with SerialDebug (can use RemoteDebug or SerialDebug) thanks to @phrxmd
- *  1.5.7 	2018-11-03	Fixed bug for MAX_TIME_INACTIVE
- *  1.5.6 	2018-10-19	Adjustments based on pull request from @jeroenst (to allow serial output with telnet password and setPassword method)
- *  1.5.5 				Serial output is now not allowed if telnet password is enabled
- *  1.5.4 				Serial output not depending of telnet password (thanks @jeroenst for suggestion)
- *  1.5.3 				Serial output adjustments (due bug in password logic)
- *  1.5.2 				Correct rdebug macro (thanks @stritti)
- *  1.5.1 				New command: silence
+ * 	1.5.7 	2018-11-03	Fixed bug for MAX_TIME_INACTIVE
+ * 	1.5.6 	2018-10-19	Adjustments based on pull request from @jeroenst (to allow serial output with telnet password and setPassword method)
+ * 	1.5.5 	?			Serial output is now not allowed if telnet password is enabled
+ * 	1.5.4 	?			Serial output not depending of telnet password (thanks @jeroenst for suggestion)
+ * 	1.5.3 	?			Serial output adjustments (due bug in password logic)
+ * 	1.5.2 	?			Correct rdebug macro (thanks @stritti)
+ * 	1.5.1 	?			New command: silence
  *  		  			Added new rdebug?ln to put auto new line
  *  		  			Auto function and core if (for ESP32) in rdebug macros
  *  		  			Class destructor implemented
- *  1.5.0 				Port can be pass in begin method (thanks @PjotrekSE for suggestion)
+ * 	1.5.0 	?			Port can be pass in begin method (thanks @PjotrekSE for suggestion)
  *     	  				Few adjustments
  *     					this kind of authentication will not be done now.
  *      				Such as RemoteDebug now is not for production releases,
  *     			 		Note: telnet use advanced authentication (kerberos, etc.)
- *  1.4.0 				A simple text password request, if enabled (thanks @jeroenst for suggestion)
- *  1.3.1 				Retired # from VARGS precompiler macros
+ *	1.4.0 	?			A simple text password request, if enabled (thanks @jeroenst for suggestion)
+ *	1.3.1 	?			Retired # from VARGS precompiler macros
  *  		  			Few adjustments as ESP32 includes
  *  	      			Port number can be modified in project Arduino (.ino file)
- *  1.3.0 	Aug 2018	Bug in write with latest ESP8266 SDK
- *	1.2.1 				Adjusts to not cause error in Arduino
- *	1.2.0 				Added shortcuts and buffering to avoid delays
- *  1.1.1 	2017-11-24	Added support for the pass through of commands, and default debug levels thanks B. Harville
- *  1.1.0 	Aug 2017	Support to ESP32
- *          				New commands for CPU frequencies
- *	   	  					New level> profiler and auto-profiler
+ *	1.3.0 	Aug 2018	Bug in write with latest ESP8266 SDK
+ *	1.2.1 	?			Adjusts to not cause error in Arduino
+ *	1.2.0 	?			Added shortcuts and buffering to avoid delays
+ *	1.1.1 	2017-11-24	Added support for the pass through of commands, and default debug levels thanks B. Harville
+ *	1.1.0 	Aug 2017	Support to ESP32
+ *          			New commands for CPU frequencies
+ *	   	  				New level> profiler and auto-profiler
  *	1.0.1 	Aug 2017	New connection logic
- *  1.0.0 	Jan 2017	First RC
- *  0.9.1 	Oct 2016	Beta 2
- * 	0.9.0 	Aug 2016	Beta 1
+ *	1.0.0 	Jan 2017	First RC
+ *	0.9.1 	Oct 2016	Beta 2
+ *	0.9.0 	Aug 2016	Beta 1
  *
  */
 
 /*
  *  TODO: 	- Page HTML for begin/stop Telnet server
+ *          - Add support to another Arduino WiFi boards (if have demand on it)
  */
 
 ///// Includes
@@ -85,7 +91,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "2.0.0"
+#define VERSION "2.0.1"
 
 #include "RemoteDebug.h"		// This library
 //#include "RemoteDebugger.h" 	// Debugger based in SerialDebug
@@ -163,7 +169,7 @@ bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLe
 
 #ifdef DEBUGGER_ENABLED
 // Simple software debugger - based on SerialDebug Library
-void RemoteDebug::initDebugger(boolean (*callbackEnabled)(), void (*callbackHandle)(), String (*callbackGetHelp)(), void (*callbackProcessCmd)()) {
+void RemoteDebug::initDebugger(boolean (*callbackEnabled)(), void (*callbackHandle)(const boolean), String (*callbackGetHelp)(), void (*callbackProcessCmd)()) {
 
 	// Init callbacks for the debugger
 
@@ -465,29 +471,32 @@ void RemoteDebug::handle() {
 
 	// For Simple software debugger - based on SerialDebug Library
 
-	if (_callbackDbgHandle) {
+	// Changed handle debugger logic - 2018-02-29
+
+	if (_callbackDbgEnabled && _callbackDbgHandle) { // Calbacks ok ?
 
 		boolean callHandle = false;
 
-		if (dbgLastConnected != _connected) {
+		if (dbgLastConnected != _connected) { // Change connection -> always call
 
-			callHandle = true;
 			dbgLastConnected = _connected;
+			callHandle = true;
 
 		} else if (millis() >= dbgTimeHandle) {
 
-			callHandle = true;
-
+			if (_callbackDbgEnabled()) { // Only if it is enabled
+				callHandle = true;
+			}
 		}
 
 		if (callHandle) {
 
 			// Call the handle
 
-			_callbackDbgHandle();
+			_callbackDbgHandle(true);
 
 			// Save time
-			
+
 			dbgTimeHandle = millis() + DEBUGGER_HANDLE_TIME;
 		}
 	}
@@ -623,6 +632,26 @@ size_t RemoteDebug::write(uint8_t character) {
 	// New line writted before ?
 
 	if (_newLine ) {
+
+#ifdef DEBUGGER_ENABLED
+
+	// For Simple software debugger - based on SerialDebug Library
+
+	// Changed handle debugger logic - 2018-02-29
+
+	if (!_showRaw) { // Not for raw mode
+
+		if (_callbackDbgEnabled && _callbackDbgEnabled()) { // Callbacks ok
+
+			if (_connected && _callbackDbgEnabled()) { // Only call if is connected and debugger is enabled
+
+				// Call the handle
+
+				_callbackDbgHandle(false);
+			}
+		}
+	}
+#endif
 
 		String show = "";
 
