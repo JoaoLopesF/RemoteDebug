@@ -8,7 +8,7 @@
  *
  * Versions:
  *  ------	----------	-----------------
- * 	2.0.1	2019-02-28  Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
+ * 	2.0.1	2019-03-01  Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
  * 						The callback will to be called before print debug messages now
  * 						And only if debugger is enabled in RemoteDebugger (command dbg)
  * 					    Changed handle debugger logic
@@ -471,7 +471,7 @@ void RemoteDebug::handle() {
 
 	// For Simple software debugger - based on SerialDebug Library
 
-	// Changed handle debugger logic - 2018-02-29
+	// Changed handle debugger logic - 2018-03-01
 
 	if (_callbackDbgEnabled && _callbackDbgHandle) { // Calbacks ok ?
 

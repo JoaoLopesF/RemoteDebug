@@ -1,7 +1,12 @@
-# RemoteDebug Library for ESP8266 or ESP32
-Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
+![logo](readme_media/logo.png)
 
-<a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.1-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade) <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+<a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.1-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
+<a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+<a class="github-button" href="https://github.com/JoaoLopesF/RemoteDebug" data-icon="octicon-star" data-show-count="true" aria-label="Star JoaoLopesF/RemoteDebug on GitHub">Star</a>
+<a class="github-button" href="https://github.com/JoaoLopesF/RemoteDebug/archive/master.zip" data-icon="octicon-cloud-download" aria-label="Download JoaoLopesF/RemoteDebug on GitHub">Download</a>
+
+# RemoteDebug Library for ESP8266 and ESP32
+Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
 
 ## A library to remotely debug over a telnet connection
 
@@ -15,6 +20,7 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 ## Contents
 
   - [About](#about)
+  - [Benefits](#benefits)
   - [News](#news)
   - [Standard telnet](#telnet)
   - [Wishlist](#wishlist)
@@ -51,6 +57,127 @@ to avoid misterious delays of WiFi networking on ESP32 and ESP8266 boards
 Note: If your project is not wireless, you can use my another library,
 the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library. 
 
+Note II: This library is to Espressif boards, as ESP32 and ESP82266,
+If need for another WiFi boards, please add an issue about this 
+and we will see if it is possible made the port for your board.
+
+## Benefits
+
+__SerialDebug__ is bether than Arduino default debugging by Serial.print commands:
+
+- This is more __optimized__
+
+  Being or not debugging via USB cable,
+  the Serial.print command allways is processed,
+  waste CPU time on microcontroller.
+  In other words, the debug commands are processed, 
+  with someone connected in the serial or not.  
+  
+  With __RemoteDebug__, all debug output is processed only
+  if exists anyone debugging via telnet connection.
+
+  And with the debug levels of resource, the volume displayed 
+  of messages are reduced for higher levels. 
+  For example, only process all messages, 
+  if the level is the lowest, the verbose,
+
+  __RemoteDebug__ is otimized por reduce overheads, 
+  in CPU and memory and include client buffering feature.
+
+- Have __debug levels__
+
+  During the development, we can put a lot of debug messages...
+
+  But with __RemoteDebug__, we can put a level in each one.
+
+  For all messages (except levels always (debugA) or error (debugE),
+  the message only is processed and showed,
+  if debug level is equal or higher than it level
+
+  __RemoteDebug__ have 6 debug levels, in order of priority:
+
+  - Alway showed:
+
+    - __Error__:    Critical errors
+    - __Always__:   Important messages
+
+  - Another levels (showed if level is equal or higher that actual one):
+
+    - __Warning__:  Error conditions but not critical
+    - __Info__:     Information messages
+    - __Debug__:    Extra information
+    - __Verbose__:  More information than the usual  
+
+  So We can change the level to verbose, to see all messages.
+  Or to debug to see only debug or higher level, etc.
+
+  Is very good to reduce a quantity of messages that a project can generate,
+  to help debugging.
+
+- It is __easy__ to migrate
+
+  __RemoteDebug__ have a converter to help migrate your Arduino codes,
+  from Serial.prints to this library.
+
+  [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
+
+  Note: This is being developed, estimate deploy until 2019-03-05
+
+  Even if you want to do this manually, it's very simple. Please see topic [Using](#usage) above.
+
+- Have __auto__ function name and simple __profiler__
+
+  A simple debug:
+
+  ```cpp
+  debugV("* Run time: %02u:%02u:%02u (VERBOSE)", mRunHours, mRunMinutes, mRunSeconds);
+  ````
+
+  Can generate this output in serial monitor:
+
+  ```txt
+  (V p:3065 loop C1) * Run time: 00:41:23 (VERBOSE)
+  ```
+
+        Where:  V: is the level
+                p: is a profiler time, elased, between this and previous debug
+                loop: is a function name, that executed this debug
+                C1: is a core that executed this debug (and a function of this) (only for ESP32)
+                The remaining is the message formatted (printf)
+
+  For ESP32, the core id in each debug is very good to optimizer multicore programming.
+
+- Have __commands__ to execute from telnet connection
+
+  For example:
+
+  - Show help (__?__)
+  - Change the level of debug (__v__,__d__,__i__,__w__,__e__),
+    to show less or more messages.
+  - See memory (__m__)
+  - Reset the board (__reset__)
+
+    See about __RemoteDebug__ commands below.
+
+   If your project have __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ installed, 
+   have a new commands, e.g. call a function, see/change variables, ...
+   
+- Have a simple __software debugger__ 
+
+  Now __RemoteDebug__ (version >= 2.0.0), have some simple sofware debuggger,
+  based in codes ofSerialDebug library.
+
+  This is another library, that act as an addon to __RemoteDebug__.
+
+  Please acess the RemoteDebugger repository to more informations: __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
+
+- Ready for __production__ (release compiler)
+
+    For release your device, just uncomment DEBUG_DISABLED in your project
+    Done this, and no more debug processing.
+    And better for DEBUG_DISABLED, __RemoteDebug__ have ZERO overhead, 
+    due is nothing of this is compiled.
+
 ## News
 
  * Version 2.0.0
@@ -62,7 +189,7 @@ the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library.
     It is done to no add extra overhead to projects that no need an debugger.
     To more informations please access the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ github repository.
 
-   - Now __RemoteDebug__ have a new color system, more colors, as done in __SerialDebugApp__ 
+   - Now __RemoteDebug__ have a new color system, using more colors, as done in __SerialDebugApp__ 
 
  * Version 1.5.* 
 
@@ -246,6 +373,26 @@ debugV("This is a println");
 
 ```
 
+Or if your project uses several Serial.print commands to generate a single debug message
+for example:
+```cpp
+  Serial.print("a = ");
+  Serial.print(a);
+  Serial.print( "b = ");
+  Serial.print(b);
+  Serial.print("c = ");
+  Serial.println(c);
+```
+can be use rdebug* macros:
+```cpp
+  rdebugV("a = ");
+  rdebugV(a);
+  rdebugV( "b = ");
+  rdebugV(b);
+  rdebugV("c = ");
+  rdebugVln(c);
+```
+
 An example of use debug levels: (supposing the data is a lot of characteres)
 
 ```cpp
@@ -309,7 +456,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
-### 2.0.1 - 2019-02-29
+### 2.0.1 - 2019-03-01
 
     - Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
     - The callback will to be called before print debug messages now
@@ -426,6 +573,8 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 ## Thanks
 
     First thanks a lot for Igrr for bring to us the Arduino ESP8266 and to Espressif to Arduino ESP32
+
+    For the logo: thanks to a freepik and pngtree sites for free icons in 
 
     Resources:
 
