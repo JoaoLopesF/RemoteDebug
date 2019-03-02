@@ -374,21 +374,21 @@ debugV("This is a println");
 Or if your project uses several Serial.print commands to generate a single debug message
 for example:
 ```cpp
-  Serial.print("a = ");
-  Serial.print(a);
-  Serial.print(" b = ");
-  Serial.print(b);
-  Serial.print(" c = ");
-  Serial.println(c);
+Serial.print("a = ");
+Serial.print(a);
+Serial.print(" b = ");
+Serial.print(b);
+Serial.print(" c = ");
+Serial.println(c);
 ```
 can be use rdebug* macros:
 ```cpp
-  rdebugV("a = ");
-  rdebugV(a);
-  rdebugV(" b = ");
-  rdebugV(b);
-  rdebugV(" c = ");
-  rdebugVln(c);
+rdebugV("a = ");
+rdebugV(a);
+rdebugV(" b = ");
+rdebugV(b);
+rdebugV(" c = ");
+rdebugVln(c);
 ```
 
 An example of use debug levels: (supposing the data is a lot of characteres)
