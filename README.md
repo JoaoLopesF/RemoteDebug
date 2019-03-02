@@ -2,8 +2,6 @@
 
 <a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.1-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
 <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
-<a class="github-button" href="https://github.com/JoaoLopesF/RemoteDebug" data-icon="octicon-star" data-show-count="true" aria-label="Star JoaoLopesF/RemoteDebug on GitHub">Star</a>
-<a class="github-button" href="https://github.com/JoaoLopesF/RemoteDebug/archive/master.zip" data-icon="octicon-cloud-download" aria-label="Download JoaoLopesF/RemoteDebug on GitHub">Download</a>
 
 # RemoteDebug Library for ESP8266 and ESP32
 Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
