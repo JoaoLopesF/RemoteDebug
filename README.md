@@ -385,9 +385,9 @@ can be use rdebug* macros:
 ```cpp
   rdebugV("a = ");
   rdebugV(a);
-  rdebugV( "b = ");
+  rdebugV(" b = ");
   rdebugV(b);
-  rdebugV("c = ");
+  rdebugV(" c = ");
   rdebugVln(c);
 ```
 
