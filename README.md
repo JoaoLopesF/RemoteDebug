@@ -376,9 +376,9 @@ for example:
 ```cpp
   Serial.print("a = ");
   Serial.print(a);
-  Serial.print( "b = ");
+  Serial.print(" b = ");
   Serial.print(b);
-  Serial.print("c = ");
+  Serial.print(" c = ");
   Serial.println(c);
 ```
 can be use rdebug* macros:
