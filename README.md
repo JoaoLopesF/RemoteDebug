@@ -17,15 +17,15 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 
 ## Contents
 
-  - [About](#about)
-  - [Benefits](#benefits)
-  - [News](#news)
-  - [Standard telnet](#telnet)
-  - [Wishlist](#wishlist)
-  - [Using](#usage)
-  - [Know issues](#knowissues)
-  - [Releases](#releases)
-  - [Thanks](#thanks)
+- [About](#about)
+- [Benefits](#benefits)
+- [News](#news)
+- [Standard telnet](#telnet)
+- [Wishlist](#wishlist)
+- [Using](#usage)
+- [Know issues](#knowissues)
+- [Releases](#releases)
+- [Thanks](#thanks)
 
 ## About
 
@@ -63,7 +63,7 @@ and we will see if it is possible made the port for your board.
 
 __SerialDebug__ is bether than Arduino default debugging by Serial.print commands:
 
-- This is more __optimized__
+* This is more __optimized__
 
   Being or not debugging via USB cable,
   the Serial.print command allways is processed,
@@ -82,7 +82,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
   __RemoteDebug__ is otimized por reduce overheads, 
   in CPU and memory and include client buffering feature.
 
-- Have __debug levels__
+* Have __debug levels__
 
   During the development, we can put a lot of debug messages...
 
@@ -94,12 +94,12 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   __RemoteDebug__ have 6 debug levels, in order of priority:
 
-  - Alway showed:
+  Alway showed:
 
     - __Error__:    Critical errors
     - __Always__:   Important messages
 
-  - Another levels (showed if level is equal or higher that actual one):
+  Another levels (showed if level is equal or higher that actual one):
 
     - __Warning__:  Error conditions but not critical
     - __Info__:     Information messages
@@ -112,7 +112,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
   Is very good to reduce a quantity of messages that a project can generate,
   to help debugging.
 
-- It is __easy__ to migrate
+* It is __easy__ to migrate
 
   __RemoteDebug__ have a converter to help migrate your Arduino codes,
   from Serial.prints to this library.
@@ -123,7 +123,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   Even if you want to do this manually, it's very simple. Please see topic [Using](#usage) above.
 
-- Have __auto__ function name and simple __profiler__
+* Have __auto__ function name and simple __profiler__
 
   A simple debug:
 
@@ -145,22 +145,22 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   For ESP32, the core id in each debug is very good to optimizer multicore programming.
 
-- Have __commands__ to execute from telnet connection
+* Have __commands__ to execute from telnet connection
 
   For example:
 
-  - Show help (__?__)
-  - Change the level of debug (__v__,__d__,__i__,__w__,__e__),
-    to show less or more messages.
-  - See memory (__m__)
-  - Reset the board (__reset__)
+    - Show help (__?__)
+    - Change the level of debug (__v__,__d__,__i__,__w__,__e__),
+      to show less or more messages.
+    - See memory (__m__)
+    - Reset the board (__reset__)
 
-    See about __RemoteDebug__ commands below.
+   See about __RemoteDebug__ commands below.
 
    If your project have __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ installed, 
    have a new commands, e.g. call a function, see/change variables, ...
    
-- Have a simple __software debugger__ 
+* Have a simple __software debugger__ 
 
   Now __RemoteDebug__ (version >= 2.0.0), have some simple sofware debuggger,
   based in codes ofSerialDebug library.
@@ -169,7 +169,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   Please acess the RemoteDebugger repository to more informations: __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
 
-- Ready for __production__ (release compiler)
+* Ready for __production__ (release compiler)
 
     For release your device, just uncomment DEBUG_DISABLED in your project
     Done this, and no more debug processing.
@@ -178,7 +178,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
 ## News
 
- * Version 2.0.0
+* Version 2.0.0
 
    - Now __RemoteDebug__ can have the same simple software debugger, that __SerialDebug__ library have.
     This is done, installing another library, the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
@@ -189,7 +189,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
    - Now __RemoteDebug__ have a new color system, using more colors, as done in __SerialDebugApp__ 
 
- * Version 1.5.* 
+* Version 1.5.* 
 
     In 1.5.0 version, we have debug* and rdebug* macros (see below), that put automatically,
     the name of function that called, and core id (core id is only for ESP32)
@@ -255,34 +255,6 @@ only plain text and is intended only for development
 
 Future extension could include a secure way for authentication and further testing to support production environments.
   
-## News
-
-- Preview: In the next version, the 2.0.0, RemoteDebug will have the simple software debugger, based in SerialDebug library
-
-- Released at 1.5.0 version, we have debug macros (see below), 
-debugs with auto funcion name and core id (core id only for ESP32).
-
-So:
-
-```cpp
-void foo() {
-
-    uint8_t var = 1;
-    debugV("this is a debug - var %u", var); 
-}
-```
-
-It will show in telnet client: 
-
-    (V p:^0000ms) (foo)(C1) this is a debug - var 1
-  
-  Where:
-
-      V -> verbose
-      p -> profiler time
-      (foo) -> this is a function name that calls the debug macro
-      (C1) -> It is running it Core 1 (only for ESP32)
-
 ## Wishlist
 
     - Http page to begin/stop the telnet server
@@ -368,11 +340,11 @@ debugW("This is a warning - var %d", var);
 debugE("This is a error - var %d", var);
 
 debugV("This is a println");
-
 ```
 
 Or if your project uses several Serial.print commands to generate a single debug message
 for example:
+
 ```cpp
 Serial.print("a = ");
 Serial.print(a);
@@ -382,6 +354,7 @@ Serial.print(" c = ");
 Serial.println(c);
 ```
 can be use rdebug* macros:
+
 ```cpp
 rdebugV("a = ");
 rdebugV(a);
