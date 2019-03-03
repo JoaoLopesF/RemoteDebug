@@ -8,6 +8,7 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *  2.0.2	2019-03-03	Just to do new release, to update other files
  * 	2.0.1	2019-03-01  Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
  * 						The callback will to be called before print debug messages now
  * 						And only if debugger is enabled in RemoteDebugger (command dbg)
@@ -91,7 +92,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "2.0.1"
+#define VERSION "2.0.2"
 
 #include "RemoteDebug.h"		// This library
 //#include "RemoteDebugger.h" 	// Debugger based in SerialDebug
