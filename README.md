@@ -590,4 +590,4 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
     Hit counter on this file, starting at 2019-03-03:
 
-    [![HitCount](http://hits.dwyl.io/JoaoLopesF/RemoteDebug.svg)](http://hits.dwyl.io/JoaoLopesF/RemoteDebug)
+[![HitCount](http://hits.dwyl.io/JoaoLopesF/RemoteDebug.svg)](http://hits.dwyl.io/JoaoLopesF/RemoteDebug)
