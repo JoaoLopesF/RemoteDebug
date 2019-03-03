@@ -58,7 +58,7 @@ See it in:  [MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Lib
 __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of WiFi networking on ESP32 and ESP8266 boards
 
-Note: If your project is not wireless, you can use my another library,
+Note: If your project not use WiFi, you can use my another library,
 the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library.
 
 Note II: This library is to Espressif boards, as ESP32 and ESP82266,
