@@ -20,16 +20,16 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 
 ## Contents
 
-- [About](#about)
-- [Github](#github)
-- [Benefits](#benefits)
-- [News](#news)
-- [Standard telnet](#telnet)
-- [Wishlist](#wishlist)
-- [Using](#usage)
-- [Know issues](#knowissues)
-- [Releases](#releases)
-- [Thanks](#thanks)
+ - [About](#about)
+ - [Github](#github)
+ - [Benefits](#benefits)
+ - [News](#news)
+ - [Standard telnet](#telnet)
+ - [Wishlist](#wishlist)
+ - [Using](#usage)
+ - [Know issues](#knowissues)
+ - [Releases](#releases)
+ - [Thanks](#thanks)
 
 ## About
 
