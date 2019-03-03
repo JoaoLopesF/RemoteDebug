@@ -1,4 +1,4 @@
-![logo](readme_media/logo.png)
+![logo](extras/readme_media/logo.png)
 
 <a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.1-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
 <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
@@ -17,15 +17,15 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 
 ## Contents
 
-- [About](#about)
-- [Benefits](#benefits)
-- [News](#news)
-- [Standard telnet](#telnet)
-- [Wishlist](#wishlist)
-- [Using](#usage)
-- [Know issues](#knowissues)
-- [Releases](#releases)
-- [Thanks](#thanks)
+ - [About](#about)
+ - [Benefits](#benefits)
+ - [News](#news)
+ - [Standard telnet](#telnet)
+ - [Wishlist](#wishlist)
+ - [Using](#usage)
+ - [Know issues](#knowissues)
+ - [Releases](#releases)
+ - [Thanks](#thanks)
 
 ## About
 
@@ -63,7 +63,7 @@ and we will see if it is possible made the port for your board.
 
 __SerialDebug__ is bether than Arduino default debugging by Serial.print commands:
 
-* This is more __optimized__
+ - This is more __optimized__
 
   Being or not debugging via USB cable,
   the Serial.print command allways is processed,
@@ -82,7 +82,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
   __RemoteDebug__ is otimized por reduce overheads, 
   in CPU and memory and include client buffering feature.
 
-* Have __debug levels__
+ -  Have __debug levels__
 
   During the development, we can put a lot of debug messages...
 
@@ -96,15 +96,15 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   Alway showed:
 
-    - __Error__:    Critical errors
-    - __Always__:   Important messages
+ - __Error__:    Critical errors
+ - __Always__:   Important messages
 
   Another levels (showed if level is equal or higher that actual one):
 
-    - __Warning__:  Error conditions but not critical
-    - __Info__:     Information messages
-    - __Debug__:    Extra information
-    - __Verbose__:  More information than the usual  
+ - __Warning__:  Error conditions but not critical
+ - __Info__:     Information messages
+ - __Debug__:    Extra information
+ - __Verbose__:  More information than the usual  
 
   So We can change the level to verbose, to see all messages.
   Or to debug to see only debug or higher level, etc.
@@ -112,7 +112,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
   Is very good to reduce a quantity of messages that a project can generate,
   to help debugging.
 
-* It is __easy__ to migrate
+  - It is __easy__ to migrate
 
   __RemoteDebug__ have a converter to help migrate your Arduino codes,
   from Serial.prints to this library.
@@ -123,7 +123,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   Even if you want to do this manually, it's very simple. Please see topic [Using](#usage) above.
 
-* Have __auto__ function name and simple __profiler__
+ - Have __auto__ function name and simple __profiler__
 
   A simple debug:
 
@@ -133,10 +133,8 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   Can generate this output in serial monitor:
 
-  ```txt
-  (V p:3065 loop C1) * Run time: 00:41:23 (VERBOSE)
-  ```
-
+        (V p:3065 loop C1) * Run time: 00:41:23 (VERBOSE)
+  
         Where:  V: is the level
                 p: is a profiler time, elased, between this and previous debug
                 loop: is a function name, that executed this debug
@@ -145,17 +143,19 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
   For ESP32, the core id in each debug is very good to optimizer multicore programming.
 
-* Have __commands__ to execute from telnet connection
+ - Have __commands__ to execute from telnet connection
 
   For example:
 
-    - Show help (__?__)
-    - Change the level of debug (__v__,__d__,__i__,__w__,__e__),
-      to show less or more messages.
-    - See memory (__m__)
-    - Reset the board (__reset__)
+ - Show help (__?__)
+ - Change the level of debug (__v__,__d__,__i__,__w__,__e__),
+   to show less or more messages.
+ - See memory (__m__)
+ - Reset the board (__reset__)
 
    See about __RemoteDebug__ commands below.
+
+   You can add your own commands, see the examples please
 
    If your project have __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ installed, 
    have a new commands, e.g. call a function, see/change variables, ...
@@ -189,6 +189,9 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
    - Now __RemoteDebug__ have a new color system, using more colors, as done in __SerialDebugApp__ 
 
+   Note: due the __RemoteDebug__ library, is migrate to Arduino 1.5 format, with folder "src",
+         please delete and reinstall the library to avoid duplication of RemoteDebug sources files.
+
 * Version 1.5.* 
 
     In 1.5.0 version, we have debug* and rdebug* macros (see below), that put automatically,
@@ -215,17 +218,17 @@ __RemoteDebug__ supports the filtering of logging based on __debug levels__:
 
 Only show for it actual debug level:
 
-    - Verbose
-    - Debug
-    - Info
-    - Warnings
+ - Verbose
+ - Debug
+ - Info
+ - Warnings
 
 Note: These levels are in the order of most-logging -> least-logging.
 
 Or for always show (not depends of actual debug level):
 
-    - Any
-    - Errors
+ - Any
+ - Errors
 
 Note: All debugs is processed and showed only if have a client connection.
 
@@ -257,6 +260,7 @@ Future extension could include a secure way for authentication and further testi
   
 ## Wishlist
 
+    - An app to RemoteDebug like SerialDebug have.
     - Http page to begin/stop the telnet server
     - Authentication as telnet support (kerberos, etc.) to support production environment 
 
@@ -545,7 +549,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
     First thanks a lot for Igrr for bring to us the Arduino ESP8266 and to Espressif to Arduino ESP32
 
-    For the logo: thanks to a freepik and pngtree sites for free icons in 
+    For the logo: thanks to a freepik and pngtree sites for free icons that have in logo
 
     Resources:
 
