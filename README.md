@@ -586,6 +586,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
       - Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
 
-## End
+## End of README
 
-Hit counter on this file, starting at 2019-03-03: [![HitCount](http://hits.dwyl.io/JoaoLopesF/RemoteDebug.svg)](http://hits.dwyl.io/JoaoLopesF/RemoteDebug)
+Hit counter on this file, starting at 2019-03-03:
+[![HitCount](http://hits.dwyl.io/JoaoLopesF/RemoteDebug.svg)](http://hits.dwyl.io/JoaoLopesF/RemoteDebug)
