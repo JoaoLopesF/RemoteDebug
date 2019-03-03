@@ -2,6 +2,7 @@
 
 <a href="#releases"> ![build badge](https://img.shields.io/badge/version-v2.0.1-blue.svg)</a> [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
 <a href="https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt">![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)</a>
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/JoaoLopesF/RemoteDebug/issues)
 
 # RemoteDebug Library for ESP8266 and ESP32
 Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
@@ -18,6 +19,7 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 ## Contents
 
  - [About](#about)
+ - [Github](#github)
  - [Benefits](#benefits)
  - [News](#news)
  - [Standard telnet](#telnet)
@@ -58,6 +60,18 @@ the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library.
 Note II: This library is to Espressif boards, as ESP32 and ESP82266,
 If need for another WiFi boards, please add an issue about this 
 and we will see if it is possible made the port for your board.
+
+## Github
+
+Contribute to this library development by creating an account on GitHub.
+
+Please give a star, if you find this library usefull, 
+this help a another people, discover it too.
+
+Please add a issue for problems or suggestion.
+
+I suggest you use a Github Desktop New app to clone, 
+it help to keep updated.
 
 ## Benefits
 
