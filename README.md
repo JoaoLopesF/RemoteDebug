@@ -59,9 +59,10 @@ __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
 to avoid misterious delays of WiFi networking on ESP32 and ESP8266 boards
 
 Note: If your project not use WiFi, you can use my another library,
-the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library.
+the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library, 
+this library works with any Arduino board.
 
-Note II: This library is to Espressif boards, as ESP32 and ESP82266,
+Note II: __RemoteDebug__ library is now only to Espressif boards, as ESP32 and ESP82266,
 If need for another WiFi boards, please add an issue about this
 and we will see if it is possible made the port for your board.
 
