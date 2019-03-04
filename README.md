@@ -22,12 +22,12 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 ## Contents
 
 - [About](#about)
+- [How it looks](#how-it-looks)
 - [Github](#github)
 - [Benefits](#benefits)
 - [News](#news)
 - [Standard telnet](#telnet)
 - [Wishlist](#wishlist)
-- [How it looks](#how-it-looks)
 - [Install](#install)
 - [Using](#usage)
 - [Know issues](#knowissues)
@@ -66,6 +66,18 @@ this library works with any Arduino board.
 Note II: __RemoteDebug__ library is now only to Espressif boards, as ESP32 and ESP82266,
 If need for another WiFi boards, please add an issue about this
 and we will see if it is possible made the port for your board.
+
+## How it looks
+
+![remotedebug_v2](extras/readme_media/remotedebug_v2.png)
+
+Youtube (RemoteDebug v2.0.0):
+
+[![youtube1](https://img.youtube.com/vi/T4nxdsFUGgg/0.jpg)](https://youtu.be/T4nxdsFUGgg)
+
+Youtube (3 telnet connections with RemoteDebug):
+
+[![youtube2](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
 ## Github
 
@@ -287,13 +299,6 @@ Future versions, if is possible, will include a secure way for authentication an
     - An app to RemoteDebug like SerialDebug have.
     - Http page to begin/stop the telnet server
     - Authentication as telnet support (kerberos, etc.) to support production environment
-
-## How it looks
-
-![Imgur](https://i.imgur.com/2deR9pN.png)
-
-    Youtube:
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
 ## Install
 
