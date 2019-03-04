@@ -19,8 +19,14 @@
  *
  */
 
-#ifndef RemoteDebug_h
-#define RemoteDebug_h
+#ifndef REMOTEDEBUG_H
+#define REMOTEDEBUG_H
+
+///// Debug disable for compile to production/release
+///// as nothing of RemotedDebug is compiled, zero overhead :-)
+//#define DEBUG_DISABLED true // Uncomment if the IDE did not recognize, to force it
+
+#ifndef DEBUG_DISABLED
 
 //////// Includes
 
@@ -44,13 +50,6 @@
 #endif
 
 //////// Defines
-
-// Disable all debug ? Good to release builds (production)
-// as nothing of RemotedDebug is compiled, zero overhead :-)
-// For it just uncomment
-//#define DEBUG_DISABLED true
-
-// TODO: fazer isto
 
 // Port for telnet server (now can be defined in project too - 17/08/18)
 // Can be by project, just define it before include this file
@@ -110,14 +109,7 @@
 #define COLOR_CYAN "\x1B[0;36m"
 #define COLOR_WHITE "\x1B[0;37m"
 
-//#define COLOR_DARK_BLACK "\x1B[1;30m"
-//#define COLOR_DARK_RED "\x1B[1;31m"
-//#define COLOR_DARK_GREEN "\x1B[1;32m"
-//#define COLOR_DARK_YELLOW "\x1B[1;33m"
-//#define COLOR_DARK_BLUE "\x1B[1;34m"
-//#define COLOR_DARK_MAGENTA "\x1B[1;35m"
-//#define COLOR_DARK_CYAN "\x1B[1;36m"
-//#define COLOR_DARK_WHITE "\x1B[1;37m"
+#define COLOR_DARK_BLACK "\x1B[1;30m"
 
 #define COLOR_LIGHT_RED "\x1B[1;31m"
 #define COLOR_LIGHT_GREEN "\x1B[1;32m"
@@ -265,7 +257,7 @@ class RemoteDebug: public Print
 
 	// Constructor
 
-	RemoteDebug();
+//	RemoteDebug();
 
 	// Methods
 
@@ -418,6 +410,52 @@ private:
 #endif
 };
 
-#endif
+#else // DEBUG_DISABLED
+
+// Disable debug macros
+
+#define rdebugAln(...)
+#define rdebugPln(...)
+#define rdebugVln(...)
+#define rdebugDln(...)
+#define rdebugIln(...)
+#define rdebugWln(...)
+#define rdebugEln(...)
+#define rdebug(...)
+
+#define DEBUG(...)
+
+#define DEBUG_A(...)
+#define DEBUG_P(...)
+#define DEBUG_V(...)
+#define DEBUG_D(...)
+#define DEBUG_I(...)
+#define DEBUG_W(...)
+#define DEBUG_E(...)
+
+#define debugA(...)
+#define debugP(...)
+#define debugV(...)
+#define debugD(...)
+#define debugI(...)
+#define debugW(...)
+#define debugE(...)
+
+#define debugHandle()
+
+// Note all of Debug. codes need uses "#ifndef DEBUG_DISABLED"
+// For example, the initialization codes and:
+
+//#ifndef DEBUG_DISABLED
+//if (Debug.isActive(Debug.VERBOSE)) {
+//    Debug.printf("bla bla bla: %d %s", number, str); // OR
+//    Debug.printf("bla bla bla: %d %s", number, str.c_str()); // Note: if type is String need c_str() // OR
+//    Debug.println("bla bla bla 2 ln");
+//}
+//#endif
+
+#endif // DEBUG_DISABLED
+
+#endif // H
 
 /// End

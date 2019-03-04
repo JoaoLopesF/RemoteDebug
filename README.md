@@ -4,7 +4,7 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 
 ![logo](extras/readme_media/logo.png)
 
-[![build badge](https://img.shields.io/badge/version-v2.0.2-blue.svg)](#releases)
+[![build badge](https://img.shields.io/badge/version-v2.1.0-blue.svg)](#releases)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
 [![platform badge](https://img.shields.io/badge/platform-Arduino_Espressif-orange.svg)](https://github.com/arduino)
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt)
@@ -346,6 +346,7 @@ debugHandle(); // Equal to SerialDebug
 In any place of you code:
 
 ```cpp
+#ifndef DEBUG_DISABLED
 if (Debug.isActive(Debug.<level>)) {
     Debug.printf("bla bla bla: %d %s", number, str); // OR
     Debug.printf("bla bla bla: %d %s", number, str.c_str()); // Note: if type is String need c_str() // OR
@@ -355,7 +356,11 @@ if (Debug.isActive(Debug.<level>)) {
     // you can use my ArduinoUtil library -> https://github.com/JoaoLopesF/ArduinoUtil
     Debug.printf("float: %s\n", Util.formatFloat(value, 0, 5).c_str());
 }
+#endif
 ```
+
+Note: Using isActive, you need surround the code by DEBUG_DISABLE precompile condition,
+      to avoid compile it for production/release
 
 Or short way (equal to SerialDebug) (prefered if only one debug at time):
 
@@ -461,6 +466,12 @@ Please see the samples, basic or advanced, to learn how to use
 In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+### 2.1.0 - 2019-03-04
+
+    - Create precompiler DEBUG_DISABLED to compile for production/release,
+      equal that have in SerialDebug
+    - Adjustments in examples
 
 ### 2.0.1 - 2019-03-01
 

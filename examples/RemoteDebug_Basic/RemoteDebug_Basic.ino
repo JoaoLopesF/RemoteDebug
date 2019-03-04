@@ -1,8 +1,8 @@
 ////////
-// Libraries Arduino
-//
 // Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
-// Author: Joao Lopes
+// Author : Joao Lopes
+// File   : RemoteDebug_Basic.ino
+// Notes  :
 //
 // Attention: This library is only for help development. Please not use this in production
 //
@@ -10,14 +10,16 @@
 //
 // Example of use:
 //
+//#ifndef DEBUG_DISABLED
 //        if (Debug.isActive(Debug.<level>)) { // <--- This is very important to reduce overheads and work of debug levels
 //            Debug.printf("bla bla bla: %d %s\n", number, str);
 //            Debug.println("bla bla bla");
 //        }
+//#endif
 //
 // Or short way (prefered if only one debug at time)
 //
-//		debugAln("This is a any (always showed) - var %d", var);
+//		debugA("This is a any (always showed) - var %d", var);
 //
 //		debugV("This is a verbose - var %d", var);
 //		debugD("This is a debug - var %d", var);
@@ -30,13 +32,42 @@
 //
 ///////
 
-// Libraries
+////// Defines
 
-#if defined (ESP8266)
+// Host name (please change it)
 
-#define USE_MDNS true // Use the MDNS ?
+#define HOST_NAME "remotedebug"
 
-// Includes do ESP8266
+// Board especific libraries
+
+#if defined ESP8266 || defined ESP32
+
+// Use mDNS ? (comment this do disable it)
+
+#define USE_MDNS true
+
+// Arduino OTA (uncomment this to enable)
+
+//#define USE_ARDUINO_OTA true
+
+#else
+
+// RemoteDebug library is now only to Espressif boards,
+// as ESP32 and ESP82266,
+// If need for another WiFi boards,
+// please add an issue about this
+// and we will see if it is possible made the port for your board.
+// access: https://github.com/JoaoLopesF/RemoteDebug/issues
+
+#error "The board must be ESP8266 or ESP32"
+
+#endif // ESP
+
+//////// Libraries
+
+#if defined ESP8266
+
+// Includes of ESP8266
 
 #include <ESP8266WiFi.h>
 
@@ -45,11 +76,9 @@
 #include <ESP8266mDNS.h>
 #endif
 
-#elif defined(ESP32)
+#elif defined ESP32
 
-#define USE_MDNS true // Use the MDNS ?
-
-// Includes do ESP32
+// Includes of ESP32
 
 #include <WiFi.h>
 
@@ -57,10 +86,6 @@
 #include <DNSServer.h>
 #include "ESPmDNS.h"
 #endif
-
-#else
-
-#error "The board must be ESP8266 or ESP32"
 
 #endif // ESP
 
@@ -75,37 +100,24 @@ RemoteDebug Debug;
 const char* ssid = "........";
 const char* password = "........";
 
-// Host name
-
-#define HOST_NAME "rem-debug" // PLEASE CHANGE IT
 
 // Time
 
 uint32_t mLastTime = 0;
 uint32_t mTimeSeconds = 0;
 
-// Buildin Led ON ?
-
-boolean mLedON = false;
-
 ////// Setup
 
 void setup() {
 
-    // Initialize the Serial (educattional use only, not need in production)
+	// Initialize the Serial (use only in setup codes)
 
-    Serial.begin(115200);
+    Serial.begin(230400);
 
     // Buildin led of ESP
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
-
-#ifdef ESP32
-    // ESP32 configuration // TODO: see if it is necessary
-  WiFi.enableSTA(true);
-  delay(1000);
-#endif
 
   	// Debug
 
@@ -154,12 +166,11 @@ void setup() {
 
     Debug.setResetCmdEnabled(true); // Enable the reset command
 
-    //Debug.showTime(true); // To show time
+	Debug.showProfiler(true); // Profiler (Good to measure times, to optimize codes)
 
-    // Debug.showProfiler(true); // To show profiler - time between messages of Debug
-                              // Good to "begin ...." and "end ...." messages
+	Debug.showColors(true); // Colors
 
-    // This sample (serial -> educattional use only, not need in production)
+    // End off setup
 
     Serial.println("* Arduino RemoteDebug Library");
     Serial.println("*");
@@ -189,8 +200,7 @@ void loop()
 
         // Blink the led
 
-        mLedON = !mLedON;
-        digitalWrite(LED_BUILTIN, (mLedON)?LOW:HIGH);
+        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 
         // Debug the time (verbose level)
 

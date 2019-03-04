@@ -8,6 +8,10 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *  2.1.0	2019-03-04	Create precompiler DEBUG_DISABLED to compile for production/release,
+ *                      equal that have in SerialDebug
+ *                      Adjustments in examples
+ *
  *  2.0.2	2019-03-03	Just to do new release, to update other files
  * 	2.0.1	2019-03-01  Adjustments for the debugger: it still disable until dbg command, equal to SerialDebug
  * 						The callback will to be called before print debug messages now
@@ -55,6 +59,12 @@
  *  TODO: 	- Page HTML for begin/stop Telnet server
  *          - Add support to another Arduino WiFi boards (if have demand on it)
  */
+
+///// Debug disable for compile to production/release
+///// as nothing of RemotedDebug is compiled, zero overhead :-)
+//#define DEBUG_DISABLED true // Uncomment if the IDE did not recognize, to force it
+
+#ifndef DEBUG_DISABLED
 
 ///// Includes
 
@@ -108,10 +118,6 @@ bool system_update_cpu_freq(uint8_t freq);
 
 ////// Variables
 
-//// Self instance
-//
-//RemoteDebug *self;
-
 // Telnet server
 
 WiFiServer TelnetServer(TELNET_PORT); // @suppress("Abstract class cannot be instantiated")
@@ -120,14 +126,11 @@ WiFiClient TelnetClient; // @suppress("Abstract class cannot be instantiated")
 ////// Methods / routines
 
 // Constructor
-
-RemoteDebug::RemoteDebug() {
-
-//	// Save the self instance
 //
-//	self = this;
+//RemoteDebug::RemoteDebug() {
+//
+//}
 
-}
 // Initialize the telnet server
 
 bool RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
@@ -1533,5 +1536,13 @@ void RemoteDebug::sendTelnetCommand(uint8_t command, uint8_t option) {
 	TelnetClient.flush();
 }
 #endif
+
+#else // DEBUG_DISABLED
+
+/////// All debug is disabled, this include is to define empty debug macros
+
+#include "RemoteDebug.h"		// This library
+
+#endif // DEBUG_DISABLED
 
 /////// End
