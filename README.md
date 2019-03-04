@@ -39,8 +39,8 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 By default the Arduino only has as debug possibility via the Serial port.
 This has a few disadvantages:
 
-    - requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
-    - debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
+- requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
+- debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity (WiFi) which can be used for streaming debugging information in real-time.
 
