@@ -299,9 +299,12 @@ Future versions, if is possible, will include a secure way for authentication an
 
 Just download or clone this repository.
 
-You can use the library manager to install and update the library.
-
+Or for Arduino IDE, you can use the library manager to install and update the library.
 For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries)
+
+![install](extras/readme_media/install.png)
+
+Please open the projects in example folder, to see it working.
 
 ## Usage
 
