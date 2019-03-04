@@ -28,6 +28,7 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 - [Standard telnet](#telnet)
 - [Wishlist](#wishlist)
 - [How it looks](#how-it-looks)
+- [Install](#install)
 - [Using](#usage)
 - [Know issues](#knowissues)
 - [Releases](#releases)
@@ -185,8 +186,8 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
 ### Have a simple __software debugger__
 
-  Now __RemoteDebug__ (version >= 2.0.0), have some simple sofware debuggger,
-  based in codes ofSerialDebug library.
+  Now __RemoteDebug__ (version >= 2.0.0), have an simple sofware debuggger,
+  based in codes of SerialDebug library.
 
   This is another library, that act as an addon to __RemoteDebug__.
 
@@ -293,6 +294,14 @@ Future versions, if is possible, will include a secure way for authentication an
 
     Youtube:
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
+
+## Install
+
+Just download or clone this repository.
+
+You can use the library manager to install and update the library.
+
+For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries)
 
 ## Usage
 
