@@ -1,6 +1,6 @@
 # RemoteDebug Library for ESP8266 and ESP32
 
-Library for Arduino to debug devices over WiFi (telnet) with Print commands like Serial Monitor
+Library for Arduino to debug devices over WiFi, with Print commands like Serial haves
 
 ![logo](extras/readme_media/logo.png)
 
@@ -10,14 +10,9 @@ Library for Arduino to debug devices over WiFi (telnet) with Print commands like
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/JoaoLopesF/RemoteDebug/issues)
 
-## A library to remotely debug over a telnet connection
+## A library to remotely debug over a WiFi connection
 
-### Sets-up telnet server that you connect to as an alternative to the standard serial monitor
-
-#### Works with the ESP8266 or ESP32 boards
-
-    https://github.com/esp8266/Arduino
-    https://github.com/espressif/arduino-esp32
+### RemoteDebug setup a TCP/IP server, that you connect to debugging, as an alternative to the serial connection
 
 ## Contents
 
@@ -63,7 +58,7 @@ Note: If your project not use WiFi, you can use my another library,
 the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library, 
 this library works with any Arduino board.
 
-Note II: __RemoteDebug__ library is now only to Espressif boards, as ESP32 and ESP82266,
+Note II: __RemoteDebug__ library is now only to Espressif boards, as ESP32 and ESP8266,
 If need for another WiFi boards, please add an issue about this
 and we will see if it is possible made the port for your board.
 
@@ -71,11 +66,11 @@ and we will see if it is possible made the port for your board.
 
 ![remotedebug_v2](extras/readme_media/remotedebug_v2.png)
 
-Youtube (RemoteDebug v2.0.0):
+Youtube (RemoteDebug v2):
 
 [![youtube1](https://img.youtube.com/vi/T4nxdsFUGgg/0.jpg)](https://youtu.be/T4nxdsFUGgg)
 
-Youtube (3 telnet connections with RemoteDebug):
+Youtube (3 telnet connections with RemoteDebug) v1:
 
 [![youtube2](http://img.youtube.com/vi/lOo-MAD8gPo/0.jpg)](http://www.youtube.com/watch?v=lOo-MAD8gPo)
 
@@ -84,9 +79,9 @@ Youtube (3 telnet connections with RemoteDebug):
 Contribute to this library development by creating an account on GitHub.
 
 Please give a star, if you find this library usefull,
-this help a another people, discover it too.
+this help an another people, discover it too.
 
-Please add a issue for problems or suggestion.
+Please add an issue for problems or suggestion.
 
 I suggest you use a Github Desktop New app to clone,
 it help to keep updated.
