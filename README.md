@@ -25,7 +25,7 @@ Library for Arduino to debug devices over WiFi, with Print commands like Serial 
 - [Wishlist](#wishlist)
 - [Install](#install)
 - [Using](#usage)
-- [Know issues](#knowissues)
+- [Known issues](#known-issues)
 - [Releases](#releases)
 - [Thanks](#thanks)
 
@@ -52,7 +52,7 @@ The MiP_ESP8266_Library and my ESP32 WiFi robot are example of projects that use
 See it in:  [MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Library) and [ESPlorer_v1](https://github.com/JoaoLopesF/ESPlorer_v1)
 
 __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
-to avoid misterious delays of WiFi networking on ESP32 and ESP8266 boards
+to avoid mysterious delays of WiFi networking on ESP32 and ESP8266 boards
 
 Note: If your project not use WiFi, you can use my another library,
 the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library, 
@@ -78,7 +78,7 @@ Youtube (3 telnet connections with RemoteDebug) v1:
 
 Contribute to this library development by creating an account on GitHub.
 
-Please give a star, if you find this library usefull,
+Please give a star, if you find this library useful,
 this help an another people, discover it too.
 
 Please add an issue for problems or suggestion.
@@ -88,7 +88,7 @@ it help to keep updated.
 
 ## Benefits
 
-__SerialDebug__ is bether than Arduino default debugging by Serial.print commands:
+__SerialDebug__ is better than Arduino default debugging by Serial.print commands:
 
 ### This is more __optimized__
 
@@ -106,7 +106,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
   For example, only process all messages,
   if the level is the lowest, the verbose,
 
-  __RemoteDebug__ is otimized por reduce overheads,
+  __RemoteDebug__ is otimized to reduce overheads,
   in CPU and memory and include client buffering feature.
 
 ### Have __debug levels__
@@ -193,7 +193,7 @@ __SerialDebug__ is bether than Arduino default debugging by Serial.print command
 
 ### Have a simple __software debugger__
 
-  Now __RemoteDebug__ (version >= 2.0.0), have an simple sofware debuggger,
+  Now __RemoteDebug__ (version >= 2.0.0), have an simple software debuggger,
   based in codes of SerialDebug library.
 
   This is another library, that act as an addon to __RemoteDebug__.
@@ -239,7 +239,7 @@ For Windows, a typical telnet client is the __Putty__: [putty](https://www.putty
 Have a good tool for mobiles: the __Fing__, please find it in your mobile store.
 Its show all devices in local network (WiFi), show ports opened and can execute the telnet client too (external App)
 
-__RemoteDebug__  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telenet client.
+__RemoteDebug__  sets-up a telnet server which is listening to any telnet client that wants to connect. After connection, logging is streamed to the telnet client.
 
 __RemoteDebug__ is very simple to use, after a few lines of initialization code, you can use the well-known "print" commands to stream your logging to the remote client.
 
@@ -284,7 +284,7 @@ __RemoteDebug__ supports custom commands that can be entered in the telnet clien
 
 ### DISCLAIMER
 
-The current version of __RemoteDebug__ does not yet include any encripted authentication,
+The current version of __RemoteDebug__ does not yet include any encrypted authentication,
 only plain text and is intended only for development, not use in production/release.
 
 Future versions, if is possible, will include a secure way for authentication and further testing to support production environments.
@@ -325,11 +325,11 @@ In the setup function after WiFi initialization
 ```cpp
 // Initialize the telnet server of RemoteDebug
 
-Debug.begin(HOST_NAME); // Initiaze the telnet server - HOST_NAME is the used in MDNS.begin
+Debug.begin(HOST_NAME);
 
 // OR
 
-Debug.begin(HOST_NAME, startingDebugLevel); // Initiaze the telnet server - HOST_NAME is the used in
+Debug.begin(HOST_NAME, startingDebugLevel);
 
 // Options
 
@@ -416,7 +416,7 @@ Note: in future, I suggest that you migrate this to a single debug command:
 debugV(a = %d b = %d c = %d", a, b, c);
 ```
 
-An example of use debug levels: (supposing the data is a lot of characteres)
+An example of use debug levels: (supposing the data is a lot of characters)
 
 ```cpp
 if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
@@ -426,7 +426,7 @@ if (Debug.isActive(Debug.VERBOSE)) { // Debug message long
 }
 ```
 
-Starting at version 1.5.0, debug macros (debug* and rdebug*), atomatically put the name of function that called the macro,
+Starting at version 1.5.0, debug macros (debug* and rdebug*), automatically put the name of function that called the macro,
 and core id (core id only for ESP32).
 
 So:
@@ -465,7 +465,7 @@ Debug.setSerialEnabled(true); // All messages too send to serial too, and can be
 
 For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
 
-    - Please pless enter or any key if you need keep the connection
+    - Please press enter or any key if you need keep the connection
     - The default is 5 minutes (You can change it in RemoteDebug.h)  
     - You can use mDNS to register each node with different name, it helps to connect without know the IP.
 
@@ -572,7 +572,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ### 1.2.0
 
-    - Shortcuts and client buffering to avoid misterious delay of ESP networking
+    - Shortcuts and client buffering to avoid mysterious delay of ESP networking
 
 ### 1.1.0
 
@@ -592,7 +592,7 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
     - First Beta
 
-## Know issues
+## Known issues
 
     - Sometimes (rarely) the connection over telnet becomes very slow.
       Especially right after uploading firmware.
