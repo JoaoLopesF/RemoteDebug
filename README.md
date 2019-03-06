@@ -152,8 +152,6 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
 
   [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
 
-  Note: This is being developed, estimate deploy until 2019-03-05
-
   Even if you want to do this manually, it's very simple. Please see topic [Using](#usage) above.
 
 ### Have __auto__ function name and simple __profiler__
@@ -210,6 +208,11 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
     due is nothing of this is compiled.
 
 ## News
+
+- Version 2.1.1
+
+  - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
+    to do it access the [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
 
 - Version 2.0.0
 

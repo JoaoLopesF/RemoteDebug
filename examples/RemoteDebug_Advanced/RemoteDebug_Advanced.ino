@@ -1,5 +1,6 @@
+			boolean ignore = false;
 ////////
-// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
+// Library: Remote debug - debug over WiFi - for Esp8266 (NodeMCU) or ESP32
 // Author : Joao Lopes
 // File   : RemoteDebug_Advanced.ino
 // Notes  :
@@ -66,17 +67,6 @@
 
 //#define WEB_SERVER_ENABLED true
 
-// Disable all debug ?
-//
-// Important to compile for prodution/release
-// Disable all debug ? Good to release builds (production)
-// as nothing of RemoteDebug is compiled, zero overhead :-)
-// For it just uncomment the DEBUG_DISABLED
-// On change it, if in another IDE than Arduino IDE, like Eclipse or VSCODE,
-// please clean the project, before compile
-
-//#define DEBUG_DISABLED true
-
 ////// Includes
 
 #if defined ESP8266
@@ -137,7 +127,23 @@ WebServer HTTPServer(80);
 
 #endif // WEB_SERVER_ENABLED
 
-// Remote debug over telnet - not recommended for production/release, only for development
+// Remote debug over WiFi - not recommended for production/release, only for development
+
+// Disable all debug ?
+//
+// Important to compile for prodution/release
+// Disable all debug ? Good to release builds (production)
+// as nothing of RemoteDebug is compiled, zero overhead :-)
+// For it just uncomment the DEBUG_DISABLED
+// On change it, if in another IDE than Arduino IDE, like Eclipse or VSCODE,
+// please clean the project, before compile
+
+//#define DEBUG_DISABLED true
+
+// Disable te auto function feature of RemoteDebug
+// Note: uncomment to disable it, good if your code already have func name on debug messages
+
+//#define DEBUG_DISABLE_AUTO_FUNC true
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
 
@@ -211,7 +217,7 @@ void setup() {
 #endif
 
 #ifndef DEBUG_DISABLED
-	MDNS.addService("telnet", "tcp", 23);// Telnet server RemoteDebug
+	MDNS.addService("telnet", "tcp", 23); // WiFi server of RemoteDebug, register as telnet
 #endif
 
 #endif // MDNS
@@ -230,11 +236,11 @@ void setup() {
 
 #ifndef DEBUG_DISABLED // Only for development
 
-	// Initialize the telnet server of RemoteDebug
+	// Initialize the WiFi server of RemoteDebug
 
-	Debug.begin(HOST_NAME); // Initiaze the telnet server
+	Debug.begin(HOST_NAME); // Initiaze the WiFi server
 
-	//Debug.setPassword("r3m0t0."); // Password on telnet connection ?
+	//Debug.setPassword("r3m0t0."); // Password of WiFi (as telnet) connection ?
 
 	Debug.setResetCmdEnabled(true); // Enable the reset command
 
@@ -278,6 +284,7 @@ void loop() {
 	// Time of begin of this loop
 	uint32_t timeBeginLoop = millis();
 #endif
+
 
 	// Each second
 
@@ -345,7 +352,7 @@ void loop() {
 #endif
 
 #ifndef DEBUG_DISABLED
-	// Remote debug over telnet
+	// RemoteDebug handle (for WiFi connections)
 
 	Debug.handle();
 #endif

@@ -8,6 +8,10 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *  2.1.1	2019-03-06	Create option DEBUG_DISABLE_AUTO_FUNC
+ *                      Create macros to be used for code converter: rprint and rprintln
+ *    					RemoteDebug now have an code converters to help migrate codes
+ *
  *  2.1.0	2019-03-04	Create precompiler DEBUG_DISABLED to compile for production/release,
  *                      equal that have in SerialDebug
  *                      Adjustments in examples
@@ -102,23 +106,17 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#define VERSION "2.0.2"
+#define VERSION "2.1.1"
 
 #include "RemoteDebug.h"		// This library
-//#include "RemoteDebugger.h" 	// Debugger based in SerialDebug
 
 #ifdef ALPHA_VERSION // In test, not good yet
 #include "telnet.h"
 #endif
 
-//#ifdef DEBUGGER_ENABLED
-//// For Simple software debugger - based on SerialDebug Library
-//#include "RemoteDebugger.h"
-//#endif
-
 ////// Variables
 
-// Telnet server
+// WiFi server (telnet)
 
 WiFiServer TelnetServer(TELNET_PORT); // @suppress("Abstract class cannot be instantiated")
 WiFiClient TelnetClient; // @suppress("Abstract class cannot be instantiated")

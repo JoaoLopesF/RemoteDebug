@@ -161,11 +161,10 @@
 
 ////// Shortcuts macros
 
-// Macros whith auto function ? (comment this if not want this) - 25/08/18
+// Disable auto function for debug macros? (uncomment this if not want this)
+//#define DEBUG_DISABLE_AUTO_FUNC true
 
-#define DEBUG_AUTO_FUNC true
-
-#ifdef DEBUG_AUTO_FUNC
+#ifndef DEBUG_DISABLE_AUTO_FUNC // With auto func
 
 	#ifdef ESP32
 
@@ -248,6 +247,25 @@
 #define debugA(fmt, ...) rdebugVln(fmt, ##__VA_ARGS__)
 
 #define debugHandle() Debug.handle()
+
+// Macros used by code converter for codes with several prints to only message
+// due the converter cannot
+// convert severals Serial.print in one debug* macro.
+
+#define rprintV(x, ...)		if (Debug.isActive(Debug.VERBOSE)) 	Debug.print(x, ##__VA_ARGS__)
+#define rprintD(x, ...)		if (Debug.isActive(Debug.DEBUG))	Debug.print(x, ##__VA_ARGS__)
+#define rprintI(x, ...)		if (Debug.isActive(Debug.INFO)) 	Debug.print(x, ##__VA_ARGS__)
+#define rprintW(x, ...)		if (Debug.isActive(Debug.WARNING)) 	Debug.print(x, ##__VA_ARGS__)
+#define rprintE(x, ...)		if (Debug.isActive(Debug.ERROR)) 	Debug.print(x, ##__VA_ARGS__)
+#define rprintA(x, ...)		if (Debug.isActive(Debug.ANY)) 		Debug.print(x, ##__VA_ARGS__)
+
+
+#define rprintVln(x, ...)	if (Debug.isActive(Debug.VERBOSE)) 	Debug.println(x,  ##__VA_ARGS__)
+#define rprintDln(x, ...)	if (Debug.isActive(Debug.DEBUG))	Debug.println(x, ##__VA_ARGS__)
+#define rprintIln(x, ...)	if (Debug.isActive(Debug.INFO)) 	Debug.println(x, ##__VA_ARGS__)
+#define rprintWln(x, ...)	if (Debug.isActive(Debug.WARNING)) 	Debug.println(x, ##__VA_ARGS__)
+#define rprintEln(x, ...)	if (Debug.isActive(Debug.ERROR)) 	Debug.println(x, ##__VA_ARGS__)
+#define rprintAln(x, ...)	if (Debug.isActive(Debug.ANY)) 		Debug.println(x, ##__VA_ARGS__)
 
 ///// Class
 
