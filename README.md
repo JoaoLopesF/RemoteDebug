@@ -306,7 +306,7 @@ For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https:
 
 ![install](extras/readme_media/install.png)
 
-For another IDE, ot not using the library manager of Arduino IDE,
+For another IDE, or not using the library manager of Arduino IDE,
 I suggest you use a [Github Desktop](https://desktop.github.com/) app  to clone,it help to keep updated.
 
 Please open the projects in example folder, to see it working.
