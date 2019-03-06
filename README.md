@@ -21,8 +21,8 @@ Library for Arduino to debug devices over WiFi, with Print commands like Serial 
 - [About](#about)
 - [How it looks](#how-it-looks)
 - [Github](#github)
-- [Benefits](#benefits)
 - [News](#news)
+- [Benefits](#benefits)
 - [Standard telnet](#telnet)
 - [Wishlist](#wishlist)
 - [Install](#install)
@@ -87,6 +87,32 @@ Please add an issue for problems or suggestion.
 
 If not using the library manager of Arduino IDE (see it in [Install](#install)),
 I suggest you use a Github Desktop New app to clone,it help to keep updated.
+
+## News
+
+- Version 2.1.1
+
+  - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
+    to do it access the [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
+
+- Version 2.0.0
+
+  - Now __RemoteDebug__ can have the same simple software debugger, that __SerialDebug__ library have.
+    This is done, installing another library, the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
+    The __RemoteDebugger__ act as an add on to __RemoteDebug__.
+    To support this addon, the changes in __RemoteDebug__, is minimum, just a few callbacks
+    It is done to no add extra overhead to projects that no need an debugger.
+    To more informations please access the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ github repository.
+
+  - Now __RemoteDebug__ have a new color system, using more colors, as done in __SerialDebugApp__
+
+   Note: due the __RemoteDebug__ library, is migrate to Arduino 1.5 format, with folder "src",
+         please delete and reinstall the library to avoid duplication of RemoteDebug sources files.
+
+- Version 1.5.*
+
+    In 1.5.0 version, we have debug* and rdebug* macros (see below), that put automatically,
+    the name of function that called, and core id (core id is only for ESP32)
 
 ## Benefits
 
@@ -206,32 +232,6 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
     Done this, and no more debug processing.
     And better for DEBUG_DISABLED, __RemoteDebug__ have ZERO overhead,
     due is nothing of this is compiled.
-
-## News
-
-- Version 2.1.1
-
-  - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
-    to do it access the [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
-
-- Version 2.0.0
-
-  - Now __RemoteDebug__ can have the same simple software debugger, that __SerialDebug__ library have.
-    This is done, installing another library, the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
-    The __RemoteDebugger__ act as an add on to __RemoteDebug__.
-    To support this addon, the changes in __RemoteDebug__, is minimum, just a few callbacks
-    It is done to no add extra overhead to projects that no need an debugger.
-    To more informations please access the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ github repository.
-
-  - Now __RemoteDebug__ have a new color system, using more colors, as done in __SerialDebugApp__
-
-   Note: due the __RemoteDebug__ library, is migrate to Arduino 1.5 format, with folder "src",
-         please delete and reinstall the library to avoid duplication of RemoteDebug sources files.
-
-- Version 1.5.*
-
-    In 1.5.0 version, we have debug* and rdebug* macros (see below), that put automatically,
-    the name of function that called, and core id (core id is only for ESP32)
 
 ## Telnet
 
