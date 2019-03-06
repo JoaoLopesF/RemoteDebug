@@ -484,6 +484,12 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
+### 2.1.1 - 2019-03-06
+
+    - Create option DEBUG_DISABLE_AUTO_FUNC
+    - Create macros to be used for code converter: rprint and rprintln
+      RemoteDebug now have an code converters to help migrate codes
+
 ### 2.1.0 - 2019-03-04
 
     - Create precompiler DEBUG_DISABLED to compile for production/release,
