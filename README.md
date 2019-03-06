@@ -93,7 +93,7 @@ I suggest you use a Github Desktop New app to clone,it help to keep updated.
 - Version 2.1.1
 
   - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
-    to do it access the [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
+    to do it, please access the [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
 
 - Version 2.0.0
 
