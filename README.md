@@ -85,9 +85,6 @@ this help an another people, discover it too.
 
 Please add an issue for problems or suggestion.
 
-If not using the library manager of Arduino IDE (see it in [Install](#install)),
-I suggest you use a Github Desktop New app to clone,it help to keep updated.
-
 ## News
 
 - Version 2.1.1
@@ -308,6 +305,9 @@ Or for Arduino IDE, you can use the library manager to install and update the li
 For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries)
 
 ![install](extras/readme_media/install.png)
+
+For another IDE, ot not using the library manager of Arduino IDE,
+I suggest you use a [Github Desktop](https://desktop.github.com/) app  to clone,it help to keep updated.
 
 Please open the projects in example folder, to see it working.
 
