@@ -85,8 +85,8 @@ this help an another people, discover it too.
 
 Please add an issue for problems or suggestion.
 
-I suggest you use a Github Desktop New app to clone,
-it help to keep updated.
+If not using the library manager of Arduino IDE (see it in [Install](#install)),
+I suggest you use a Github Desktop New app to clone,it help to keep updated.
 
 ## Benefits
 
