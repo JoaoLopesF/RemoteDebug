@@ -459,6 +459,20 @@ private:
 #define debugW(...)
 #define debugE(...)
 
+#define rprintA(...)
+#define rprintV(...)
+#define rprintD(...)
+#define rprintI(...)
+#define rprintW(...)
+#define rprintE(...)
+
+#define rprintAln(...)
+#define rprintVln(...)
+#define rprintDln(...)
+#define rprintIln(...)
+#define rprintWln(...)
+#define rprintEln(...)
+
 #define debugHandle()
 
 // Note all of Debug. codes need uses "#ifndef DEBUG_DISABLED"
@@ -476,4 +490,4 @@ private:
 
 #endif // H
 
-/// End
+//////// End

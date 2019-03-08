@@ -8,6 +8,7 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *  2.1.2	2018-03-08	Add empty rprint* macros, if debug is disabled
  *  2.1.1	2019-03-06	Create option DEBUG_DISABLE_AUTO_FUNC
  *                      Create macros to be used for code converter: rprint and rprintln
  *    					RemoteDebug now have an code converters to help migrate codes
@@ -70,6 +71,10 @@
 
 #ifndef DEBUG_DISABLED
 
+///// Defines
+
+#define VERSION "2.1.2"
+
 ///// Includes
 
 #include "stdint.h"
@@ -105,8 +110,6 @@ bool system_update_cpu_freq(uint8_t freq);
 #error Only for ESP8266 or ESP32
 
 #endif
-
-#define VERSION "2.1.1"
 
 #include "RemoteDebug.h"		// This library
 

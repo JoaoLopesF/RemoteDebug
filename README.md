@@ -87,6 +87,11 @@ Please add an issue for problems or suggestion.
 
 ## News
 
+- RemoteDebugApp
+
+  - An web app to use for debugging in web browser, instead telnet client,
+    in development now, soon it will release.
+
 - Version 2.1.1
 
   - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
@@ -483,6 +488,10 @@ Please see the samples, basic or advanced, to learn how to use
 In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+### 2.1.2 - 2019-03-08
+
+    - Add empty rprint* macros, if debug is disabled
 
 ### 2.1.1 - 2019-03-06
 
