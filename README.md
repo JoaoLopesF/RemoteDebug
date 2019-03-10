@@ -308,7 +308,8 @@ Future versions, if is possible, will include a secure way for authentication an
 Just download or clone this repository.
 
 Or for Arduino IDE, you can use the library manager to install and update the library.
-For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries)
+<!-- For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries) -->
+For install help, please click ion this: [![arduino-library-badge](https://www.ardu-badge.com/badge/RemoteDebug.svg?)](https://www.ardu-badge.com/RemoteDebug)
 
 ![install](extras/readme_media/install.png)
 
