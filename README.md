@@ -309,9 +309,9 @@ Just download or clone this repository.
 
 Or for Arduino IDE, you can use the library manager to install and update the library.
 <!-- For install help, please see: [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries) -->
-For install help, please click ion this: [![arduino-library-badge](https://www.ardu-badge.com/badge/RemoteDebug.svg?)](https://www.ardu-badge.com/RemoteDebug)
+For install help, please click on this: [![arduino-library-badge](https://www.ardu-badge.com/badge/RemoteDebug.svg?)](https://www.ardu-badge.com/RemoteDebug)
 
-![install](extras/readme_media/install.png)
+<!--![install](extras/readme_media/install.png)-->
 
 For another IDE, or not using the library manager of Arduino IDE,
 I suggest you use a [Github Desktop](https://desktop.github.com/) app  to clone,it help to keep updated.
