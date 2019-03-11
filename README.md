@@ -90,11 +90,11 @@ Please add an issue for problems or suggestion.
 
 - RemoteDebugApp
 
-  - An web app to use for debugging in web browser, instead telnet client,
+  - An HTML5 web app to use for debugging in web browser, instead telnet client,
     in development now, soon it will release.
 
   - Now in version 3.0.0, RemoteDebug have a web socket server too,
-    to support the RemoteDebugApp (HTML5 web app)
+    to support the RemoteDebugApp 
 
   - The telnet connection remains, to any want this,
     or to internet offline uses.
