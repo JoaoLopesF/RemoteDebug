@@ -93,6 +93,12 @@ Please add an issue for problems or suggestion.
   - An web app to use for debugging in web browser, instead telnet client,
     in development now, soon it will release.
 
+  - Now in version 3.0.0, RemoteDebug have a web socket server too,
+    to support the RemoteDebugApp (HTML5 web app)
+
+  - The telnet connection remains, to any want this,
+    or to internet offline uses.
+
 - Version 2.1.1
 
   - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
@@ -490,6 +496,12 @@ Please see the samples, basic or advanced, to learn how to use
 In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+### 3.0.0 - 2019-03-10
+
+    - If not disabled, add a web socket server to comunicate with RemoteDebugApp (HTML5 web app)
+    - The standard telnet still working, to debug with internet offline
+    - Ajustment on debugA macro, thanks @jetpax to add this issue
 
 ### 2.1.2 - 2019-03-08
 

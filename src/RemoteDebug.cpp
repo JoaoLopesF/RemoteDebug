@@ -8,6 +8,9 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *	3.0.0	2018-03-11	If not disabled, add a web socket server to comunicate with RemoteDebugApp (HTML5 web app)
+ *	                    The standard telnet still working, to debug with internet offline
+ *	                    Ajustment on debugA macro, thanks @jetpax to add this issue
  *  2.1.2	2018-03-08	Add empty rprint* macros, if debug is disabled
  *  2.1.1	2019-03-06	Create option DEBUG_DISABLE_AUTO_FUNC
  *                      Create macros to be used for code converter: rprint and rprintln
@@ -73,7 +76,7 @@
 
 ///// Defines
 
-#define VERSION "2.1.2"
+#define VERSION "3.0.0"
 
 ///// Includes
 
@@ -89,9 +92,8 @@ bool system_update_cpu_freq(uint8_t freq);
 #include "Arduino.h"
 #include "Print.h"
 
-// Cannot used with SerialDebug at same time
-
 #ifdef SERIAL_DEBUG_H
+// Cannot used with SerialDebug at same time
 #error "RemoteDebug cannot be used with SerialDebug"
 #endif
 
@@ -117,20 +119,111 @@ bool system_update_cpu_freq(uint8_t freq);
 #include "telnet.h"
 #endif
 
+// Support to websocket connection with RemoteDebugApp
+// Note: you must install the arduinoWebSocket library before
+
+#ifndef WEBSOCKET_DISABLED // Only if Web socket enabled (RemoteDebugApp)
+#include "RemoteDebugWS.h"
+#endif
+
+// Internal print macros for send messages to client
+
+#ifndef WEBSOCKET_DISABLED // Only if Web socket enabled (RemoteDebugApp)
+
+#define debugPrintf(fmt, ...) { \
+	if (_connected) TelnetClient.printf(fmt, ##__VA_ARGS__);\
+	if (_connectedWS) DebugWS.printf(fmt, ##__VA_ARGS__);\
+}
+#define debugPrintln(str) { \
+	if (_connected) TelnetClient.println(str);\
+	if (_connectedWS) DebugWS.println(str);\
+}
+#define debugPrint(str) { \
+	if (_connected) TelnetClient.print(str);\
+	if (_connectedWS) DebugWS.print(str);\
+}
+
+#else // With web socket too
+
+#define debugPrintf(fmt ...) { \
+	// Send to telnet\
+	if (_connected) debugPrintf(fmt, ##__VA_ARGS__);\
+}
+#define debugPrintln(str) { \
+	// Send to telnet\
+	if (_connected) debugPrintln(str);\
+}
+#define debugPrint(str) { \
+	// Send to telnet\
+	if (_connected) debugPrint(str);\
+}
+
+#endif
+
 ////// Variables
+
+// Instance
+
+static RemoteDebug* _instance;
 
 // WiFi server (telnet)
 
-WiFiServer TelnetServer(TELNET_PORT); // @suppress("Abstract class cannot be instantiated")
-WiFiClient TelnetClient; // @suppress("Abstract class cannot be instantiated")
+static WiFiServer TelnetServer(TELNET_PORT); // @suppress("Abstract class cannot be instantiated")
+static WiFiClient TelnetClient; // @suppress("Abstract class cannot be instantiated")
+
+// Support to websocket connection with RemoteDebugApp
+
+#ifndef WEBSOCKET_DISABLED
+
+// Instance of RemoteDebugWS
+
+static RemoteDebugWS DebugWS; // @suppress("Abstract class cannot be instantiated")
+
+static boolean _connectedWS = false; // Connected :
+
+// Callbacks
+
+class MyRemoteDebugCallbacks: public RemoteDebugWSCallbacks {
+	void onConnect() {
+		// Web socket (app) connected
+
+		D("rd: onconnect");
+
+		_connectedWS = true;
+
+		// Call same routine that telnet
+
+		_instance->onConnection(true);
+	}
+	void onDisconnect() {
+		// Web socket (app) disconnected
+
+		D("rd: ondisconnect");
+
+		_connectedWS = false;
+	}
+	void onReceive(const char *message) {
+		// Receive a message
+
+		D("rd: onreceive");
+
+		// TODO: logic to nl
+		_instance->wsOnReceive(message);
+	}
+};
+
+#endif // WEBSOCKET_DISABLED
 
 ////// Methods / routines
 
 // Constructor
-//
-//RemoteDebug::RemoteDebug() {
-//
-//}
+
+RemoteDebug::RemoteDebug() {
+
+	// Save the instance
+
+	_instance = this;
+}
 
 // Initialize the telnet server
 
@@ -148,6 +241,13 @@ bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLe
 	
 	TelnetServer.begin();
 	TelnetServer.setNoDelay(true);
+
+#ifndef WEBSOCKET_DISABLED
+	// Initialize web socket (for RemoteDebugApp)
+
+	DebugWS.begin(new MyRemoteDebugCallbacks());
+
+#endif
 
 	// Reserve space to buffer of print writes
 
@@ -228,9 +328,17 @@ void RemoteDebug::stop() {
 	// Stop server
 
 	TelnetServer.stop();
+
+#ifndef WEBSOCKET_DISABLED
+	// Stop web socket (RemoteDebugApp)
+
+	DebugWS.stop();                 // stop the websocket server
+#endif
+
 }
 
 // Handle the connection (in begin of loop in sketch)
+// TODO: optimize when loop not have a large delay
 
 void RemoteDebug::handle() {
 
@@ -248,9 +356,7 @@ void RemoteDebug::handle() {
 	if (_clientDebugLevel == PROFILER) {
 		if (millis() > _levelProfilerDisable) {
 			_clientDebugLevel = _levelBeforeProfiler;
-			if (_connected) {
-				TelnetClient.println("* Debug level profile inactive now");
-			}
+			debugPrintln("* Debug level profile inactive now");
 		}
 	}
 
@@ -266,9 +372,8 @@ void RemoteDebug::handle() {
 			_levelBeforeProfiler = _clientDebugLevel;
 			_clientDebugLevel = PROFILER;
 			_levelProfilerDisable = 1000; // Disable it at 1 sec
-			if (_connected) {
-				TelnetClient.printf("* Debug level profile active now - time between handels: %u\r\n", diff);
-			}
+
+			debugPrintf("* Debug level profile active now - time between handels: %u\r\n", diff);
 		}
 
 		lastTime = millis();
@@ -326,12 +431,6 @@ void RemoteDebug::handle() {
 
 			if (_password != "") {
 
-				_passwordOk = false;
-
-	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
-				_passwordAttempt = 1;
-	#endif
-
 	#ifdef ALPHA_VERSION // In test, not good yet
 				// Send command to telnet client to not do local echos
 				// Experimental code !
@@ -351,43 +450,17 @@ void RemoteDebug::handle() {
 		TelnetClient.setNoDelay(true); // More faster
 		TelnetClient.flush(); // clear input buffer, else you get strange characters
 
-		_bufferPrint = "";			// Clean buffer
-
-		_lastTimeCommand = millis(); // To mark time for inactivity
-
-		_command = "";				// Clear command
-		_lastCommand = "";			// Clear las command
-
-		_lastTimePrint = millis();	// Clear the time
-
-		_silence = false;			// No silence 
-
-		// Callback
-
-		if (_callbackNewClient) {
-			_callbackNewClient();
-		}
-
-		// Show the initial message
-
-#if SHOW_HELP
-		showHelp();
-#endif
-
-#ifdef CLIENT_BUFFERING
-		// Client buffering - send data in intervals to avoid delays or if its is too big
-		_bufferSend = "";
-		_sizeBufferSend = 0;
-		_lastTimeSend = millis();
-#endif
-
-		// Empty buffer in
+		// Empty buffer
 
 		delay(100);
 
 		while (TelnetClient.available()) {
 			TelnetClient.read();
 		}
+
+		// Connection event
+
+		onConnection(true);
 
 	}
 
@@ -438,11 +511,23 @@ void RemoteDebug::handle() {
 			last = character;
 		}
 
+	}
+
+	// Client connected ?
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	boolean connected = (_connected || _connectedWS);
+#else // By telnet
+	boolean connected = _connected;
+#endif
+
+	if (connected) {
+
 #ifdef CLIENT_BUFFERING
 		// Client buffering - send data in intervals to avoid delays or if its is too big
 
 		if ((millis() - _lastTimeSend) >= DELAY_TO_SEND || _sizeBufferSend >= MAX_SIZE_SEND) {
-			TelnetClient.print(_bufferSend);
+			debugPrint(_bufferSend);
 			_bufferSend = "";
 			_sizeBufferSend = 0;
 			_lastTimeSend = millis();
@@ -462,15 +547,25 @@ void RemoteDebug::handle() {
 		}
 
 		if ((millis() - _lastTimeCommand) > maxTime) {
-			TelnetClient.println("* Closing session by inactivity");
-			TelnetClient.stop();
-			_connected = false;
-			_silence = false;
+
+			debugPrintln("* Closing session by inactivity");
+
+			// Disconnect
+
+			disconnect();
+			return;
 		}
 #endif
 #endif
-
 	}
+
+#ifndef WEBSOCKET_DISABLED // For websocket server
+
+	// Web socket server handle
+
+	DebugWS.handle();
+
+#endif
 
 #ifdef DEBUGGER_ENABLED
 
@@ -482,9 +577,9 @@ void RemoteDebug::handle() {
 
 		boolean callHandle = false;
 
-		if (dbgLastConnected != _connected) { // Change connection -> always call
+		if (dbgLastConnected != connected) { // Change connection -> always call
 
-			dbgLastConnected = _connected;
+			dbgLastConnected = connected;
 			callHandle = true;
 
 		} else if (millis() >= dbgTimeHandle) {
@@ -508,6 +603,89 @@ void RemoteDebug::handle() {
 #endif
 
 	//DV("*handle time: ", (millis() - timeBegin));
+}
+
+
+// Disconnect client
+
+void RemoteDebug::disconnect() {
+
+	// Disconnect
+
+	debugPrintln("* Closing client connection ...");
+
+	_silence = false;
+
+	if (_connected) { // By telnet
+		TelnetClient.stop();
+		_connected = false;
+	}
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	if (_connectedWS) { // By web socket
+		DebugWS.disconnect(); // Disconnect client
+		_connectedWS = false;
+	}
+#endif
+}
+
+// Connection/disconnection event
+
+void RemoteDebug::onConnection(boolean connected) {
+
+	// Clear variables
+
+	D("rd onconn %d", connected);
+
+	_bufferPrint = "";			// Clean buffer
+
+	_lastTimeCommand = millis(); // To mark time for inactivity
+
+	_command = "";				// Clear command
+	_lastCommand = "";			// Clear las command
+
+	_lastTimePrint = millis();	// Clear the time
+
+	_silence = false;			// No silence
+
+#ifdef CLIENT_BUFFERING
+	// Client buffering - send data in intervals to avoid delays or if its is too big
+	_bufferSend = "";
+	_sizeBufferSend = 0;
+	_lastTimeSend = millis();
+#endif
+
+	// Password request ? - 18/07/18
+
+	if (_password != "") {
+
+		_passwordOk = false;
+
+#ifdef REMOTEDEBUG_PWD_ATTEMPTS
+		_passwordAttempt = 1;
+#endif
+	}
+
+	// Save it
+
+	_connected = connected;
+
+	// Process
+
+	if (connected) { // Connected ?
+
+
+		// Callback
+
+		if (_callbackNewClient) {
+			_callbackNewClient();
+		}
+
+		// Show the initial message
+
+#if SHOW_HELP
+		showHelp();
+#endif
+	}
 }
 
 // Send to serial too (use only if need)
@@ -573,14 +751,25 @@ void RemoteDebug::showRaw(boolean show) {
 
 boolean RemoteDebug::isActive(uint8_t debugLevel) {
 
-	// Active -> Not in silence (new)
-	// 			 Debug level ok and
-	//           Telnet connected or
-	//           Serial enabled (use only if need)
-	//			 Password ok (if enabled) - 18/08/18
+	// Active ->
+	//	Not in silence (new)
+	//	Debug level ok and
+	//	Telnet connected or
+	//	Serial enabled (use only if need)
+	//	Password ok (if enabled) - 18/08/18
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+
+	boolean ret = (debugLevel >= _clientDebugLevel &&
+					(_connected || _connectedWS || _serialEnabled));
+
+#else // Telnet only
 
 	boolean ret = (debugLevel >= _clientDebugLevel &&
 					(_connected || _serialEnabled));
+
+#endif
+
 
 	if (ret) {
 		_lastDebugLevel = debugLevel;
@@ -634,6 +823,12 @@ size_t RemoteDebug::write(uint8_t character) {
 	String colorLevel = "";
 #endif
 
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	boolean connected = (_connected || _connectedWS);
+#else
+	boolean connected = _connected;
+#endif
+
 	// New line writted before ?
 
 	if (_newLine ) {
@@ -648,7 +843,7 @@ size_t RemoteDebug::write(uint8_t character) {
 
 		if (_callbackDbgEnabled && _callbackDbgEnabled()) { // Callbacks ok
 
-			if (_connected && _callbackDbgEnabled()) { // Only call if is connected and debugger is enabled
+			if (connected && _callbackDbgEnabled()) { // Only call if is connected and debugger is enabled
 
 				// Call the handle
 
@@ -886,7 +1081,7 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Write to telnet buffered
 
-			if (_connected || _serialEnabled) {  // send data to Client
+			if (connected || _serialEnabled) {  // send data to Client
 				_bufferPrint = show;
 			}
 		}
@@ -941,19 +1136,19 @@ size_t RemoteDebug::write(uint8_t character) {
 #ifdef COLOR_NEW_SYSTEM
 			_bufferPrint.concat(COLOR_RESET);
 #endif
-			// Send to telnet (buffered)
+			// Send to telnet or websocket (buffered)
 
-			boolean sendToTelnet = _connected;
+			boolean sendToClient = connected;
 
 			if (_password != "" && !_passwordOk) { // With no password -> no telnet output - 2018-10-19
-				sendToTelnet = false;
+				sendToClient = false;
 			}
 
-			if (sendToTelnet) {  // send data to Client
+			if (sendToClient) {  // send data to Client
 
 
 #ifndef CLIENT_BUFFERING
-				TelnetClient.print(_bufferPrint);
+				debugPrint(_bufferPrint);
 #else // Cliente buffering
 
 				uint8_t size = _bufferPrint.length();
@@ -964,7 +1159,7 @@ size_t RemoteDebug::write(uint8_t character) {
 
 					// Send it
 
-					TelnetClient.print(_bufferSend);
+					debugPrint(_bufferSend);
 					_bufferSend = "";
 					_sizeBufferSend = 0;
 					_lastTimeSend = millis();
@@ -978,7 +1173,7 @@ size_t RemoteDebug::write(uint8_t character) {
 				// Client buffering - send data in intervals to avoid delays or if its is too big
 				// Not for raw mode
 				if (_showRaw || (millis() - _lastTimeSend) >= DELAY_TO_SEND) {
-					TelnetClient.print(_bufferSend);
+					debugPrint(_bufferSend);
 					_bufferSend = "";
 					_sizeBufferSend = 0;
 					_lastTimeSend = millis();
@@ -1006,6 +1201,7 @@ size_t RemoteDebug::write(uint8_t character) {
 
 ////// Private
 
+
 // Show help of commands
 
 void RemoteDebug::showHelp() {
@@ -1030,7 +1226,7 @@ void RemoteDebug::showHelp() {
 		help.concat(':');
 		help.concat("\r\n");
 
-		TelnetClient.print(help);
+		debugPrint(help);
 
 		return;
 }
@@ -1120,7 +1316,9 @@ void RemoteDebug::showHelp() {
 			"* Please type the command and press enter to execute.(? or h for this help)\r\n");
 	help.concat("***\r\n");
 
-	TelnetClient.print(help);
+	// Send to client
+
+	debugPrint(help);
 }
 
 // Get last command received
@@ -1136,7 +1334,7 @@ void RemoteDebug::clearLastCommand() {
 	_lastCommand = "";
 }
 
-// Process user command over telnet
+// Process user command over telnet or web socket
 
 void RemoteDebug::processCommand() {
 
@@ -1147,7 +1345,7 @@ void RemoteDebug::processCommand() {
 	// TODO: see correction for this
 
 	if (lastTime > 0 && (millis() - lastTime) < 500) {
-		TelnetClient.println("* Bug workaround: ignoring command repeating");
+		debugPrintln("* Bug workaround: ignoring command repeating");
 		return;
 	}
 	lastTime = millis();
@@ -1158,7 +1356,7 @@ void RemoteDebug::processCommand() {
 
 		if (_command == _password) {
 
-			TelnetClient.println("* Password ok, allowing access now...");
+			debugPrintln("* Password ok, allowing access now...");
 
 			_passwordOk = true;
 
@@ -1169,7 +1367,7 @@ void RemoteDebug::processCommand() {
 
 		} else {
 
-			TelnetClient.println("* Wrong password!");
+			debugPrintln("* Wrong password!");
 
 	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
 
@@ -1177,10 +1375,11 @@ void RemoteDebug::processCommand() {
 
 			if (_passwordAttempt > REMOTEDEBUG_PWD_ATTEMPTS) {
 
-				TelnetClient.println("* Many attempts. Closing session now.");
-				TelnetClient.stop();
-				_connected = false;
-				_silence = false;
+				debugPrintln("* Many attempts. Closing session now.");
+
+				// Disconnect
+
+				disconnect();
 
 			} else {
 
@@ -1196,8 +1395,8 @@ void RemoteDebug::processCommand() {
 
 	// Process commands
 
-	TelnetClient.print("* Debug: Command received: ");
-	TelnetClient.println(_command);
+	debugPrint("* Debug: Command received: ");
+	debugPrintln(_command);
 
 	String options = "";
 	uint8_t pos = _command.indexOf(" ");
@@ -1221,14 +1420,14 @@ void RemoteDebug::processCommand() {
 
 		// Quit
 
-		TelnetClient.println("* Closing telnet connection ...");
+		debugPrintln("* Closing client connection ...");
 
 		TelnetClient.stop();
 
 	} else if (_command == "m") {
 
-		TelnetClient.print("* Free Heap RAM: ");
-		TelnetClient.println(ESP.getFreeHeap());
+		debugPrint("* Free Heap RAM: ");
+		debugPrintln(ESP.getFreeHeap());
 
 #if defined(ESP8266)
 
@@ -1237,14 +1436,14 @@ void RemoteDebug::processCommand() {
 		// Change ESP8266 CPU para 80 MHz
 
 		system_update_cpu_freq(80);
-		TelnetClient.println("CPU ESP8266 changed to: 80 MHz");
+		debugPrintln("CPU ESP8266 changed to: 80 MHz");
 
 	} else if (_command == "cpu160") {
 
 		// Change ESP8266 CPU para 160 MHz
 
 		system_update_cpu_freq(160);
-		TelnetClient.println("CPU ESP8266 changed to: 160 MHz");
+		debugPrintln("CPU ESP8266 changed to: 160 MHz");
 
 #endif
 
@@ -1254,7 +1453,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = VERBOSE;
 
-		TelnetClient.println("* Debug level set to Verbose");
+		debugPrintln("* Debug level set to Verbose");
 
 	} else if (_command == "d") {
 
@@ -1262,7 +1461,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = DEBUG;
 
-		TelnetClient.println("* Debug level set to Debug");
+		debugPrintln("* Debug level set to Debug");
 
 	} else if (_command == "i") {
 
@@ -1270,7 +1469,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = INFO;
 
-		TelnetClient.println("* Debug level set to Info");
+		debugPrintln("* Debug level set to Info");
 
 	} else if (_command == "w") {
 
@@ -1278,7 +1477,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = WARNING;
 
-		TelnetClient.println("* Debug level set to Warning");
+		debugPrintln("* Debug level set to Warning");
 
 	} else if (_command == "e") {
 
@@ -1286,7 +1485,7 @@ void RemoteDebug::processCommand() {
 
 		_clientDebugLevel = ERROR;
 
-		TelnetClient.println("* Debug level set to Error");
+		debugPrintln("* Debug level set to Error");
 
 	} else if (_command == "l") {
 
@@ -1294,7 +1493,7 @@ void RemoteDebug::processCommand() {
 
 		_showDebugLevel = !_showDebugLevel;
 
-		TelnetClient.printf("* Show debug level: %s\r\n",
+		debugPrintf("* Show debug level: %s\r\n",
 				(_showDebugLevel) ? "On" : "Off");
 
 	} else if (_command == "t") {
@@ -1303,7 +1502,7 @@ void RemoteDebug::processCommand() {
 
 		_showTime = !_showTime;
 
-		TelnetClient.printf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
+		debugPrintf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
 
 	} else if (_command == "s") {
 
@@ -1318,7 +1517,7 @@ void RemoteDebug::processCommand() {
 		_showProfiler = !_showProfiler;
 		_minTimeShowProfiler = 0;
 
-		TelnetClient.printf("* Show profiler: %s\r\n",
+		debugPrintf("* Show profiler: %s\r\n",
 				(_showProfiler) ? "On" : "Off");
 
 	} else if (_command.startsWith("p ")) {
@@ -1330,7 +1529,7 @@ void RemoteDebug::processCommand() {
 			if (aux > 0) { // Valid number
 				_showProfiler = true;
 				_minTimeShowProfiler = aux;
-				TelnetClient.printf(
+				debugPrintf(
 						"* Show profiler: On (with minimal time: %u)\r\n",
 						_minTimeShowProfiler);
 			}
@@ -1356,7 +1555,7 @@ void RemoteDebug::processCommand() {
 			}
 		}
 
-		TelnetClient.printf(
+		debugPrintf(
 				"* Debug level set to Profiler (disable in %u millis)\r\n",
 				_levelProfilerDisable);
 
@@ -1373,7 +1572,7 @@ void RemoteDebug::processCommand() {
 			}
 		}
 
-		TelnetClient.printf(
+		debugPrintf(
 				"* Auto profiler debug level active (time >= %u millis)\r\n",
 				_autoLevelProfiler);
 
@@ -1383,7 +1582,7 @@ void RemoteDebug::processCommand() {
 
 		_showColors = !_showColors;
 
-		TelnetClient.printf("* Show colors: %s\r\n",
+		debugPrintf("* Show colors: %s\r\n",
 				(_showColors) ? "On" : "Off");
 
 	} else if (_command.startsWith("filter ") && options.length() > 0) {
@@ -1395,18 +1594,22 @@ void RemoteDebug::processCommand() {
 		setNoFilter();
 	} else if (_command == "reset" && _resetCommandEnabled) {
 
-		TelnetClient.println("* Reset ...");
+		debugPrintln("* Reset ...");
 
-		TelnetClient.println("* Closing telnet connection ...");
+		debugPrintln("* Closing client connection ...");
 
 #if defined(ESP8266)
-		TelnetClient.println("* Resetting the ESP8266 ...");
+		debugPrintln("* Resetting the ESP8266 ...");
 #elif defined(ESP32)
-		TelnetClient.println("* Resetting the ESP32 ...");
+		debugPrintln("* Resetting the ESP32 ...");
 #endif
 
 		TelnetClient.stop();
 		TelnetServer.stop();
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+		DebugWS.stop();
+#endif
 
 		delay(500);
 
@@ -1444,8 +1647,8 @@ void RemoteDebug::setFilter(String filter) {
 	_filter.toLowerCase(); // TODO: option to case insensitive ?
 	_filterActive = true;
 
-	TelnetClient.print("* Debug: Filter active: ");
-	TelnetClient.println(_filter);
+	debugPrint("* Debug: Filter active: ");
+	debugPrintln(_filter);
 
 }
 
@@ -1454,7 +1657,7 @@ void RemoteDebug::setNoFilter() {
 	_filter = "";
 	_filterActive = false;
 
-	TelnetClient.println("* Debug: Filter disabled");
+	debugPrintln("* Debug: Filter disabled");
 
 }
 
@@ -1468,12 +1671,12 @@ void RemoteDebug::silence(boolean activate, boolean showMessage) {
 
 		if (_silence) {
 
-			TelnetClient.println("* Debug now is in silent mode!");
-			TelnetClient.println("* Press s again to return show debugs");
+			debugPrintln("* Debug now is in silent mode!");
+			debugPrintln("* Press s again to return show debugs");
 
 		} else {
 
-			TelnetClient.println("* Debug now exit from silent mode!");
+			debugPrintln("* Debug now exit from silent mode!");
 		}
 	}
 }
@@ -1506,6 +1709,36 @@ String RemoteDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
 	return ret;
 }
 
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+
+/////// Web socket routines
+
+// Process user command over telnet or web socket
+
+void RemoteDebug::wsOnReceive(const char* command) { // @suppress("Unused function declaration")
+
+	// Process the command
+
+	_command = command;
+
+	// Is app commands
+
+	if (_command.startsWith("$app")) {
+
+		// Process app messages
+
+		_command = ""; // Clear it
+
+	} else { // Normal commands
+
+		processCommand();
+	}
+}
+#endif // WEBSOCKET_DISABLED
+
+/////// Utilities
+
+
 // Is CR or LF ?
 
 boolean RemoteDebug::isCRLF(char character) {
@@ -1533,7 +1766,7 @@ void RemoteDebug::sendTelnetCommand(uint8_t command, uint8_t option) {
 
 	// Send a command to the telnet client
 
-	TelnetClient.printf("%c%c%c", TELNET_IAC, command, option);
+	debugPrintf("%c%c%c", TELNET_IAC, command, option);
 	TelnetClient.flush();
 }
 #endif

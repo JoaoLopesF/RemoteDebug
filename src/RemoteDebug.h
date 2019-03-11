@@ -28,27 +28,6 @@
 
 #ifndef DEBUG_DISABLED
 
-//////// Includes
-
-#include "Arduino.h"
-#include "Print.h"
-
-// ESP8266 or ESP32 ?
-
-#if defined(ESP8266)
-
-#include <ESP8266WiFi.h>
-
-#elif defined(ESP32)
-
-#include <WiFi.h>
-
-#else
-
-#error "Only for ESP8266 or ESP32"
-
-#endif
-
 //////// Defines
 
 // Port for telnet server (now can be defined in project too - 17/08/18)
@@ -57,6 +36,11 @@
 #ifndef TELNET_PORT
 #define TELNET_PORT 23
 #endif
+
+///// Websocket server to support debug over web browser (RemoteDebugApp)
+// Uncomment this to enable
+
+//#define WEBSOCKET_DISABLED true
 
 // Simple password request - left commented if not need this - 18/07/18
 // Notes:
@@ -133,9 +117,12 @@
 // Note: this colors is not equals to SerialDebug colors, due using standard 16 colors of Ansi, for compatibility
 #define COLOR_VERBOSE 	COLOR_GREEN
 #define COLOR_DEBUG		COLOR_LIGHT_GREEN
-#define COLOR_INFO		COLOR_YELLOW
-#define COLOR_WARNING	COLOR_CYAN
-#define COLOR_ERROR		COLOR_RED
+//#define COLOR_INFO		COLOR_YELLOW
+//#define COLOR_WARNING	COLOR_CYAN
+//#define COLOR_ERROR		COLOR_RED
+#define COLOR_INFO		COLOR_LIGHT_YELLOW
+#define COLOR_WARNING	COLOR_LIGHT_CYAN
+#define COLOR_ERROR		COLOR_LIGHT_RED
 #define COLOR_RAW		COLOR_WHITE // COLOR_MAGENTA
 #endif
 
@@ -157,6 +144,27 @@
 #define DEBUGGER_ENABLED true
 #ifdef DEBUGGER_ENABLED
 #define DEBUGGER_HANDLE_TIME 850 // Interval to call handle of debugger - equal to implemented in debugger
+#endif
+
+//////// Includes
+
+#include "Arduino.h"
+#include "Print.h"
+
+// ESP8266 or ESP32 ?
+
+#if defined(ESP8266)
+
+#include <ESP8266WiFi.h>
+
+#elif defined(ESP32)
+
+#include <WiFi.h>
+
+#else
+
+#error "Only for ESP8266 or ESP32"
+
 #endif
 
 ////// Shortcuts macros
@@ -267,6 +275,11 @@
 #define rprintEln(x, ...)	if (Debug.isActive(Debug.ERROR)) 	Debug.println(x, ##__VA_ARGS__)
 #define rprintAln(x, ...)	if (Debug.isActive(Debug.ANY)) 		Debug.println(x, ##__VA_ARGS__)
 
+// Internal debug macro - recommended stay disable
+
+//#define D(fmt, ...) 										// Without this
+#define D(fmt, ...) Serial.printf(fmt "\n", ##__VA_ARGS__) 	// Serial debug
+
 ///// Class
 
 class RemoteDebug: public Print
@@ -275,7 +288,7 @@ class RemoteDebug: public Print
 
 	// Constructor
 
-//	RemoteDebug();
+	RemoteDebug();
 
 	// Methods
 
@@ -287,6 +300,8 @@ class RemoteDebug: public Print
 	void stop();
 
 	void handle();
+
+	void disconnect();
 
 	void setSerialEnabled(boolean enable);
 
@@ -318,10 +333,16 @@ class RemoteDebug: public Print
 	void silence(boolean activate, boolean showMessage = true);
 	boolean getSilence();
 
+	void onConnection(boolean connected);
+
 #ifdef DEBUGGER_ENABLED
 	// For Simple software debugger - based on SerialDebug Library
 	void initDebugger(boolean (*callbackEnabled)(), void (*callbackHandle)(const boolean), String (*callbackGetHelp)(), void (*callbackProcessCmd)());
 	WiFiClient* getTelnetClient();
+#endif
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	void wsOnReceive(const char* command);
 #endif
 
 	// Print
@@ -413,7 +434,6 @@ private:
 	void (*_callbackDbgHandle)(const boolean) = NULL;	// Callable for handle of debugger
 	String (*_callbackDbgHelp)() = NULL;	// Callable for get debugger help
 	void (*_callbackDbgProcessCmd)() = NULL;// Callable for process commands of debugger
-
 #endif
 
 	//////// Privates
@@ -426,6 +446,7 @@ private:
 #ifdef ALPHA_VERSION // In test, not good yet
 	void sendTelnetCommand(uint8_t command, uint8_t option);
 #endif
+
 };
 
 #else // DEBUG_DISABLED
