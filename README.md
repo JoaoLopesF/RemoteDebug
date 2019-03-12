@@ -10,9 +10,9 @@ Library for Arduino to debug devices over WiFi, with Print commands like Serial 
 [![platform badge](https://img.shields.io/badge/platform-Arduino|Espressif-orange.svg)](https://github.com/arduino)
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#github)
-![GitHub issues](https://img.shields.io/github/issues/JoaoLopesF/RemoteDebug.svg)
-<!-- ![build badge](https://img.shields.io/github/stars/JoaoLopesF/RemoteDebug.svg?style=social) -->
+[![GitHub issues](https://img.shields.io/github/issues/JoaoLopesF/RemoteDebug.svg)](http://github.com/JoaoLopesF/RemoteDebug/issues)
 [![star this repo](http://githubbadges.com/star.svg?user=JoaoLopesF&repo=RemoteDebug)](http://github.com/JoaoLopesF/RemoteDebug)
+<!-- ![build badge](https://img.shields.io/github/stars/JoaoLopesF/RemoteDebug.svg?style=social) -->
 
 ## A library to remotely debug over a WiFi connection
 
