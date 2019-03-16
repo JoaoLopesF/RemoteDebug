@@ -259,7 +259,7 @@ For it, RemoteDebug v3 have a web socket server (can be disabled).
 It used a local copy of [arduinoWebSockets](https://github.com/Links2004/arduinoWebSockets) library,
 due it not in Arduino Library manager.
 
-As a large page, the solution for Arduino is save it in a storage,
+As a large web page on web server, the solution for Arduino is save it in a storage,
 like SPIFFS. But not have automatically updates in data saved this way,
 this SPIFFS data is good for a project but not for a library.
 
