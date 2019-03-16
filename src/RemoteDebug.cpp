@@ -8,6 +8,7 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *  3.0.2	2019-03-16	Adjustments in examples, added one for debugger
  *  3.0.1	2019-03-13	Adjustments in silente mode
  *                      Commands from RemoteDebugApp now is treated
  *                      Adusts to RemoteDebugger support connection by web sockets
@@ -79,7 +80,7 @@
 
 ///// Defines
 
-#define VERSION "3.0.1"
+#define VERSION "3.0.2"
 
 ///// Includes
 
