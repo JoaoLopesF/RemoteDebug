@@ -144,6 +144,10 @@
 #define DEBUGGER_ENABLED true
 #ifdef DEBUGGER_ENABLED
 #define DEBUGGER_HANDLE_TIME 850 // Interval to call handle of debugger - equal to implemented in debugger
+
+// App have debugger elements on screen ?
+// Note: app not have it yet
+//#define DEBUGGER_SEND_INFO true
 #endif
 
 //////// Includes
@@ -275,11 +279,6 @@
 #define rprintEln(x, ...)	if (Debug.isActive(Debug.ERROR)) 	Debug.println(x, ##__VA_ARGS__)
 #define rprintAln(x, ...)	if (Debug.isActive(Debug.ANY)) 		Debug.println(x, ##__VA_ARGS__)
 
-// Internal debug macro - recommended stay disable
-
-//#define D(fmt, ...) 										// Without this
-#define D(fmt, ...) Serial.printf(fmt "\n", ##__VA_ARGS__) 	// Serial debug
-
 ///// Class
 
 class RemoteDebug: public Print
@@ -301,7 +300,7 @@ class RemoteDebug: public Print
 
 	void handle();
 
-	void disconnect();
+	void disconnect(boolean onlyTelnetClient = false);
 
 	void setSerialEnabled(boolean enable);
 
@@ -330,10 +329,12 @@ class RemoteDebug: public Print
 
 	boolean isActive(uint8_t debugLevel = DEBUG);
 
-	void silence(boolean activate, boolean showMessage = true);
-	boolean getSilence();
+	void silence(boolean activate, boolean showMessage = true, boolean fromBreak = false, uint32_t timeout = 0);
+	boolean isSilence();
 
 	void onConnection(boolean connected);
+
+	boolean isConnected();
 
 #ifdef DEBUGGER_ENABLED
 	// For Simple software debugger - based on SerialDebug Library
@@ -343,7 +344,10 @@ class RemoteDebug: public Print
 
 #ifndef WEBSOCKET_DISABLED // For web socket server (app)
 	void wsOnReceive(const char* command);
+	void wsSendInfo();
+	void wsSendLevelInfo();
 #endif
+	boolean wsIsConnected();
 
 	// Print
 
@@ -383,6 +387,7 @@ private:
 	uint8_t _passwordAttempt = 0;
 
 	boolean _silence = false;			// Silence mode ?
+	uint32_t _silenceTimeout = 0;		// Silence timeout
 
 	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
 	uint8_t _lastDebugLevel = DEBUG;	// Last Level setted by active()
@@ -442,6 +447,7 @@ private:
 	void processCommand();
 	String formatNumber(uint32_t value, uint8_t size, char insert='0');
 	boolean isCRLF(char character);
+	uint32_t getFreeMemory();
 
 #ifdef ALPHA_VERSION // In test, not good yet
 	void sendTelnetCommand(uint8_t command, uint8_t option);

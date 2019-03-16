@@ -1,4 +1,3 @@
-			boolean ignore = false;
 ////////
 // Library: Remote debug - debug over WiFi - for Esp8266 (NodeMCU) or ESP32
 // Author : Joao Lopes
@@ -101,7 +100,7 @@
 
 #else
 
-#error "Now RemoteDebug support only boards Espressif, as ESP8266 and ESP32"
+#error "For now, RemoteDebug support only boards Espressif, as ESP8266 and ESP32"
 
 #endif // ESP
 
@@ -144,6 +143,23 @@ WebServer HTTPServer(80);
 // Note: uncomment to disable it, good if your code already have func name on debug messages
 
 //#define DEBUG_DISABLE_AUTO_FUNC true
+
+// Disable Websocket? This is used with RemoteDebugApp connection
+// Uncomment this to disable it
+
+//#define WEBSOCKET_DISABLED true
+
+#ifndef WEBSOCKET_DISABLED // Only if Web socket enabled (RemoteDebugApp)
+// If enabled, you can change the port here (8232 is default)
+//#define WEBSOCKET_PORT 8232
+
+// Internally, the RemoteDebug uses a local copy of the arduinoWebSockets library (https://github.com/Links2004/arduinoWebSockets)
+// Due it not in Arduino Library Manager
+// If your project already use this library, please uncomment the line above:
+//#define USE_LIB_WEBSOCKET true
+#endif
+
+// Include libraries
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
 
@@ -325,8 +341,8 @@ void loop() {
 
 			if (Debug.isActive(Debug.VERBOSE)) {
 
-				Debug.println("Calling a foo function");
-				Debug.printf("At time of %d sec.\n", mTimeSeconds);
+				debugV("Calling a foo function");
+				debugV("At time of %d sec.\n", mTimeSeconds);
 
 				// Call a function
 

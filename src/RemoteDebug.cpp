@@ -8,10 +8,13 @@
  *
  * Versions:
  *  ------	----------	-----------------
- *	3.0.0	2018-03-11	If not disabled, add a web socket server to comunicate with RemoteDebugApp (HTML5 web app)
+ *  3.0.1	2019-03-13	Adjustments in silente mode
+ *                      Commands from RemoteDebugApp now is treated
+ *                      Adusts to RemoteDebugger support connection by web sockets
+ *	3.0.0	2019-03-11	If not disabled, add a web socket server to comunicate with RemoteDebugApp (HTML5 web app)
  *	                    The standard telnet still working, to debug with internet offline
  *	                    Ajustment on debugA macro, thanks @jetpax to add this issue
- *  2.1.2	2018-03-08	Add empty rprint* macros, if debug is disabled
+ *  2.1.2	2019-03-08	Add empty rprint* macros, if debug is disabled
  *  2.1.1	2019-03-06	Create option DEBUG_DISABLE_AUTO_FUNC
  *                      Create macros to be used for code converter: rprint and rprintln
  *    					RemoteDebug now have an code converters to help migrate codes
@@ -76,7 +79,7 @@
 
 ///// Defines
 
-#define VERSION "3.0.0"
+#define VERSION "3.0.1"
 
 ///// Includes
 
@@ -132,15 +135,15 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #define debugPrintf(fmt, ...) { \
 	if (_connected) TelnetClient.printf(fmt, ##__VA_ARGS__);\
-	if (_connectedWS) DebugWS.printf(fmt, ##__VA_ARGS__);\
+	else if (_connectedWS) DebugWS.printf(fmt, ##__VA_ARGS__);\
 }
 #define debugPrintln(str) { \
 	if (_connected) TelnetClient.println(str);\
-	if (_connectedWS) DebugWS.println(str);\
+	else if (_connectedWS) DebugWS.println(str);\
 }
 #define debugPrint(str) { \
 	if (_connected) TelnetClient.print(str);\
-	if (_connectedWS) DebugWS.print(str);\
+	else if (_connectedWS) DebugWS.print(str);\
 }
 
 #else // With web socket too
@@ -159,6 +162,11 @@ bool system_update_cpu_freq(uint8_t freq);
 }
 
 #endif
+
+// Internal debug macro - recommended stay disable
+
+#define D(fmt, ...) 													// Without this
+//#define D(fmt, ...) Serial.printf("rd: " fmt "\n", ##__VA_ARGS__) 	// Serial debug
 
 ////// Variables
 
@@ -191,6 +199,13 @@ class MyRemoteDebugCallbacks: public RemoteDebugWSCallbacks {
 
 		_connectedWS = true;
 
+		// Is telnet connected -> disconnect it, due reduce overheads
+
+		if (_instance->isConnected()) {
+
+			_instance->disconnect(true);
+		}
+
 		// Call same routine that telnet
 
 		_instance->onConnection(true);
@@ -207,7 +222,6 @@ class MyRemoteDebugCallbacks: public RemoteDebugWSCallbacks {
 
 		D("rd: onreceive");
 
-		// TODO: logic to nl
 		_instance->wsOnReceive(message);
 	}
 };
@@ -350,6 +364,15 @@ void RemoteDebug::handle() {
 	static uint32_t dbgTimeHandle = millis(); // To avoid call the handler desnecessary
 	static boolean dbgLastConnected = false; // Last is connected ?
 #endif
+
+	// Silence timeout ?
+
+	if (_silence && _silenceTimeout > 0 && millis() >= _silenceTimeout) {
+
+		// Get out of silence mode
+
+		silence(false, true);
+	}
 
 	// Debug level is profiler -> set the level before
 
@@ -608,20 +631,21 @@ void RemoteDebug::handle() {
 
 // Disconnect client
 
-void RemoteDebug::disconnect() {
+void RemoteDebug::disconnect(boolean onlyTelnetClient) {
 
 	// Disconnect
 
 	debugPrintln("* Closing client connection ...");
 
 	_silence = false;
+	_silenceTimeout = 0;
 
 	if (_connected) { // By telnet
 		TelnetClient.stop();
 		_connected = false;
 	}
 #ifndef WEBSOCKET_DISABLED // For web socket server (app)
-	if (_connectedWS) { // By web socket
+	if (_connectedWS && !onlyTelnetClient) {
 		DebugWS.disconnect(); // Disconnect client
 		_connectedWS = false;
 	}
@@ -646,6 +670,7 @@ void RemoteDebug::onConnection(boolean connected) {
 	_lastTimePrint = millis();	// Clear the time
 
 	_silence = false;			// No silence
+	_silenceTimeout = 0;
 
 #ifdef CLIENT_BUFFERING
 	// Client buffering - send data in intervals to avoid delays or if its is too big
@@ -686,6 +711,17 @@ void RemoteDebug::onConnection(boolean connected) {
 		showHelp();
 #endif
 	}
+}
+
+boolean RemoteDebug::isConnected() {
+
+	// Is connected
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	return (_connected || _connectedWS);
+#else
+	return _connected;
+#endif
 }
 
 // Send to serial too (use only if need)
@@ -761,11 +797,13 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 #ifndef WEBSOCKET_DISABLED // For web socket server (app)
 
 	boolean ret = (debugLevel >= _clientDebugLevel &&
+					!_silence &&
 					(_connected || _connectedWS || _serialEnabled));
 
 #else // Telnet only
 
 	boolean ret = (debugLevel >= _clientDebugLevel &&
+					!_silence &&
 					(_connected || _serialEnabled));
 
 #endif
@@ -823,11 +861,19 @@ size_t RemoteDebug::write(uint8_t character) {
 	String colorLevel = "";
 #endif
 
+	// Connected ?
+
 #ifndef WEBSOCKET_DISABLED // For web socket server (app)
 	boolean connected = (_connected || _connectedWS);
 #else
 	boolean connected = _connected;
 #endif
+
+	// In silente mode now ?
+
+	if (_silence) {
+		return 0;
+	}
 
 	// New line writted before ?
 
@@ -1307,7 +1353,19 @@ void RemoteDebug::showHelp() {
 	if (_callbackDbgHelp) {
 		help.concat("\r\n");
 		help.concat(_callbackDbgHelp());
-		help.concat("\r\n");
+	}
+#endif
+	help.concat("\r\n");
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	if (!_connectedWS) {  // For telnet only
+		help.concat("****\r\n");
+		help.concat("* New features available:\r\n");
+		help.concat("* - Now you can debug in web browser too.\r\n");
+		help.concat("*   Please access: http://joaolopesf.net/remotedebugapp\r\n");
+		help.concat("* - Now you can add an simple software debuggger.\r\n");
+		help.concat("*   Please access: https://github.com/JoaoLopesF/RemoteDebugger\r\n");
+		help.concat("****\r\n");
 	}
 #endif
 
@@ -1349,6 +1407,8 @@ void RemoteDebug::processCommand() {
 		return;
 	}
 	lastTime = millis();
+
+	D("cmd: %s" , _command.c_str());
 
 	// Password request ? - 18/07/18
 
@@ -1408,6 +1468,13 @@ void RemoteDebug::processCommand() {
 
 	_lastTimeCommand = millis();
 
+	// Get out of silent mode
+
+	if (_command != "s" && _silence) {
+
+		silence(false, true);
+	}
+
 	// Process the command
 
 	if (_command == "h" || _command == "?") {
@@ -1426,8 +1493,20 @@ void RemoteDebug::processCommand() {
 
 	} else if (_command == "m") {
 
+		uint32_t free = ESP.getFreeHeap();
+
 		debugPrint("* Free Heap RAM: ");
-		debugPrintln(ESP.getFreeHeap());
+		debugPrintln(free);
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+
+	// Send status to app
+
+	if (_connectedWS) {
+		DebugWS.printf("$app:M:%lu:\n", free);
+	}
+
+#endif
 
 #if defined(ESP8266)
 
@@ -1455,6 +1534,10 @@ void RemoteDebug::processCommand() {
 
 		debugPrintln("* Debug level set to Verbose");
 
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+		wsSendLevelInfo();
+#endif
+
 	} else if (_command == "d") {
 
 		// Debug level
@@ -1462,6 +1545,10 @@ void RemoteDebug::processCommand() {
 		_clientDebugLevel = DEBUG;
 
 		debugPrintln("* Debug level set to Debug");
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+		wsSendLevelInfo();
+#endif
 
 	} else if (_command == "i") {
 
@@ -1471,6 +1558,10 @@ void RemoteDebug::processCommand() {
 
 		debugPrintln("* Debug level set to Info");
 
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+		wsSendLevelInfo();
+#endif
+
 	} else if (_command == "w") {
 
 		// Debug level
@@ -1479,6 +1570,10 @@ void RemoteDebug::processCommand() {
 
 		debugPrintln("* Debug level set to Warning");
 
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+		wsSendLevelInfo();
+#endif
+
 	} else if (_command == "e") {
 
 		// Debug level
@@ -1486,6 +1581,10 @@ void RemoteDebug::processCommand() {
 		_clientDebugLevel = ERROR;
 
 		debugPrintln("* Debug level set to Error");
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+		wsSendLevelInfo();
+#endif
 
 	} else if (_command == "l") {
 
@@ -1617,6 +1716,18 @@ void RemoteDebug::processCommand() {
 
 		ESP.restart();
 
+#ifdef DEBUGGER_ENABLED
+
+	} else if (!_callbackDbgProcessCmd && _command.startsWith("dbg")) {
+
+		// Show a message of debugger not is active
+
+		debugPrintln("* RemoteDebugger not activate for this project");
+		debugPrintln("* Please access it to see how activate this:");
+		debugPrintln("* https://github.com/JoaoLopesF/RemoteDebugger");
+
+#endif
+
 	} else {
 
 		// Callbacks
@@ -1663,25 +1774,48 @@ void RemoteDebug::setNoFilter() {
 
 // Silence
 
-void RemoteDebug::silence(boolean activate, boolean showMessage) {
+void RemoteDebug::silence(boolean activate, boolean showMessage, boolean fromBreak, uint32_t timeout) {
 
-	_silence = activate;
+	// Set silence and timeout
 
 	if (showMessage) {
 
-		if (_silence) {
+		if (activate) {
 
 			debugPrintln("* Debug now is in silent mode!");
-			debugPrintln("* Press s again to return show debugs");
-
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+			if (_connectedWS) {
+				debugPrintln("* Press button \"Silence\" or another command to return show debugs");
+			} else {
+				debugPrintln("* Press s again or another command to return show debugs");
+			}
+#else
+			debugPrintln("* Press s again or another command to return show debugs");
+#endif
 		} else {
 
 			debugPrintln("* Debug now exit from silent mode!");
 		}
 	}
+
+	// Set it
+
+	_silence = activate;
+	_silenceTimeout = (timeout == 0)?0:(millis() + timeout);
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+
+	// Send status to app
+
+	if (_connectedWS) {
+		DebugWS.printf("$app:S:%c\n", ((_silence)? '1':'0'));
+	}
+
+#endif
+
 }
 
-boolean RemoteDebug::getSilence() {
+boolean RemoteDebug::isSilence() {
 
 	return _silence;
 }
@@ -1720,24 +1854,109 @@ void RemoteDebug::wsOnReceive(const char* command) { // @suppress("Unused functi
 	// Process the command
 
 	_command = command;
+	_lastCommand = _command; // Store the last command
+
+	D("cmd: %s", command);
 
 	// Is app commands
 
-	if (_command.startsWith("$app")) {
+	if (_command == "$app") {
 
-		// Process app messages
+		// RemoteDebug connected, send info
 
-		_command = ""; // Clear it
+		wsSendInfo ();
 
 	} else { // Normal commands
 
 		processCommand();
 	}
 }
+
+// Send info to RemoteDebugApp
+
+void RemoteDebug::wsSendInfo() {
+
+	// Send version, board, debugger disabled and  if is low or enough memory board
+
+	char features;
+	char dbgEnabled;
+
+	// Not connected ?
+
+	if (!_connectedWS) {
+		return;
+	}
+
+	// Features
+
+#ifndef DEBUGGER_ENABLED
+		features = 'M'; // Disabled
+		dbgEnabled = 'D';
+#else
+		if (_callbackDbgProcessCmd) {
+			features = 'E'; // Enough
+			dbgEnabled = 'E';
+		} else {
+			features = 'M'; // Medium
+			dbgEnabled = 'D';
+		}
+#endif
+
+		// Send info
+
+		String version = String(VERSION);
+		String board;
+
+#ifdef ESP32
+		board = "ESP32";
+#else
+		board = "ESP8266";
+#endif
+
+		DebugWS.println(); // Workaround to not get dirty "[0m" ???
+		DebugWS.printf("$app:V:%s:%s:%c:%lu:%c:N\n", version.c_str(), board.c_str(), features, getFreeMemory(), dbgEnabled);
+
+		// Status of debug level
+
+		wsSendLevelInfo();
+
+		// Send status of debugger
+
+		// TODO: made it
+
+}
+
+void RemoteDebug::wsSendLevelInfo() {
+
+	// Send debug level info to app
+
+	if (_connectedWS) {
+		DebugWS.printf("$app:L:%u\n", _clientDebugLevel);
+	}
+}
+
 #endif // WEBSOCKET_DISABLED
+
+boolean RemoteDebug::wsIsConnected() {
+
+	// Web socket is connected (RemoteDebugApp)
+
+#ifndef WEBSOCKET_DISABLED // For web socket server (app)
+	return _connectedWS;
+#else
+	return false;
+#endif
+}
 
 /////// Utilities
 
+// Get free memory
+
+uint32_t RemoteDebug::getFreeMemory() {
+
+	return ESP.getFreeHeap();
+
+}
 
 // Is CR or LF ?
 

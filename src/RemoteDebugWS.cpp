@@ -38,6 +38,13 @@
 
 #include "RemoteDebug.h"
 
+/////// Defines
+
+// Internal debug macro - recommended stay disable
+
+#define D(fmt, ...) 													// Without this
+//#define D(fmt, ...) Serial.printf("rdws: " fmt "\n", ##__VA_ARGS__) 	// Serial debug
+
 /////// Variables
 
 // Arduino websocket server (to comunicate with RemoteDebugApp)
@@ -231,13 +238,22 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t payloa
 					payload);
 #endif
 
+			// Have in another connection
+			// One connection to reduce overheads
+
+			if (num != _webSocketConnected) {
+
+				WebSocketServer.disconnect(_webSocketConnected);
+
+			}
+
 			// Set as connected
 
 			_webSocketConnected = num;
 
-			// Send initial message (need this, else not is sended)
+			// Send initial message
 
-			WebSocketServer.sendTXT(_webSocketConnected, "$app:websocket started\n");
+			WebSocketServer.sendTXT(_webSocketConnected, "$app:I");
 
 			// Callback
 
@@ -250,9 +266,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t payloa
 		case WStype_TEXT:                     // if new text data is received
 		{
 
-			if (payloadlength == 0) {
-				return;
-			}
+//			if (payloadlength == 0) {
+//				return;
+//			}
 
 			D("[%u] get Text: %s", num, payload);
 
