@@ -270,6 +270,7 @@ But after page load, all traffic is in local network, no data is exposed on inte
 
 The RemoteDebugApp is a modern HTML5 and needs a modern browsers to work.
 Internet Explorer 11 and Safari 10 are an examples that not supported.
+But you can use anothers, as Chrome, Edge, Firefox.
 
 The web app is in beta, please add an issue,
 for problems or suggestions.
