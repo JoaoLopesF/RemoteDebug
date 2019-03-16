@@ -251,8 +251,8 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
 
 ## Web app
 
-As SerialDebug, now RemoteDebug (v3) have this app,
-the RemoteDebugApp to debug in web browser.
+As SerialDebug, now RemoteDebug (v3) have an app,the RemoteDebugApp,
+to debug in web browser.
 
 This app is an HTM5 web app, with websocket to comunicate to Arduino boar.
 For it, RemoteDebug v3 have a web socket server (can be disabled).
@@ -263,14 +263,16 @@ As a large page, the solution for Arduino is save it in a storage,
 like SPIFFS. But not have automatically updates in data saved this way,
 this SPIFFS data is good for a project but not for a library.
 
-Due it, this app not is storaded and served by board,
-the app is in web: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp)
-
+Due it, this app not is stored and served by board,
+instead the app is in web: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp)
 Note: this not uses SSL (https), due web server socket on Arduino, not supports SSL (wss).
 But after page load, all traffic is in local network, no data is exposed on internet.
 
 The RemoteDebugApp is a modern HTML5 and needs a modern browsers to work.
 Internet Explorer 11 and Safari 10 are an examples that not supported.
+
+The web app is in beta, please add an issue,
+for problems or suggestions.
 
 The telnet remains work, for when want this or
 to use when internet is offline.
