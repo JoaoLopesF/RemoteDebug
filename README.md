@@ -8,11 +8,13 @@ Library for Arduino to debug devices over WiFi, with Print commands like Serial 
 [![GitHub release](https://img.shields.io/github/release/JoaoLopesF/RemoteDebug.svg)](#releases)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
 [![platform badge](https://img.shields.io/badge/platform-Arduino|Espressif-orange.svg)](https://github.com/arduino)
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt)  
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#github)
 [![GitHub issues](https://img.shields.io/github/issues/JoaoLopesF/RemoteDebug.svg)](http://github.com/JoaoLopesF/RemoteDebug/issues)
 [![star this repo](http://githubbadges.com/star.svg?user=JoaoLopesF&repo=RemoteDebug)](http://github.com/JoaoLopesF/RemoteDebug)
 <!-- ![build badge](https://img.shields.io/github/stars/JoaoLopesF/RemoteDebug.svg?style=social) -->
+
+![remotedebugapp](extras/readme_media/remotedebugapp.png)
 
 ## A library to remotely debug over a WiFi connection
 
@@ -25,7 +27,8 @@ Library for Arduino to debug devices over WiFi, with Print commands like Serial 
 - [Github](#github)
 - [News](#news)
 - [Benefits](#benefits)
-- [Standard telnet](#telnet)
+- [HTML5 web app](#web-app)
+- [Telnet client](#telnet)
 - [Wishlist](#wishlist)
 - [Install](#install)
 - [Using](#usage)
@@ -89,13 +92,16 @@ Please add an issue for problems or suggestion.
 
 ## News
 
-- RemoteDebugApp
+- RemoteDebugApp Beta
 
   - An HTML5 web app to use for debugging in web browser, instead telnet client,
-    in development now, soon it will release.
+    that uses web socket to comunicate.
 
-  - Now in version 3.0.0, RemoteDebug have a web socket server too,
-    to support the RemoteDebugApp 
+  - Now RemoteDebug v3 have a web socket server too,
+    to support the RemoteDebugApp connection.
+
+  - RemoteDebugApp is in beta,
+    if you have any problems or suggestions, please add issue about this.
 
   - The telnet connection remains, to any want this,
     or to internet offline uses.
@@ -137,7 +143,7 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
   with someone connected in the serial or not.  
   
   With __RemoteDebug__, all debug output is processed only
-  if exists anyone debugging via telnet connection.
+  if exists anyone debugging via telnet or web app connection.
 
   And with the debug levels of resource, the volume displayed
   of messages are reduced for higher levels.
@@ -210,7 +216,7 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
 
   For ESP32, the core id in each debug is very good to optimizer multicore programming.
 
-### Have __commands__ to execute from telnet connection
+### Have __commands__ to execute from telnet or web app
 
   For example:
 
@@ -243,9 +249,36 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
     And better for DEBUG_DISABLED, __RemoteDebug__ have ZERO overhead,
     due is nothing of this is compiled.
 
+## Web app
+
+As SerialDebug, now RemoteDebug (v3) have this app,
+the RemoteDebugApp to debug in web browser.
+
+This app is an HTM5 web app, with websocket to comunicate to Arduino boar.
+For it, RemoteDebug v3 have a web socket server (can be disabled).
+It used a local copy of [arduinoWebSockets](https://github.com/Links2004/arduinoWebSockets) library,
+due it not in Arduino Library manager.
+
+As a large page, the solution for Arduino is save it in a storage,
+like SPIFFS. But not have automatically updates in data saved this way,
+this SPIFFS data is good for a project but not for a library.
+
+Due it, this app not is storaded and served by board,
+the app is in web: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp)
+
+Note: this not uses SSL (https), due web server socket on Arduino, not supports SSL (wss).
+But after page load, all traffic is in local network, no data is exposed on internet.
+
+The RemoteDebugApp is a modern HTML5 and needs a modern browsers to work.
+Internet Explorer 11 and Safari 10 are an examples that not supported.
+
+The telnet remains work, for when want this or
+to use when internet is offline.
+
 ## Telnet
 
-Telnet is a standard way of remotely connecting to a server and is supported on all operating systems (Windows, Mac, Linux...).
+Telnet is a standard way of remotely connecting to a server and
+is supported on all operating systems (Windows, Mac, Linux...).
 
 MacOSx and Linux have a native telnet client.
 
@@ -278,11 +311,12 @@ Or for always show (not depends of actual debug level):
 
 Note: All debugs is processed and showed only if have a client connection.
 
-The telnet client can set the debug level by typing a few simple commands.
+The telnet client or web app can set the debug level by typing a few simple commands.
 
 ### Profiler
 
-__RemoteDebug__ includes a simple profiler. It can be enabled by the connected telnet client or the Arduino code itself.
+__RemoteDebug__ includes a simple profiler. It can be enabled by the connected client (telnet or web app)
+or the Arduino code itself.
 
 When enabled, it shows the time between 2 debug statements, using different colors depending on the elapsed time.
 
@@ -291,11 +325,12 @@ A typical example would be to insert logging just before and after a function af
 ### Lightweight
 
 __RemoteDebug__ is designed to give minimal overhead (connected or not) and
-only process debugs,if there is a telnet client connected.
+only process debugs,if there is a client (telnet or web app) connected.
 
 ### Custom commands
 
-__RemoteDebug__ supports custom commands that can be entered in the telnet client. These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the telnet client.
+__RemoteDebug__ supports custom commands that can be entered in the client (telnet or web app).
+ These trigger the execution of a custom function in the Arduino code. For example this can be used to send back a status on request of the client.
 
 ### DISCLAIMER
 
@@ -307,7 +342,7 @@ Future versions, if is possible, will include a secure way for authentication an
 ## Wishlist
 
     - An app to RemoteDebug like SerialDebug have.
-    - Http page to begin/stop the telnet server
+    - Http page to begin/stop the telnet server or websocket server.
     - Authentication as telnet support (kerberos, etc.) to support production environment
 
 ## Install
@@ -342,7 +377,7 @@ RemoteDebug Debug;
 In the setup function after WiFi initialization
 
 ```cpp
-// Initialize the telnet server of RemoteDebug
+// Initialize the server (telnet or web socket) of RemoteDebug
 
 Debug.begin(HOST_NAME);
 
@@ -364,7 +399,7 @@ __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
 In the tail of loop function
 
 ```cpp
-// Remote debug over telnet
+// Remote debug over WiFi
 
 Debug.handle();
 
@@ -459,7 +494,7 @@ void foo() {
 
 ```
 
-    It will show in telnet client:
+    It will show in client (telnet or web app):
 
         (V p:^0000ms) (foo)(C1) this is a debug - var 1
 
@@ -473,7 +508,7 @@ void foo() {
 An example of use debug with serial enabled
 
     Useful to see messages if setup or
-    in cause the ESP8266/ESP32 is rebooting (telnet connection stop before received all messages)
+    in cause the ESP8266/ESP32 is rebooting (client connection stop before received all messages)
     Only for this purposes I suggest it
 
 ```cpp
@@ -482,7 +517,7 @@ An example of use debug with serial enabled
 Debug.setSerialEnabled(true); // All messages too send to serial too, and can be see in serial monitor
 ```
 
-For reduce overheads RemoteDebug is disconnect the telnet client if it not active.
+For reduce overheads RemoteDebug is disconnect the client (telnet or web app), if it not active.
 
     - Please press enter or any key if you need keep the connection
     - The default is 5 minutes (You can change it in RemoteDebug.h)  
@@ -638,11 +673,14 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
     First thanks a lot for Igrr for bring to us the Arduino ESP8266 and to Espressif to Arduino ESP32
 
+    Thanks to Links2004 for a good web server socket, used for web app connection.
+
     For the logo: thanks to a freepik and pngtree sites for free icons that have in logo
 
     Resources:
 
       - Example of TelnetServer code in http://www.rudiswiki.de/wiki9/WiFiTelnetServer
+      - arduinoWebSockets library in https://github.com/Links2004/arduinoWebSockets
 
 ## End of README
 
