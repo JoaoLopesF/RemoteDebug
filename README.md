@@ -16,7 +16,7 @@ Library for Arduino to debug devices over WiFi, with Print commands like Serial 
 
 ![remotedebugapp](extras/readme_media/remotedebugapp.png)
 
-## A library to remotely debug over a WiFi connection
+## A library to remotely debug over a WiFi connection by telnet or web browser
 
 ### RemoteDebug setup a TCP/IP server, that you connect to debugging, as an alternative to the serial connection
 
