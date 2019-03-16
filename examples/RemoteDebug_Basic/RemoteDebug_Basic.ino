@@ -1,5 +1,5 @@
 ////////
-// Library: Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
+// Library: Remote debug - debug over WiFi - for Esp8266 (NodeMCU) or ESP32
 // Author : Joao Lopes
 // File   : RemoteDebug_Basic.ino
 // Notes  :
@@ -89,7 +89,7 @@
 
 #endif // ESP
 
-// Remote debug over telnet - not recommended for production, only for development
+// Remote debug over WiFi - not recommended for production, only for development
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
 
@@ -160,14 +160,13 @@ void setup() {
 
 #endif
 
-    // Initialize the telnet server of RemoteDebug
+	// Initialize RemoteDebug
 
-    Debug.begin(HOST_NAME); // Initiaze the telnet server
+	Debug.begin(HOST_NAME); // Initialize the WiFi server
 
     Debug.setResetCmdEnabled(true); // Enable the reset command
 
 	Debug.showProfiler(true); // Profiler (Good to measure times, to optimize codes)
-
 	Debug.showColors(true); // Colors
 
     // End off setup
@@ -178,10 +177,11 @@ void setup() {
     Serial.println(WiFi.localIP());
     Serial.println("*");
     Serial.println("* Please use the telnet client (telnet for Mac/Unix or putty and others for Windows)");
-    Serial.println("*");
+	Serial.println("* or the RemoteDebugApp (in browser: http://joaolopesf.net/remotedebugapp)");
+   Serial.println("*");
     Serial.println("* This sample will send messages of debug in all levels.");
     Serial.println("*");
-    Serial.println("* Please try change debug level in telnet, to see how it works");
+	Serial.println("* Please try change debug level in client (telnet or web app), to see how it works");
     Serial.println("*");
 
 }
@@ -222,7 +222,7 @@ void loop()
         }
      }
 
-    // Remote debug over telnet
+    // RemoteDebug handle
 
     Debug.handle();
 

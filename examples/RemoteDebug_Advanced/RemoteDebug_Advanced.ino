@@ -233,7 +233,7 @@ void setup() {
 #endif
 
 #ifndef DEBUG_DISABLED
-	MDNS.addService("telnet", "tcp", 23); // WiFi server of RemoteDebug, register as telnet
+	MDNS.addService("telnet", "tcp", 23); // Telnet server of RemoteDebug, register as telnet
 #endif
 
 #endif // MDNS
@@ -252,11 +252,11 @@ void setup() {
 
 #ifndef DEBUG_DISABLED // Only for development
 
-	// Initialize the WiFi server of RemoteDebug
+	// Initialize RemoteDebug
 
-	Debug.begin(HOST_NAME); // Initiaze the WiFi server
+	Debug.begin(HOST_NAME); // Initialize the WiFi server
 
-	//Debug.setPassword("r3m0t0."); // Password of WiFi (as telnet) connection ?
+	//Debug.setPassword("r3m0t0."); // Password for WiFi client connection (telnet or webapp)  ?
 
 	Debug.setResetCmdEnabled(true); // Enable the reset command
 
@@ -281,13 +281,12 @@ void setup() {
 	Serial.print("* WiFI connected. IP address: ");
 	Serial.println(WiFi.localIP());
 	Serial.println("*");
-	Serial.println(
-			"* Please use the telnet client (telnet for Mac/Unix or putty and others for Windows)");
+	Serial.println("* Please use the telnet client (telnet for Mac/Unix or putty and others for Windows)");
+	Serial.println("* or the RemoteDebugApp (in browser: http://joaolopesf.net/remotedebugapp)");
 	Serial.println("*");
 	Serial.println("* This sample will send messages of debug in all levels.");
 	Serial.println("*");
-	Serial.println(
-			"* Please try change debug level in telnet, to see how it works");
+	Serial.println("* Please try change debug level in client (telnet or web app), to see how it works");
 	Serial.println("*");
 
 #endif
