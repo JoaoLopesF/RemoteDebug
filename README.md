@@ -260,7 +260,7 @@ It used a local copy of [arduinoWebSockets](https://github.com/Links2004/arduino
 due it not in Arduino Library manager.
 
 As a large web page on web server, the solution for Arduino is save it in a storage,
-like SPIFFS. But not have automatically updates in data saved this way,
+like SPIFFS. But not have automatically updates new version in data saved this way,
 this SPIFFS data is good for a project but not for a library.
 
 Due it, this app not is stored and served by board,
