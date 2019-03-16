@@ -254,7 +254,7 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
 As SerialDebug, now RemoteDebug (v3) have an app,the RemoteDebugApp,
 to debug in web browser.
 
-This app is an HTM5 web app, with websocket to comunicate to Arduino board.
+This app is an HTM5 web app, with websocket to comunicate to Arduino board.  
 For it, RemoteDebug v3 have a web socket server (can be disabled).
 It used a local copy of [arduinoWebSockets](https://github.com/Links2004/arduinoWebSockets) library,
 due it not in Arduino Library manager.
