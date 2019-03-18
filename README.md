@@ -536,6 +536,20 @@ In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see 
 
 ## Releases
 
+### 3.0.3 - 2019-03-18
+
+    - Adjustments if web socket is disabled
+
+### 3.0.2 - 2019-03-16
+
+    - Adjustments in examples, added one for debugger
+
+### 3.0.1 - 2019-03-13
+
+    - Adjustments in silente mode
+    - Commands from RemoteDebugApp now is treated
+    - Adjusts to RemoteDebugger support connection by web sockets
+
 ### 3.0.0 - 2019-03-10
 
     - If not disabled, add a web socket server to comunicate with RemoteDebugApp (HTML5 web app)

@@ -38,7 +38,7 @@
 #endif
 
 ///// Websocket server to support debug over web browser (RemoteDebugApp)
-// Uncomment this to enable
+// Uncomment this to disable it
 
 //#define WEBSOCKET_DISABLED true
 

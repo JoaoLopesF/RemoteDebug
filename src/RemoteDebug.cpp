@@ -8,10 +8,11 @@
  *
  * Versions:
  *  ------	----------	-----------------
+ *  3.0.3	2019-03-18	Adjustments if web socket is disabled
  *  3.0.2	2019-03-16	Adjustments in examples, added one for debugger
  *  3.0.1	2019-03-13	Adjustments in silente mode
  *                      Commands from RemoteDebugApp now is treated
- *                      Adusts to RemoteDebugger support connection by web sockets
+ *                      Adjusts to RemoteDebugger support connection by web sockets
  *	3.0.0	2019-03-11	If not disabled, add a web socket server to comunicate with RemoteDebugApp (HTML5 web app)
  *	                    The standard telnet still working, to debug with internet offline
  *	                    Ajustment on debugA macro, thanks @jetpax to add this issue
@@ -80,7 +81,7 @@
 
 ///// Defines
 
-#define VERSION "3.0.2"
+#define VERSION "3.0.3"
 
 ///// Includes
 
@@ -149,17 +150,14 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #else // With web socket too
 
-#define debugPrintf(fmt ...) { \
-	// Send to telnet\
-	if (_connected) debugPrintf(fmt, ##__VA_ARGS__);\
+#define debugPrintf(fmt, ...) { \
+	if (_connected) TelnetClient.printf(fmt, ##__VA_ARGS__);\
 }
 #define debugPrintln(str) { \
-	// Send to telnet\
-	if (_connected) debugPrintln(str);\
+	if (_connected) TelnetClient.println(str);\
 }
 #define debugPrint(str) { \
-	// Send to telnet\
-	if (_connected) debugPrint(str);\
+	if (_connected) TelnetClient.print(str);\
 }
 
 #endif
