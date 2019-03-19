@@ -72,11 +72,11 @@ and we will see if it is possible made the port for your board.
 
 ## How it looks
 
-Image: RemoteDebugApp (web app)
+Image: In RemoteDebugApp (web app)
 
-![webapp](extras/readme_media/webapp_screenshot.png)
+![webapp](extras/readme_media/remotedebug_webapp.png)
 
-Image: telnet client
+Image: In telnet client
 
 ![remotedebug_v2](extras/readme_media/remotedebug_v2.png)
 
