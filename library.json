@@ -1,13 +1,13 @@
 {
   "name": "RemoteDebug",
   "keywords": "Debug, Remote, Telnet, WiFi",
-  "description": "Remote debug over WiFi for Arduino ESP8266 and ESP32",
+  "description": "A library for Arduino to debug projects over WiFi, with web app or telnet client, with Print commands like Serial Monitor.",
   "repository":
   {
     "type": "git",
     "url": "https://github.com/JoaoLopesF/RemoteDebug.git"
   },
-  "version": "3.0.3",
+  "version": "3.0.4",
   "frameworks": "arduino",
   "platforms": "*"
 }

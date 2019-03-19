@@ -4,21 +4,37 @@
  * *****************
  * Library : Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
  * Author  : Joao Lopes
- * File    : RemoteDebugWS - web socketc server to RemoteDebugAapp
- * Comments: r
- * License : See RemoteDebug.h
+ * File    : RemoteDebugWS - web socket server to RemoteDebugAapp
+ * Comments: Web socket server uses the arduinWebSockets library (https://github.com/Links2004/arduinoWebSockets)
+ *           The author uses Eclise IDE (sloeber) to made this source
+ * License : See RemoteDebugWS.h
+ *
+ * Versions:
+ *  ------	----------	-----------------
+ *  0.2.0	2019-03-19  All public configurations (#defines) have moved to RemoteDebugCfg.h, to facilitate changes for anybody.
+ *  					Several adjustments.
+ *  0.1.0	2019-03-11	Fist version
  *
  */
 
 /* TODO:
- * - one client allow
  */
+
+///// RemoteDebug configuration
+
+#include "RemoteDebugCfg.h"
+
+// Debug enabled ?
+
+#ifndef DEBUG_DISABLED
 
 /////// Includes
 
 #include "RemoteDebugWS.h"
 
-#ifndef WEBSOCKET_DISABLED // Only if web socket (RemoteDebugApp) is enabled
+// Only if web socket (RemoteDebugApp) is enabled
+
+#ifndef WEBSOCKET_DISABLED
 
 #include "Arduino.h"
 
@@ -39,6 +55,10 @@
 #include "RemoteDebug.h"
 
 /////// Defines
+
+// Version
+
+#define REMOTEDEBUGWS_VERSION "0.1.1"
 
 // Internal debug macro - recommended stay disable
 
@@ -243,6 +263,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t payloa
 
 			if (num != _webSocketConnected) {
 
+				WebSocketServer.sendTXT(_webSocketConnected, "* Closing client connection ...");
 				WebSocketServer.disconnect(_webSocketConnected);
 
 			}
@@ -310,6 +331,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t payloa
 }
 
 #endif // WEBSOCKET_DISABLED
+
+#endif // DEBUG_DISABLED
 
 /// End
 

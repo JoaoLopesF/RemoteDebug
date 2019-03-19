@@ -1,6 +1,7 @@
-# RemoteDebug Library for ESP8266 and ESP32
+# RemoteDebug Library
 
-Library for Arduino to debug devices over WiFi, with Print commands like Serial haves
+A library for Arduino to debug projects over WiFi, with web app or telnet client,
+with Print commands like Serial Monitor.
 
 ![logo](extras/readme_media/logo.png)
 
@@ -70,6 +71,12 @@ If need for another WiFi boards, please add an issue about this
 and we will see if it is possible made the port for your board.
 
 ## How it looks
+
+Image: RemoteDebugApp (web app)
+
+![webapp](extras/readme_media/webapp_screenshot.png)
+
+Image: telnet client
 
 ![remotedebug_v2](extras/readme_media/remotedebug_v2.png)
 
@@ -535,6 +542,12 @@ Please see the samples, basic or advanced, to learn how to use
 In advanced sample, I used WifiManager library, ArduinoOTA and mDNS, please see it.
 
 ## Releases
+
+### 3.0.4 - 2019-03-19
+
+    - All public configurations (#defines) have moved to RemoteDebugCfg.h, to facilitate changes for anybody.
+    - Changed examples, with warnings on change any #define in project,
+      with workarounds if it not work. (thanks to @22MarioZ for added this issue)
 
 ### 3.0.3 - 2019-03-18
 

@@ -3,11 +3,16 @@
  * *****************
  * Library : Remote debug - debug over telnet - for Esp8266 (NodeMCU) or ESP32
  * Author  : Joao Lopes
- * Comments: Based on example of TelnetServer code in http: *www.rudiswiki.de/wiki9/WiFiTelnetServer
+ * Comments: Telnet server based on example of TelnetServer code in http: *www.rudiswiki.de/wiki9/WiFiTelnetServer
+ *           Web socket server uses the arduinWebSockets library (https://github.com/Links2004/arduinoWebSockets)
+ *           The author uses Eclise IDE (sloeber) to made this source
  * License : See RemoteDebug.h
  *
  * Versions:
  *  ------	----------	-----------------
+ *  3.0.4	2019-03-19  All public configurations (#defines) have moved to RemoteDebugCfg.h, to facilitate changes for anybody.
+ * 						Changed examples with warnings on change any #define in project,
+ *					    with workarounds, if it not work. (thanks to @22MarioZ for added this issue)
  *  3.0.3	2019-03-18	Adjustments if web socket is disabled
  *  3.0.2	2019-03-16	Adjustments in examples, added one for debugger
  *  3.0.1	2019-03-13	Adjustments in silente mode
@@ -73,15 +78,18 @@
  *          - Add support to another Arduino WiFi boards (if have demand on it)
  */
 
-///// Debug disable for compile to production/release
+///// RemoteDebug configuration
+
+#include "RemoteDebugCfg.h"
+
+///// Debug disable for compile to production/release ?
 ///// as nothing of RemotedDebug is compiled, zero overhead :-)
-//#define DEBUG_DISABLED true // Uncomment if the IDE did not recognize, to force it
 
 #ifndef DEBUG_DISABLED
 
 ///// Defines
 
-#define VERSION "3.0.3"
+#define VERSION "3.0.4"
 
 ///// Includes
 
@@ -634,7 +642,13 @@ void RemoteDebug::disconnect(boolean onlyTelnetClient) {
 
 	// Disconnect
 
-	debugPrintln("* Closing client connection ...");
+	if (onlyTelnetClient) {
+		if (_connected) {
+			TelnetClient.println("* Closing client connection ..."); // this is to web app new conn not receive it
+		}
+	} else {
+		debugPrintln("* Closing client connection ...");
+	}
 
 	_silence = false;
 	_silenceTimeout = 0;

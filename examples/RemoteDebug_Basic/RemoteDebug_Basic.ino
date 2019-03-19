@@ -100,7 +100,6 @@ RemoteDebug Debug;
 const char* ssid = "........";
 const char* password = "........";
 
-
 // Time
 
 uint32_t mLastTime = 0;

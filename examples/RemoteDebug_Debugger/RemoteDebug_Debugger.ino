@@ -1,12 +1,14 @@
 ////////
 // Library: Remote debug - debug over WiFi - for Esp8266 (NodeMCU) or ESP32
 // Author : Joao Lopes
-// File   : RemoteDebug_Advanced.ino
+// File   : RemoteDebugger.ino
 // Notes  :
 //
 // Attention: This library is only for help development. Please not use this in production
 //
-// Sample to show how to use advanced features of Arduino and RemoteDebug library
+// This example use the RemoteDebugger library: ao addon to Remotedebug with an simple software debug, based on SerialDebug library
+// Attention: this library must be installed too
+// Please open github repo to informations: //https://github.com/JoaoLopesF/RemoteDebugger
 //
 // Example of use:
 //
@@ -100,7 +102,7 @@
 
 #else
 
-#error "For now, RemoteDebug support only boards Espressif, as ESP8266 and ESP32"
+#error "Now RemoteDebug support only boards Espressif, as ESP8266 and ESP32"
 
 #endif // ESP
 
@@ -126,7 +128,7 @@ WebServer HTTPServer(80);
 
 #endif // WEB_SERVER_ENABLED
 
-///// Remote debug over WiFi - not recommended for production/release, only for development
+// Remote debug over WiFi - not recommended for production/release, only for development
 
 // Options for RemoteDebug of this project
 
@@ -134,7 +136,7 @@ WebServer HTTPServer(80);
 //
 // If yot changed it and not works, the compiler is using catching old compiled files
 // To workaround this:
-// - If have a clean project option in IDE (as Eclipse/Platformio), do it
+// - If have a clean project option (as Eclipse/Platformio), do it
 // - or force compiler to compiler all (changing any configuration of board)
 // - or to this change globally in RemoteDebugCfg.h (on library directory)
 // - And upload again
@@ -169,11 +171,14 @@ WebServer HTTPServer(80);
 //#define USE_LIB_WEBSOCKET true
 #endif
 
-// Include libraries
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
 
 #ifndef DEBUG_DISABLED // Only if debug is not disabled (for production/release)
+
+// RemoteDebug addon library: RemoteDebugger, an Simple software debugger - based on SerialDebug Library
+
+#include "RemoteDebugger.h"		//https://github.com/JoaoLopesF/RemoteDebugger
 
 // Instance of RemoteDebug
 
@@ -194,7 +199,32 @@ RemoteDebug Debug;
 // Time
 
 uint32_t mTimeToSec = 0;
-uint32_t mTimeSeconds = 0;
+
+uint8_t mRunSeconds = 0;
+uint8_t mRunMinutes = 0;
+uint8_t mRunHours = 0;
+
+// Globals for example of debugger
+
+boolean mBoolean = false;
+char mChar = 'X';
+byte mByte = 'Y';
+int mInt = 1;
+unsigned int mUInt = 2;
+long mLong = 3;
+unsigned long mULong = 4;
+float mFloat = 5.0f;
+double mDouble = 6.0;
+
+String mString = "This is a string";
+String mStringLarge = "This is a large stringggggggggggggggggggggggggggggggggggggggggggggg";
+
+char mCharArray[] = "This is a char array";
+char mCharArrayLarge[] = "This is a large char arrayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy";
+
+int mIntArray[5] = {1 ,2 ,3, 4, 5};
+
+//const char mCharArrayConst[] = "This is const";
 
 ////// Setup
 
@@ -243,7 +273,7 @@ void setup() {
 #endif
 
 #ifndef DEBUG_DISABLED
-	MDNS.addService("telnet", "tcp", 23); // Telnet server of RemoteDebug, register as telnet
+	MDNS.addService("telnet", "tcp", 23);// Telnet server RemoteDebug
 #endif
 
 #endif // MDNS
@@ -266,7 +296,7 @@ void setup() {
 
 	Debug.begin(HOST_NAME); // Initialize the WiFi server
 
-	//Debug.setPassword("r3m0t0."); // Password for WiFi client connection (telnet or webapp)  ?
+	//Debug.setPassword("r3m0t0."); // Password on telnet connection ?
 
 	Debug.setResetCmdEnabled(true); // Enable the reset command
 
@@ -283,6 +313,112 @@ void setup() {
 
 	Debug.setHelpProjectsCmds(helpCmd);
 	Debug.setCallBackProjectCmds(&processCmdRemoteDebug);
+
+	// Init the simple software debugger, based on SerialDebug library
+
+#ifndef DEBUG_DISABLE_DEBUGGER
+
+	Debug.initDebugger(debugGetDebuggerEnabled, debugHandleDebugger, debugGetHelpDebugger, debugProcessCmdDebugger); // Set the callbacks
+
+	debugInitDebugger(&Debug); // Init the debugger
+
+    // Add Functions and global variables to RemoteDebuggger
+
+    // Notes: descriptions is optionals
+
+    // Add functions that can called from SerialDebug
+
+    if (debugAddFunctionVoid("benchInt", &benchInt) >= 0) {
+    	debugSetLastFunctionDescription("To run a benchmark of integers");
+    }
+    if (debugAddFunctionVoid("benchFloat", &benchFloat) >= 0) {
+    	debugSetLastFunctionDescription("To run a benchmark of float");
+    }
+    if (debugAddFunctionVoid("benchGpio", &benchGpio) >= 0) {
+    	debugSetLastFunctionDescription("To run a benchmark of Gpio operations");
+    }
+    if (debugAddFunctionVoid("benchAll", &benchAll) >= 0) {
+    	debugSetLastFunctionDescription("To run all benchmarks");
+    }
+
+    if (debugAddFunctionStr("funcArgStr", &funcArgStr) >= 0) {
+    	debugSetLastFunctionDescription("To run with String arg");
+    }
+    if (debugAddFunctionChar("funcArgChar", &funcArgChar) >= 0) {
+    	debugSetLastFunctionDescription("To run with Character arg");
+    }
+    if (debugAddFunctionInt("funcArgInt", &funcArgInt) >= 0) {
+    	debugSetLastFunctionDescription("To run with Integer arg");
+    }
+
+    // Add global variables that can showed/changed from SerialDebug
+    // Note: Only global, if pass local for SerialDebug, can be dangerous
+
+    if (debugAddGlobalUInt8_t("mRunSeconds", &mRunSeconds) >= 0) {
+    	debugSetLastGlobalDescription("Seconds of run time");
+    }
+    if (debugAddGlobalUInt8_t("mRunMinutes", &mRunMinutes) >= 0) {
+    	debugSetLastGlobalDescription("Minutes of run time");
+    }
+    if (debugAddGlobalUInt8_t("mRunHours", &mRunHours) >= 0) {
+    	debugSetLastGlobalDescription("Hours of run time");
+    }
+
+    // Note: easy way, no descriptions ....
+
+    debugAddGlobalBoolean("mBoolean", 	&mBoolean);
+    debugAddGlobalChar("mChar", 		&mChar);
+    debugAddGlobalByte("mByte", 		&mByte);
+    debugAddGlobalInt("mInt", 			&mInt);
+    debugAddGlobalUInt("mUInt", 		&mUInt);
+    debugAddGlobalLong("mLong", 		&mLong);
+    debugAddGlobalULong("mULong", 		&mULong);
+    debugAddGlobalFloat("mFloat", 		&mFloat);
+    debugAddGlobalDouble("mDouble", 	&mDouble);
+
+    debugAddGlobalString("mString", 	&mString);
+
+    // Note: For char arrays, not use the '&'
+
+    debugAddGlobalCharArray("mCharArray", mCharArray);
+
+    // Note, here inform to show only 20 characteres of this string or char array
+
+    debugAddGlobalString("mStringLarge", &mStringLarge, 20);
+
+    debugAddGlobalCharArray("mCharArrayLarge",
+    									mCharArrayLarge, 20);
+
+    // For arrays, need add for each item (not use loop for it, due the name can not by a variable)
+    // Notes: Is good added arrays in last order, to help see another variables
+    //        In next versions, we can have a helper to do it in one command
+
+	debugAddGlobalInt("mIntArray[0]", 	&mIntArray[0]);
+	debugAddGlobalInt("mIntArray[1]", 	&mIntArray[1]);
+	debugAddGlobalInt("mIntArray[2]", 	&mIntArray[2]);
+	debugAddGlobalInt("mIntArray[3]",	&mIntArray[3]);
+	debugAddGlobalInt("mIntArray[4]",	&mIntArray[4]);
+
+    // Add watches for some global variables
+    // Note: watches can be added/changed in serial monitor too
+
+	// Watch -> mBoolean when changed (put 0 on value)
+
+	debugAddWatchBoolean("mBoolean", DEBUG_WATCH_CHANGED, 0);
+
+	// Watch -> mRunSeconds == 10
+
+	debugAddWatchUInt8_t("mRunSeconds", DEBUG_WATCH_EQUAL, 10);
+
+	// Watch -> mRunMinutes > 3
+
+	debugAddWatchUInt8_t("mRunMinutes", DEBUG_WATCH_GREAT, 3);
+
+	// Watch -> mRunMinutes == mRunSeconds (just for test)
+
+	debugAddWatchCross("mRunMinutes", DEBUG_WATCH_EQUAL, "mRunSeconds");
+
+#endif
 
 	// End of setup - show IP
 
@@ -310,7 +446,6 @@ void loop() {
 	uint32_t timeBeginLoop = millis();
 #endif
 
-
 	// Each second
 
 	if (millis() >= mTimeToSec) {
@@ -319,7 +454,21 @@ void loop() {
 
 		mTimeToSec = millis() + 1000;
 
-		mTimeSeconds++;
+		// Count run time (just a test - for real suggest the TimeLib and NTP, if board have WiFi)
+
+		mRunSeconds++;
+
+		if (mRunSeconds == 60) {
+			mRunMinutes++;
+			mRunSeconds = 0;
+		}
+		if (mRunMinutes == 60) {
+			mRunHours++;
+			mRunMinutes = 0;
+		}
+		if (mRunHours == 24) {
+			mRunHours = 0;
+		}
 
 		// Blink the led
 
@@ -329,9 +478,9 @@ void loop() {
 
 		// Debug the time (verbose level)
 
-		debugV("* Time: %u seconds (VERBOSE)", mTimeSeconds);
+		debugV("* Time: %u seconds (VERBOSE)", mRunSeconds);
 
-		if (mTimeSeconds % 5 == 0) { // Each 5 seconds
+		if (mRunSeconds % 5 == 0) { // Each 5 seconds
 
 			// Debug levels
 
@@ -350,8 +499,8 @@ void loop() {
 
 			if (Debug.isActive(Debug.VERBOSE)) {
 
-				debugV("Calling a foo function");
-				debugV("At time of %d sec.\n", mTimeSeconds);
+				Debug.println("Calling a foo function");
+				Debug.printf("At time of %d sec.\n", mRunSeconds);
 
 				// Call a function
 
@@ -377,7 +526,7 @@ void loop() {
 #endif
 
 #ifndef DEBUG_DISABLED
-	// RemoteDebug handle (for WiFi connections)
+	// Remote debug over telnet
 
 	Debug.handle();
 #endif
@@ -459,6 +608,116 @@ void processCmdRemoteDebug() {
 	}
 }
 #endif
+
+////// Benchmarks - simple
+
+// Note: how it as called by SerialDebug, must be return type void and no args
+// Note: Flash F variables is not used during the tests, due it is slow to use in loops
+
+#define BENCHMARK_EXECS 10000
+
+// Simple benckmark of integers
+
+void benchInt() {
+
+	int test = 0;
+
+	for (int i = 0; i < BENCHMARK_EXECS; i++) {
+
+		// Some integer operations
+
+		test++;
+		test += 2;
+		test -= 2;
+		test *= 2;
+		test /= 2;
+	}
+
+	// Note: Debug always is used here
+
+	debugA("*** Benchmark of integers. %u exec.", BENCHMARK_EXECS);
+
+}
+
+// Simple benckmark of floats
+
+void benchFloat() {
+
+	float test = 0;
+
+	for (int i = 0; i < BENCHMARK_EXECS; i++) {
+
+		// Some float operations
+
+		test++;
+		test += 2;
+		test -= 2;
+		test *= 2;
+		test /= 2;
+	}
+
+	// Note: Debug always is used here
+
+	debugA("*** Benchmark of floats, %u exec.", BENCHMARK_EXECS);
+
+}
+
+// Simple benckmark of GPIO
+
+void benchGpio() {
+
+//	const int execs = (BENCHMARK_EXECS / 10); // Reduce it
+	const int execs = BENCHMARK_EXECS;
+
+	for (int i = 0; i < execs; i++) {
+
+		// Some GPIO operations
+
+		digitalWrite(LED_BUILTIN, HIGH);
+		digitalRead(LED_BUILTIN);
+		digitalWrite(LED_BUILTIN, LOW);
+
+		analogRead(A0);
+		analogRead(A0);
+		analogRead(A0);
+
+	}
+
+	// Note: Debug always is used here
+
+	debugA("*** Benchmark of GPIO. %u exec.", execs);
+
+}
+
+// Run all benchmarks
+
+void benchAll() {
+
+	benchInt();
+	benchFloat();
+	benchGpio();
+
+	// Note: Debug always is used here
+
+	debugA("*** All Benchmark done.");
+
+}
+
+// Example functions with argument (only 1) to call from serial monitor
+// Note others types is not yet available in this version of SerialDebug
+
+void funcArgStr (String str) {
+
+	debugA("*** called with arg.: %s", str.c_str());
+}
+void funcArgChar (char character) {
+
+	debugA("*** called with arg.: %c", character);
+}
+void funcArgInt (int number) {
+
+	debugA("*** called with arg.: %d", number);
+}
 
 ////// WiFi
 

@@ -1,80 +1,44 @@
 /*
  * Header for RemoteDebug
  *
- * Copyright (C) 2018  Joao Lopes https://github.com/JoaoLopesF/RemoteDebug
+ * MIT License
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Copyright (c) 2019 Joao Lopes
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * This header file describes the public API for sending debug messages to a telnet client.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
  *
  */
 
 #ifndef REMOTEDEBUG_H
 #define REMOTEDEBUG_H
+#pragma once
 
-///// Debug disable for compile to production/release
-///// as nothing of RemotedDebug is compiled, zero overhead :-)
-//#define DEBUG_DISABLED true // Uncomment if the IDE did not recognize, to force it
+///// RemoteDebug configuration
+
+#include "RemoteDebugCfg.h"
+
+// Debug enabled ?
 
 #ifndef DEBUG_DISABLED
 
 //////// Defines
-
-// Port for telnet server (now can be defined in project too - 17/08/18)
-// Can be by project, just define it before include this file
-
-#ifndef TELNET_PORT
-#define TELNET_PORT 23
-#endif
-
-///// Websocket server to support debug over web browser (RemoteDebugApp)
-// Uncomment this to disable it
-
-//#define WEBSOCKET_DISABLED true
-
-// Simple password request - left commented if not need this - 18/07/18
-// Notes:
-// It is very simple feature, only text, no cryptography,
-// and the password is echoed in screen (I not discovery yet how disable it)
-// telnet use advanced authentication (kerberos, etc.)
-// Such now as RemoteDebug now is not for production releases,
-// this kind of authentication will not be done now.
-// Can be by project, just call setPassword method
-
-#define REMOTEDEBUG_PWD_ATTEMPTS 3
-
-// Maximum time for inactivity (em milliseconds)
-// Default: 10 minutes
-// Comment it if you not want this
-// Can be by project, just define it before include this file
-
-#ifndef MAX_TIME_INACTIVE
-#define MAX_TIME_INACTIVE 600000
-#endif
-
-// Buffered print write to telnet -> length of buffer
-// Can be by project, just define it before include this file
-
-#ifndef BUFFER_PRINT
-#define BUFFER_PRINT 150
-#endif
-
-// Should the help text be displayed on connection.
-// Enabled by default
-
-#ifndef SHOW_HELP
-#define SHOW_HELP true
-#endif
 
 // New color system (comment this to return to old system) - 2019-02-27
 
@@ -126,30 +90,6 @@
 #define COLOR_RAW		COLOR_WHITE // COLOR_MAGENTA
 #endif
 
-// Buffering (sends in interval of time to avoid ESP misterious delays)
-
-#define CLIENT_BUFFERING true
-
-#ifdef CLIENT_BUFFERING
-#define DELAY_TO_SEND 10 // Time to send buffer
-#define MAX_SIZE_SEND 1460 // Maximum size of packet (limit of TCP/IP)
-#endif
-
-// Enable if you test features yet in development
-
-//#define ALPHA_VERSION true
-
-// Debugger support enabled ?
-// Comment this to disable it
-#define DEBUGGER_ENABLED true
-#ifdef DEBUGGER_ENABLED
-#define DEBUGGER_HANDLE_TIME 850 // Interval to call handle of debugger - equal to implemented in debugger
-
-// App have debugger elements on screen ?
-// Note: app not have it yet
-//#define DEBUGGER_SEND_INFO true
-#endif
-
 //////// Includes
 
 #include "Arduino.h"
@@ -173,8 +113,7 @@
 
 ////// Shortcuts macros
 
-// Disable auto function for debug macros? (uncomment this if not want this)
-//#define DEBUG_DISABLE_AUTO_FUNC true
+// Auto function for debug macros?
 
 #ifndef DEBUG_DISABLE_AUTO_FUNC // With auto func
 
@@ -381,7 +320,7 @@ private:
 
 	boolean _connected = false;			// Client is connected ?
 
-	String _password = "";				// Password for telnet
+	String _password = "";				// Password
 
 	boolean _passwordOk = false; 		// Password request ? - 18/07/18
 	uint8_t _passwordAttempt = 0;
@@ -389,7 +328,7 @@ private:
 	boolean _silence = false;			// Silence mode ?
 	uint32_t _silenceTimeout = 0;		// Silence timeout
 
-	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in telnet
+	uint8_t _clientDebugLevel = DEBUG;	// Level setted by user in web app or telnet client
 	uint8_t _lastDebugLevel = DEBUG;	// Last Level setted by active()
 
 	uint32_t _lastTimePrint = millis(); // Last time print a line
@@ -411,7 +350,7 @@ private:
 
 	boolean _serialEnabled = false;		// Send to serial too (not recommended)
 
-	boolean _resetCommandEnabled=false;	// Command in telnet to reset ESP8266
+	boolean _resetCommandEnabled=false;	// Enable command to reset the board
 
 	boolean _newLine = true;			// New line write ?
 
@@ -425,10 +364,10 @@ private:
 	String _filter = "";				// Filter
 	boolean _filterActive = false;
 
-	String _bufferPrint = "";			// Buffer of print write to telnet
+	String _bufferPrint = "";			// Buffer of print write to WiFi
 
 #ifdef CLIENT_BUFFERING
-	String _bufferSend = "";			// Buffer to send data to telnet
+	String _bufferSend = "";			// Buffer to send data to web app or telnet client
 	uint16_t _sizeBufferSend = 0;		// Size of it
 	uint32_t _lastTimeSend = 0;			// Last time command send data
 #endif
