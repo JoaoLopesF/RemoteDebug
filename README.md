@@ -106,7 +106,7 @@ Please add an issue for problems or suggestion.
     It is updated with lastest version of web app,
     after it is publised in web server: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp/).
     Download it, for use when internet is offline.
-    As is a local copy, the app will check for new versions periodically.
+    As it is a local copy, the app will check for new versions periodically.
 
   - An HTML5 web app to use for debugging in web browser, instead telnet client,
     that uses web socket to comunicate.
@@ -288,6 +288,14 @@ But you can use anothers, as Chrome, Edge, Firefox.
 
 The web app is in beta, please add an issue,
 for problems or suggestions.
+
+Now have another repository, [RemoteDebugApp](https://github.com/JoaoLopesF/RemoteDebugApp)
+It is for local copy of web app in internet.
+It is updated with lastest version of web app,
+after it is publised in web server: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp/).
+Download it, for use when internet is offline.
+As it is a local copy, the app will check for new versions periodically,
+for you can download a new version.
 
 The telnet remains work, for when want this,
 or for fails on web app.
