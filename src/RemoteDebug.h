@@ -195,7 +195,7 @@
 #define debugI(fmt, ...) rdebugIln(fmt, ##__VA_ARGS__)
 #define debugW(fmt, ...) rdebugWln(fmt, ##__VA_ARGS__)
 #define debugE(fmt, ...) rdebugEln(fmt, ##__VA_ARGS__)
-#define debugA(fmt, ...) rdebugVln(fmt, ##__VA_ARGS__)
+#define debugA(fmt, ...) rdebugAln(fmt, ##__VA_ARGS__)
 
 #define debugHandle() Debug.handle()
 

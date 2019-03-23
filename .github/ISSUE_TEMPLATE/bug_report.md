@@ -20,7 +20,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Arduino Information:**
- - OS: [e.g. Windows, MacOSX, Linux]
+ - OS: [e.g. Windows, MacOS, Linux]
  - IDE [e.g. Arduino IDE, Eclipse, VSCode]
  - IDE Version [e.g. 1.8.6]
  - Board [e.g ESP32]
