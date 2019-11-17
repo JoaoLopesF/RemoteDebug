@@ -42,12 +42,12 @@ with Print commands like Serial Monitor.
 By default the Arduino only has as debug possibility via the Serial port.
 This has a few disadvantages:
 
-- requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
+- it requires a physical cable to the Arduino device (if the device is far away or in a remote location this is not easy)
 - debugging multiple Arduinos at the same time requires many serial ports and a lot of cables
 
 With the ESP8266 (NodeMCU) or ESP32 we now have network connectivity (WiFi) which can be used for streaming debugging information in real-time.
 
-This library is good for IoT projects, home automation, mobile robots (can debug it in moviment with a cable ?) or
+This library is good for IoT projects, home automation, mobile robots (when they are moving, can you debug them with a cable?) or
 another WiFi projects.
 
 In fact, this library was born of a need to debug an IoT project of home automation.
@@ -62,13 +62,13 @@ See it in:  [MiP_ESP8266_Library](https://github.com/Tiogaplanet/MiP_ESP8266_Lib
 __RemoteDebug__ is improved with client buffering (is last send is <= 10ms),
 to avoid mysterious delays of WiFi networking on ESP32 and ESP8266 boards
 
-Note: If your project not use WiFi, you can use my another library,
+Note: If your project don't use WiFi, you can use my other library,
 the __[SerialDebug](https://github.com/JoaoLopesF/SerialDebug)__ library, 
 this library works with any Arduino board.
 
-Note II: __RemoteDebug__ library is now only to Espressif boards, as ESP32 and ESP8266,
-If need for another WiFi boards, please add an issue about this
-and we will see if it is possible made the port for your board.
+Note II: __RemoteDebug__ library works only on Espressif boards, such as ESP32 and ESP8266,
+If you need to make it work with another WiFi boards, please add an issue about this
+and we will see if it is possible.
 
 ## How it looks
 
@@ -93,9 +93,9 @@ Youtube (3 telnet connections with RemoteDebug) v1:
 Contribute to this library development by creating an account on GitHub.
 
 Please give a star, if you find this library useful,
-this help an another people, discover it too.
+this help other people to discover it.
 
-Please add an issue for problems or suggestion.
+Don't hesitate to add an issue or to request a new feature.
 
 ## News
 
@@ -115,7 +115,7 @@ Please add an issue for problems or suggestion.
     to support the RemoteDebugApp connection.
 
   - RemoteDebugApp is in beta,
-    if you have any problems or suggestions, please add issue about this.
+    if you have any problems or suggestions, please add an issue about this.
 
   - The telnet connection remains, to any want this,
     or to internet offline uses.
