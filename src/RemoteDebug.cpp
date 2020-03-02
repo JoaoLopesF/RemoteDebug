@@ -576,8 +576,9 @@ void RemoteDebug::handle() {
 		if (_password != "" && !_passwordOk) { // Request password - 18/08/08
 			maxTime = 60000; // One minute to password
 		}
+		else maxTime = connectionTimeout; // When password is ok set normal timeout
 
-		if ((millis() - _lastTimeCommand) > maxTime) {
+		if ((maxTime > 0) && ((millis() - _lastTimeCommand) > maxTime)) {
 
 			debugPrintln("* Closing session by inactivity");
 
@@ -1194,7 +1195,7 @@ size_t RemoteDebug::write(uint8_t character) {
 		if (noPrint == false) {
 
 #ifdef COLOR_NEW_SYSTEM
-			_bufferPrint.concat(COLOR_RESET);
+			if (_showColors) _bufferPrint.concat(COLOR_RESET);
 #endif
 			// Send to telnet or websocket (buffered)
 
@@ -1326,6 +1327,7 @@ void RemoteDebug::showHelp() {
 	help.concat("    s -> set debug silence on/off\r\n");
 	help.concat("    l -> show debug level\r\n");
 	help.concat("    t -> show time (millis)\r\n");
+	help.concat("    timeout -> set connection timeout (sec, 0 = disabled)\r\n");
 	help.concat("    profiler:\r\n");
 	help.concat(
 			"      p      -> show time between actual and last message (in millis)\r\n");
@@ -1616,6 +1618,20 @@ void RemoteDebug::processCommand() {
 		_showTime = !_showTime;
 
 		debugPrintf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
+
+	} else if (_command.startsWith("timeout")) {
+
+		// Set or get connection timeout
+
+		if (options.length() > 0) { // With minimal time
+			if ((options.toInt() >= 60) || (options.toInt() == 0)) {
+				connectionTimeout = options.toInt() * 1000;
+			}
+			else {
+				debugPrintf("* Connection Timeout must be minimal 60 seconds.\r\n");
+			}
+		}
+		debugPrintf("* Connection Timeout: %d seconds (0=disabled)\r\n", connectionTimeout/1000);
 
 	} else if (_command == "s") {
 

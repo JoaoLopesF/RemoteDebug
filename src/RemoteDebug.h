@@ -353,6 +353,8 @@ private:
 	boolean _resetCommandEnabled=false;	// Enable command to reset the board
 
 	boolean _newLine = true;			// New line write ?
+	
+	uint32_t connectionTimeout = MAX_TIME_INACTIVE;  // Connection Timeout
 
 	String _command = "";				// Command received
 	String _lastCommand = "";			// Last Command received
