@@ -260,7 +260,7 @@ bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLe
 	if (port != TELNET_PORT) { // Bug: not more can use begin(port)..
 	    return false;
 	}
-	
+
 	TelnetServer.begin();
 	TelnetServer.setNoDelay(true);
 
@@ -1517,7 +1517,7 @@ void RemoteDebug::processCommand() {
 	// Send status to app
 
 	if (_connectedWS) {
-		DebugWS.printf("$app:M:%lu:\n", free);
+		DebugWS.printf("$app:M:%du:\n", free);
 	}
 
 #endif
@@ -1928,7 +1928,7 @@ void RemoteDebug::wsSendInfo() {
 #endif
 
 		DebugWS.println(); // Workaround to not get dirty "[0m" ???
-		DebugWS.printf("$app:V:%s:%s:%c:%lu:%c:N\n", version.c_str(), board.c_str(), features, getFreeMemory(), dbgEnabled);
+		DebugWS.printf("$app:V:%s:%s:%c:%du:%c:N\n", version.c_str(), board.c_str(), features, getFreeMemory(), dbgEnabled);
 
 		// Status of debug level
 
