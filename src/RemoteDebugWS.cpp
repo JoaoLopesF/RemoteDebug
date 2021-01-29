@@ -230,8 +230,8 @@ RemoteDebugWS::~RemoteDebugWS() {
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t payloadlength) { // When a WebSocket message is received
 
-	int blk_count = 0;
-	char ipaddr[26];
+	// int blk_count = 0;
+	// char ipaddr[26];
 	IPAddress localip;
 
 	switch (type) {
