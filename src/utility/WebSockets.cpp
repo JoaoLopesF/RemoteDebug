@@ -39,10 +39,14 @@ extern "C" {
 #ifdef ESP8266
 #include <Hash.h>
 #elif defined(ESP32)
-#ifdef ESP_ARDUINO_VERSION             // defined since arduino-esp32 v2.0.0
+#ifdef ESP_ARDUINO_VERSION                                  // defined since arduino-esp32 v2.0.0
+#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 0) // check version in case ESP_ARDUINO_VERSION is backported to 1.x
 #include <sha/sha_parallel_engine.h>  
 #else
-#include <hwcrypto/sha.h>              // removed in arduino-esp32 v2.0.0
+#include <hwcrypto/sha.h>                                   // removed in arduino-esp32 v2.0.0
+#endif
+#else
+#include <hwcrypto/sha.h>                                   // removed in arduino-esp32 v2.0.0
 #endif
 #else
 
