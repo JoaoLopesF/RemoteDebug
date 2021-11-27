@@ -39,7 +39,11 @@ extern "C" {
 #ifdef ESP8266
 #include <Hash.h>
 #elif defined(ESP32)
-#include <hwcrypto/sha.h>
+#ifdef ESP_ARDUINO_VERSION             // defined since arduino-esp32 v2.0.0
+#include <sha/sha_parallel_engine.h>  
+#else
+#include <hwcrypto/sha.h>              // removed in arduino-esp32 v2.0.0
+#endif
 #else
 
 extern "C" {
