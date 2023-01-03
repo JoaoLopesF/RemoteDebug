@@ -39,7 +39,11 @@ extern "C" {
 #ifdef ESP8266
 #include <Hash.h>
 #elif defined(ESP32)
-#include <esp32/sha.h>
+#if ESP_IDF_VERSION_MAJOR > 3  // ESP_IDF_VERSION_MINOR
+#include <sha/sha_parallel_engine.h>
+#else
+#include <hwcrypto/sha.h>
+#endif
 #else
 
 extern "C" {
